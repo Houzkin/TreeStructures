@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TreeStructure", "src\TreeStructure\TreeStructure.csproj", "{FEF47A71-F4A2-4982-A27F-8D47776ED1F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProgram", "TestProgram\TestProgram.csproj", "{B69ED533-345A-45A5-8A34-198B93A65111}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEF47A71-F4A2-4982-A27F-8D47776ED1F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEF47A71-F4A2-4982-A27F-8D47776ED1F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEF47A71-F4A2-4982-A27F-8D47776ED1F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEF47A71-F4A2-4982-A27F-8D47776ED1F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B69ED533-345A-45A5-8A34-198B93A65111}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B69ED533-345A-45A5-8A34-198B93A65111}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B69ED533-345A-45A5-8A34-198B93A65111}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B69ED533-345A-45A5-8A34-198B93A65111}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0AF4B515-F143-444B-9EA7-2065C91879FD}
+	EndGlobalSection
+EndGlobal
