@@ -8,11 +8,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.EventManagement;
-using TreeStructure.Internals;
-using TreeStructure.Linq;
+using TreeStructures.EventManagement;
+using TreeStructures.Internals;
+using TreeStructures.Linq;
 
-namespace TreeStructure.Collections {
+namespace TreeStructures.Collections {
     /// <summary>連動するコレクションを提供する</summary>
     public abstract class ImitableCollection : INotifyPropertyChanged, INotifyCollectionChanged, IDisposable {
         protected readonly IEnumerable<object> _source;

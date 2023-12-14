@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure {
+namespace TreeStructures {
 
     /// <summary>ノードをたどる道筋を定義する。</summary>
     /// <typeparam name="T">各ノードが示す型</typeparam>

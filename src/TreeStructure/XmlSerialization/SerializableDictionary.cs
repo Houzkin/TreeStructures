@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Xml;
 
-namespace TreeStructure.Xml.Serialization {
+namespace TreeStructures.Xml.Serialization {
 
     /// <summary>シリアライズ可能な<see cref="Dictionary{TKey, TValue}"/>を提供する。</summary>
     /// <typeparam name="TKey">キーの型</typeparam>

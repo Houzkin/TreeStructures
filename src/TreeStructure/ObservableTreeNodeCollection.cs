@@ -7,10 +7,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.EventManagement;
-using TreeStructure.Linq;
+using TreeStructures.EventManagement;
+using TreeStructures.Linq;
 
-namespace TreeStructure {
+namespace TreeStructures {
     /// <summary>観測可能な多分木構造をなすノードを表す</summary>
     /// <typeparam name="TNode">各ノードの共通基底クラスとなる型</typeparam>
     [Serializable]

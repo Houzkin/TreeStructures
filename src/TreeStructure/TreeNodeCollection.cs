@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure {
+namespace TreeStructures {
     /// <summary>多分木構造をなすノードを表す</summary>
     /// <typeparam name="TNode">各ノードの共通基底クラスとなる型</typeparam>
     [Serializable]

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure {
+namespace TreeStructures {
     /// <summary>ツリー構造をなすノードをラップする</summary>
     /// <remarks><inheritdoc/></remarks>
     /// <typeparam name="TSrc">ラップされるノード</typeparam>

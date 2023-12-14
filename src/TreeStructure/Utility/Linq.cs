@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Collections;
-using TreeStructure.Internals;
+using TreeStructures.Collections;
+using TreeStructures.Internals;
 
-namespace TreeStructure.Linq {
+namespace TreeStructures.Linq {
     /// <summary>Linqの拡張メソッド</summary>
     public static class LinqExtensions {
         /// <summary>読取専用</summary>

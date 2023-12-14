@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure.Utility {
+namespace TreeStructures.Utility {
 
     ///// <summary>文字列に対する、TryParseパターンによって処理されるメソッドを表す。</summary>
     ///// <typeparam name="TValue">出力値の型</typeparam>

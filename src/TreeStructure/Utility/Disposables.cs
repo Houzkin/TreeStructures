@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure.Internals;
+namespace TreeStructures.Internals;
 
 internal class DisposableObject : IDisposable {
     Action? _disp;

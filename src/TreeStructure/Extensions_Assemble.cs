@@ -5,10 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Collections;
-using TreeStructure.Linq;
+using TreeStructures.Collections;
+using TreeStructures.Linq;
 
-namespace TreeStructure {
+namespace TreeStructures {
 
     // ツリー構造の組み立てを行うメソッドを提供する。
     public static partial class TreeNodeExtenstions {
@@ -53,7 +53,7 @@ namespace TreeStructure {
         #region NodeIndexから組み立て
         private static T _assemble<T>(IEnumerable<Tuple<NodeIndex, T>> dic, Action<T, T> addAction) {
             //var seq = dic.OrderBy(x => x.Item1, TreeStructure.NodeIndex.GetPostorderComparer());
-            var vst = dic.OrderBy(x => x.Item1, TreeStructure.NodeIndex.GetPostorderComparer())
+            var vst = dic.OrderBy(x => x.Item1, TreeStructures.NodeIndex.GetPostorderComparer())
                 .ToSequenceScroller();// new ElementScroller<Tuple<NodeIndex, T>>(seq);
             foreach (var tr in vst.GetSequence()) {
                 vst.MoveTo(tr)

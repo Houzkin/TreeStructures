@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure.EventManagement {
+namespace TreeStructures.EventManagement {
     /// <summary>Disposeで購読解除を可能にするイベントリスナー</summary>
     /// <typeparam name="THandler">イベントハンドラーの型</typeparam>
     public class EventListener<THandler> : IDisposable where THandler : class {

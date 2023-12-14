@@ -7,14 +7,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Utility;
-using TreeStructure.Collections;
+using TreeStructures.Utility;
+using TreeStructures.Collections;
 using System.Runtime.CompilerServices;
 using System.Buffers;
-using TreeStructure.Internals;
+using TreeStructures.Internals;
 using System.Text.Json;
 
-namespace TreeStructure.EventManagement {
+namespace TreeStructures.EventManagement {
 
     /// <summary>
     /// 再帰的、または重複する処理を無視する

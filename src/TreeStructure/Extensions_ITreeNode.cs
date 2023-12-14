@@ -5,11 +5,11 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using TreeStructure.Collections;
-using TreeStructure.Utility;
-using TreeStructure.Xml.Serialization;
+using TreeStructures.Collections;
+using TreeStructures.Utility;
+using TreeStructures.Xml.Serialization;
 
-namespace TreeStructure {
+namespace TreeStructures {
 
     // IReadOnlyTreeNodeに対する拡張メソッドを定義する。
     public static partial class TreeNodeExtenstions {

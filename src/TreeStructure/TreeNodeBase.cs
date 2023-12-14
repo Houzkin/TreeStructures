@@ -8,9 +8,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Linq;
+using TreeStructures.Linq;
 
-namespace TreeStructure {
+namespace TreeStructures {
     /// <summary>ツリー構造をなすノードを表す。</summary>
     /// <typeparam name="TNode">各ノードの共通基本クラスとなる型</typeparam>
     [Serializable]

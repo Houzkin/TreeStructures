@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure.Collections {
+namespace TreeStructures.Collections {
 
     /// <summary>シーケンスの巡回をサポートする。</summary>
     /// <typeparam name="T">要素の型</typeparam>

@@ -10,10 +10,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
-using TreeStructure.Collections;
-using TreeStructure.EventManagement;
+using TreeStructures.Collections;
+using TreeStructures.EventManagement;
 
-namespace TreeStructure {
+namespace TreeStructures {
     /// <summary>Compositeパターンをツリー構造としてラップする</summary>
     /// <remarks>参照は子孫方向へのみ広がります。</remarks>
     /// <typeparam name="TSrc">Compositeパターンをなす型</typeparam>

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Utility;
+using TreeStructures.Utility;
 
-namespace TreeStructure;
+namespace TreeStructures;
 
 /// <summary>
 /// ツリー構造を成すオブジェクトに対する拡張メソッドを定義する。

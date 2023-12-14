@@ -10,12 +10,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using TreeStructure.Collections;
-using TreeStructure.EventManagement;
-using TreeStructure.Internals;
-using TreeStructure.Utility;
+using TreeStructures.Collections;
+using TreeStructures.EventManagement;
+using TreeStructures.Internals;
+using TreeStructures.Utility;
 
-namespace TreeStructure.Tree {
+namespace TreeStructures.Tree {
     /// <summary>
     /// 
     /// </summary>

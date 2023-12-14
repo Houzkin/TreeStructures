@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Utility;
+using TreeStructures.Utility;
 
-namespace TreeStructure.Collections {
+namespace TreeStructures.Collections {
 
     /// <summary>
     /// 要素の巡回操作の拡張メソッドを提供する。

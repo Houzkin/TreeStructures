@@ -6,10 +6,10 @@ using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Internals;
-using TreeStructure.Utility;
+using TreeStructures.Internals;
+using TreeStructures.Utility;
 
-namespace TreeStructure.EventManagement {
+namespace TreeStructures.EventManagement {
     /// <summary><see cref="IObservableTreeNode{TNode}"/>の変更イベントを制御する</summary>
     /// <typeparam name="TNode"></typeparam>
     public sealed class StructureChangedEventExecutor<TNode> : UniqueOperationExecutor where TNode: class, IObservableTreeNode<TNode> {

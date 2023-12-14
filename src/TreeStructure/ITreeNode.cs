@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using TreeStructure.EventManagement;
-namespace TreeStructure {
+using TreeStructures.EventManagement;
+namespace TreeStructures {
 
     /// <summary>ツリー構造を提供する。</summary>
     /// <typeparam name="TNode">各ノードの型</typeparam>

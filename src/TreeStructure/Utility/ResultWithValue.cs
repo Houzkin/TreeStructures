@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure.Utility {
+namespace TreeStructures.Utility {
     //public interface IResultWithValue<TValue> {
     //    bool Result { get; }
     //    TValue Value { get; }

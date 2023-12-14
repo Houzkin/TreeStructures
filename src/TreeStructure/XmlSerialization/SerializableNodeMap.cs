@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using TreeStructure.Xml.Serialization;
+using TreeStructures.Xml.Serialization;
 
-namespace TreeStructure.Xml.Serialization {
+namespace TreeStructures.Xml.Serialization {
     /// <summary><see cref="XmlSerializer"/>によってシリアライズ・デシリアライズ可能な、各ノードのインデックスとそのデータの組を表す。</summary>
     /// <typeparam name="T">シリアライズ・デシリアライズを行う型</typeparam>
     public class SerializableNodeMap<T> : ReadOnlyDictionary<NodeIndex, T>, IXmlSerializable {

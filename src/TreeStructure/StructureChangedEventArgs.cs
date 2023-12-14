@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure {
+namespace TreeStructures {
 
 
     /// <summary>祖先ノードが追加または削除されたときのイベントにデータを提供する。</summary>
