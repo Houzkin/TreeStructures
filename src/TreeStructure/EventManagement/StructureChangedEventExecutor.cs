@@ -9,15 +9,19 @@ using System.Threading.Tasks;
 using TreeStructure.Internals;
 using TreeStructure.Utility;
 
-namespace TreeStructure.EventManager {
-    public sealed class StructureChangedEventManager<TNode> : UniqueOperationExecutor where TNode: class, IObservableTreeNode<TNode> {
-        public StructureChangedEventManager(TNode self):base() {
+namespace TreeStructure.EventManagement {
+    /// <summary><see cref="IObservableTreeNode{TNode}"/>の変更イベントを制御する</summary>
+    /// <typeparam name="TNode"></typeparam>
+    public sealed class StructureChangedEventExecutor<TNode> : UniqueOperationExecutor where TNode: class, IObservableTreeNode<TNode> {
+        /// <summary>新規インスタンスを初期化する</summary>
+        /// <param name="self"></param>
+        public StructureChangedEventExecutor(TNode self):base() {
             Self = self;
             preOldAnc = Array.Empty<TNode>();
             initialize();
             this.Register(structureeventkey, () => { });
         }
-        readonly string structureeventkey = "in Library : " + nameof(StructureChangedEventManager<TNode>)+".StructureChanged - Manager";
+        readonly string structureeventkey = "in Library : " + nameof(StructureChangedEventExecutor<TNode>)+".StructureChanged - Manager";
         readonly TNode Self;
         TNode[] preOldAnc;
         int oldIndex;
@@ -133,6 +137,9 @@ namespace TreeStructure.EventManager {
         bool IsChanged => Self.Parent != OldParent ? true : //Parentが異なれば、変化あり
             Self.Parent != null && Self.BranchIndex() != oldIndex ? true ://Parentに変化がなかった場合
             false;
+
+        /// <summary>初回メソッド呼び出し時と戻り値の最後のDispose時でツリー構造に変更があった場合、変更イベントを発行する</summary>
+        /// <returns></returns>
         public IDisposable LateEvaluateTree() {
             var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, structureeventkey).When(
                 o => {

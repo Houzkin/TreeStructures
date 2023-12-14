@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using TreeStructure.Collections;
 using TreeStructure.Utility;
 using TreeStructure.Xml.Serialization;
@@ -32,8 +33,8 @@ namespace TreeStructure {
         /// <param name="updateseeds">展開元の要素、追加された要素、未処理要素を引数にり、未処理要素を更新する。<para>未処理要素は先頭から展開・列挙処理される。</para></param>
         /// <returns></returns>
         public static IEnumerable<T> Evolve<T>(this ITreeNode<T> self, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds) where T : ITreeNode<T> {
-            ISet<T> exphistory = new HashSet<T>();
-            ISet<T> rtnhistory = new HashSet<T>();
+            ISet<T> exphistory = new HashSet<T>();//展開した履歴
+            ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
             IEnumerable<T?> seeds = new T[1] { (T)self };
             while (expand(ref exphistory, out T? cur, ref seeds, getnewseeds, updateseeds)) {
                 if (cur != null && rtnhistory.Add(cur)) yield return cur;
@@ -173,6 +174,8 @@ namespace TreeStructure {
             action?.Invoke((T)self);
             return (T)self;
         }
+        /// <summary>述語の処理により現在のノードから移動しても、処理前のノードへ戻ってくる。</summary>
+        /// <returns>述語の処理を行う前に対象としていたノード</returns>
         public static T Fork<T>(this ITreeNode<T> self, object sentence) where T : ITreeNode<T> {
             //action?.Invoke();
             return (T)self;
@@ -323,6 +326,14 @@ namespace TreeStructure {
 
         #region 探索メソッド
        
+        /// <summary>現在のノードから子孫方向へ順に、各キーが全て一致するノードを探索</summary>
+        /// <typeparam name="T">ノードの型</typeparam>
+        /// <typeparam name="Trc">キー</typeparam>
+        /// <param name="self"></param>
+        /// <param name="selector">各要素からキーを選択する</param>
+        /// <param name="trace">現在のノードから子孫方向へ順に比較するキー</param>
+        /// <param name="comparer"></param>
+        /// <returns>全てのキーが一致したノード</returns>
         public static IEnumerable<T> DescendArrivals<T, Trc>(this ITreeNode<T> self, Func<T, Trc> selector, IEnumerable<Trc> trace, IEqualityComparer<Trc>? comparer = null) where T : ITreeNode<T> {
             comparer ??= EqualityComparer<Trc>.Default;
             var matchs = new SequenceScroller<Trc>(trace);
@@ -343,6 +354,14 @@ namespace TreeStructure {
                     x => seeds.Prepend(cur));
             });
         }
+        /// <summary>現在のノードから子孫方向へ順に、各キーが全て一致するノードを探索し、その経路を返す</summary>
+        /// <typeparam name="T">ノードの型</typeparam>
+        /// <typeparam name="Trc">キー</typeparam>
+        /// <param name="self"></param>
+        /// <param name="selector">各要素からキーを選択する</param>
+        /// <param name="trace">現在のノードから子孫方向へ順に比較するキー</param>
+        /// <param name="comparer"></param>
+        /// <returns>全てのキーが一致したノードへの経路</returns>
         public static IReadOnlyList<IEnumerable<T>> DescendTraces<T,Trc>(this ITreeNode<T> self,Func<T,Trc> selector,IEnumerable<Trc> trace,IEqualityComparer<Trc>? comparer = null) where T : ITreeNode<T> {
             comparer ??= EqualityComparer<Trc>.Default;
             var peak = self.DescendArrivals(selector,trace, comparer);

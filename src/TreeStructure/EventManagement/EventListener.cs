@@ -6,18 +6,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructure.EventManager {
-    
+namespace TreeStructure.EventManagement {
+    /// <summary>Disposeで購読解除を可能にするイベントリスナー</summary>
+    /// <typeparam name="THandler">イベントハンドラーの型</typeparam>
     public class EventListener<THandler> : IDisposable where THandler : class {
         bool _disposed;
         THandler? _handler;
         Action<THandler>? _remove;
+        /// <summary>リスナーを初期化する</summary>
+        /// <param name="add"><code>h => obj.Event += h</code></param>
+        /// <param name="remove"><code>h => obj.Event -= h</code></param>
+        /// <param name="handler">イベントによって実行する処理</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public EventListener([NotNull] Action<THandler> add,[NotNull] Action<THandler> remove,[NotNull] THandler handler) {
             if (add == null) throw new ArgumentNullException(nameof(add));
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
             _remove = remove ?? throw new ArgumentNullException(nameof(remove));
             add(handler);
         }
+        /// <summary></summary>
+        /// <param name="disposing"></param>
         protected void Dispose(bool disposing) {
             if(_disposed) return;
             if (disposing) {
@@ -27,12 +35,23 @@ namespace TreeStructure.EventManager {
             }
             _disposed = true;
         }
+        /// <summary>イベントの購読を解除する</summary>
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
     }
+    /// <summary>
+    /// Disposeで購読解除を可能にするイベントリスナー
+    /// </summary>
+    /// <typeparam name="THandler">登録先のハンドラー</typeparam>
+    /// <typeparam name="TArgs">登録元のハンドラーのイベント引数</typeparam>
     public class EventListener<THandler,TArgs> : EventListener<THandler> where THandler:class {
+        /// <summary></summary>
+        /// <param name="conversion"><typeparamref name="THandler"/>からへ<see cref="EventHandler{TArgs}"/>変換する<code>h => (s, e) => h(s, new OtherEventArgs())</code></param>
+        /// <param name="add"><see cref="EventHandler{TArgs}"/>を登録<code>h => obj.Event += h</code></param>
+        /// <param name="remove"><see cref="EventHandler{TArgs}"/>を解除<code>h => obj.Event -= h</code></param>
+        /// <param name="handler">イベントによって実行する処理</param>
         public EventListener([NotNull] Func<EventHandler<TArgs>,THandler> conversion, [NotNull] Action<THandler> add, [NotNull] Action<THandler> remove, [NotNull] EventHandler<TArgs> handler)
             :base(add,remove,conversion(handler)){
 

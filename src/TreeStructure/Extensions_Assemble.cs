@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -67,10 +68,12 @@ namespace TreeStructure {
         }
         /// <summary>各ノードをキーが示すインデックスをもとに組み立てる。</summary>
         /// <typeparam name="T">ノードの型</typeparam>
+        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
         public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self) where T : ITreeNodeCollection<T> where TKey: IEnumerable<int> {
             return assemble(self, x => x, (p, c) => p.AddChild(c));
         }
         /// <summary>各データをキーが示すインデックスをもとに組み立てる。</summary>
+        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
         /// <typeparam name="T">データの型</typeparam>
         /// <param name="self">現在のオブジェクト</param>
         /// <param name="addAction">追加処理</param>
@@ -78,6 +81,7 @@ namespace TreeStructure {
             return assemble(self, x => x, addAction);
         }
         /// <summary>階層を示すインデックスをもとに、データからノードを生成しつつ組み立てる。</summary>
+        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
         /// <typeparam name="T">データの型</typeparam>
         /// <typeparam name="U">ノードの型</typeparam>
         /// <param name="self">現在のオブジェクト</param>
@@ -88,6 +92,7 @@ namespace TreeStructure {
             return assemble(self, conv, (p, c) => p.AddChild(c));
         }
         /// <summary>階層を示すインデックスをもとに、各データの変換と組み立てを行う。</summary>
+        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
         /// <typeparam name="T">データ</typeparam>
         /// <typeparam name="U">変換先の型</typeparam>
         /// <param name="self">現在のオブジェクト</param>
@@ -103,6 +108,7 @@ namespace TreeStructure {
         /// <remarks>各ノードはレベル順に追加されていきます。</remarks>
         /// <typeparam name="T">要素の型</typeparam>
         /// <typeparam name="U">ノードの型</typeparam>
+        /// <param name="self"></param>
         /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
         /// <param name="conv">要素からノードに変換する</param>
         /// <param name="addAction">追加アクション</param>
@@ -134,6 +140,7 @@ namespace TreeStructure {
         /// <remarks>各ノードはレベル順に追加されていきます。</remarks>
         /// <typeparam name="T">要素の型</typeparam>
         /// <typeparam name="U">ノードの型</typeparam>
+        /// <param name="self"></param>
         /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
         /// <param name="conv">要素からノードに変換する</param>
         /// <returns>rootとなる最初の要素から変換されたノードを返す。</returns>
@@ -144,6 +151,7 @@ namespace TreeStructure {
         /// <summary>最初の要素を起点としたN分木を作成する。</summary>
         /// <remarks>各ノードはレベル順に追加されていきます。</remarks>
         /// <typeparam name="T">ノードの型</typeparam>
+        /// <param name="self"></param>
         /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
         /// <returns>rootとなる最初のノードを返す。</returns>
         public static T CreateAsNAryTree<T>(this IEnumerable<T> self,int nary) where T : ITreeNodeCollection<T> {

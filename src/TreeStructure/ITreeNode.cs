@@ -1,11 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using TreeStructure.EventManager;
+using TreeStructure.EventManagement;
 namespace TreeStructure {
 
-    /// <summary>
-    /// ツリー構造を提供する。
-    /// </summary>
+    /// <summary>ツリー構造を提供する。</summary>
     /// <typeparam name="TNode">各ノードの型</typeparam>
     public interface ITreeNode<TNode> where TNode : ITreeNode<TNode> {
         /// <summary>親ノードを取得する。</summary>
@@ -16,7 +14,8 @@ namespace TreeStructure {
 
     /// <summary>子ノードをコレクションとして管理するツリー構造を定義する。</summary>
     /// <typeparam name="TNode">ノードの型</typeparam>
-    public interface ITreeNodeCollection<TNode> : ITreeNode<TNode> where TNode : ITreeNodeCollection<TNode> {
+    public interface ITreeNodeCollection<TNode> : ITreeNode<TNode> 
+        where TNode : ITreeNodeCollection<TNode> {
         /// <summary>子ノードを追加する。</summary>
         /// <param name="child">子ノード</param>
         /// <returns>現在のノード</returns>
@@ -34,13 +33,11 @@ namespace TreeStructure {
         /// <returns>削除されたノード</returns>
         IReadOnlyList<TNode> ClearChildren();
     }
-    /// <summary>
-    /// 観測可能なツリー構造を表す。
-    /// </summary>
+    /// <summary>観測可能なツリー構造を表す。</summary>
     /// <typeparam name="TNode">ノードの型</typeparam>
     public interface IObservableTreeNode<TNode>: ITreeNode<TNode> 
         where TNode : IObservableTreeNode<TNode>{
-        /// <summary>ツリー構造変更時、<see cref="StructureChangedEventManager{TNode}"/>によって呼び出されます。</summary>
+        /// <summary>ツリー構造変更時、<see cref="StructureChangedEventExecutor{TNode}"/>によって呼び出されます。</summary>
         /// <param name="e"></param>
         void OnStructureChanged(StructureChangedEventArgs<TNode> e);
         /// <summary>

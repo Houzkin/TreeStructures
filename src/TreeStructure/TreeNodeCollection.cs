@@ -23,7 +23,9 @@ namespace TreeStructure {
         }
         IReadOnlyList<TNode>? _readonlylist;
         /// <summary><inheritdoc/></summary>
-        public override IReadOnlyList<TNode> Children =>_readonlylist ??= new ReadOnlyCollection<TNode>(ChildNodes);//{ get; }
+        public override IReadOnlyList<TNode> Children =>_readonlylist ??= new ReadOnlyCollection<TNode>(ChildNodes);
+
+        /// <summary><inheritdoc/></summary>
         protected override IList<TNode> ChildNodes { get; } = new List<TNode>();
 
         /// <summary>子ノードとして追加可能かどうかを示す</summary>
@@ -60,7 +62,7 @@ namespace TreeStructure {
         public IReadOnlyList<TNode> ClearChildren() {
             var clrs = this.ChildNodes.OfType<TNode>().ToArray();
             ClearChildProcess();
-            return clrs.Except(this.ChildNodes.OfType<TNode>()).ToArray();//.Except(clrs).ToArray();
+            return clrs.Except(this.ChildNodes.OfType<TNode>()).ToArray();
         }
         /// <summary>子ノードの位置を移動する</summary>
         /// <param name="oldIndex">移動元</param>
@@ -72,22 +74,27 @@ namespace TreeStructure {
         }
 
         #region Process
+        /// <summary><inheritdoc/></summary>
         protected override void AddChildProcess(TNode child) {
             this.ThrowExceptionIfDisposed();
             base.AddChildProcess(child);
         }
+        /// <summary><inheritdoc/></summary>
         protected override void InsertChildProcess(int index, TNode child) {
             this.ThrowExceptionIfDisposed();
             base.InsertChildProcess(index, child);
         }
+        /// <summary><inheritdoc/></summary>
         protected override void MoveChildProcess(int oldIndex, int newIndex) {
             this.ThrowExceptionIfDisposed();
             base.MoveChildProcess(oldIndex, newIndex);
         }
+        /// <summary><inheritdoc/></summary>
         protected override void RemoveChildProcess(TNode child) {
             this.ThrowExceptionIfDisposed();
             base.RemoveChildProcess(child);
         }
+        /// <summary><inheritdoc/></summary>
         protected override void ClearChildProcess() {
             this.ThrowExceptionIfDisposed();
             base.ClearChildProcess();
@@ -107,7 +114,7 @@ namespace TreeStructure {
         }
         /// <summary>インスタンスを破棄する。対象ノードに加え、子孫ノードも破棄される。</summary>
         public void Dispose() {
-            if (_isDisposing) return;
+            if (IsDisposed || _isDisposing) return;
             _isDisposing = true;
             this.Dispose(true);
             GC.SuppressFinalize(this);
@@ -117,14 +124,8 @@ namespace TreeStructure {
         /// <summary>リソースを破棄する。</summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
-            if (IsDisposed) return;
             if (disposing) {
-                try {
-                    this.Parent?.RemoveChild(Self);
-                } catch { }
-                foreach (var cld in this.Levelorder().Skip(1).Reverse().ToArray()) {
-                    cld.Dispose();
-                }
+                this.DisposeProcess();
             }
             IsDisposed = true;
         }
@@ -142,42 +143,11 @@ namespace TreeStructure {
                 cld.Dispose();
             return Self;
         }
-        /// <summary>ファイナライズ</summary>
-        ~TreeNodeCollection() {
-            this.Dispose(false);
-        }
+        ///// <summary>ファイナライズ</summary>
+        //~TreeNodeCollection() {
+        //    this.Dispose(false);
+        //}
         #endregion
-        //protected override void MoveChildNode(int oldIndex, int newIndex) {
-        //    MoveChildProcess(oldIndex, newIndex, collection => {
-        //        var tgt = ChildNodes.ToArray()[oldIndex];
-        //        var col = collection as IList<TNode>;
-        //        if (col == null) { throw new InvalidCastException($"実行不可能な処理が要求されました。{nameof(ChildNodes)}プロパティは{nameof(IList<TNode>)}へキャストできません。"); }
-        //        col.RemoveAt(oldIndex);
-        //        col.Insert(newIndex, tgt);
-        //    });
-        //}
-        ///// <summary>コレクション内で子ノードを移動する</summary>
-        ///// <param name="oldIndex"></param>
-        ///// <param name="newIndex"></param>
-        //public TNode MoveChild(int oldIndex, int newIndex) {
-        //    return MoveChildProcess(oldIndex, newIndex, collection => {
-        //        var tgt = ChildNodes.ToArray()[oldIndex];
-        //        var col = collection as IList<TNode>;
-        //        if (col == null) { throw new InvalidCastException($"実行不可能な処理が要求されました。{nameof(ChildNodes)}プロパティは{nameof(IList<TNode>)}へキャストできません。"); }
-        //        col.RemoveAt(oldIndex);
-        //        col.Insert(newIndex, tgt);
-        //    });
-        //}
-        //protected override TNode MoveChildProcess(int oldIndex, int newIndex, Action<IEnumerable<TNode>>? moveAction) {
-        //    if (oldIndex != newIndex) base.MoveChildProcess(oldIndex, newIndex,
-        //        moveAction ??= collection => {
-        //            var tgt = ChildNodes.ToArray()[oldIndex];
-        //            var col = collection as IList<TNode>;
-        //            if (col == null) { throw new InvalidCastException($"実行不可能な処理が要求されました。{nameof(ChildNodes)}プロパティは{nameof(IList<TNode>)}へキャストできません。"); }
-        //            col.RemoveAt(oldIndex);
-        //            col.Insert(newIndex, tgt);
-        //        });
-        //    return Self;
-        //}
+        
     }
 }

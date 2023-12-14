@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructure;
-using TreeStructure.EventManager;
+using TreeStructure.EventManagement;
 
 namespace TestProgram {
     public static class TestNullElement {
@@ -96,6 +96,11 @@ namespace TestProgram {
             foreach (var node in a.Levelorder()) node.StructureChanged += handler;
             //f.PropertyChanged += (s, e) => { Console.WriteLine($"F pearent changed. new parent is {((TestCommonNode)s).Parent.Name}"); };
             //e.Test();
+            var lstnr = new EventListener<EventHandler<StructureChangedEventArgs<TestCommonNode>>, PropertyChangedEventArgs>(
+                conversion: h => (s, e) => h(s, new PropertyChangedEventArgs("")),
+                add: h => a.StructureChanged += h,
+                remove: h => a.StructureChanged -= h,
+                handler: (s, e) => { });
             Console.WriteLine(string.Join(",",a.DescendArrivals(a => a.Name, new string[] { "A","B","I" })));
             var tac = a.ClearChildren();//a.DescendTraces(a => a.Name,new string[] {"A","B","I",});
             foreach (var t in tac) { 

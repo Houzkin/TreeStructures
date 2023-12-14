@@ -16,15 +16,18 @@ namespace TreeStructure {
     [Serializable]
     public abstract class TreeNodeBase<TNode> : ITreeNode<TNode>
         where TNode:TreeNodeBase<TNode>,ITreeNode<TNode>{
-
+        /// <summary>インスタンスを初期化する。</summary>
         protected TreeNodeBase() { }
+
+        /// <summary><inheritdoc/></summary>
         public TNode? Parent { get; private set; }
         IEnumerable<TNode>? _readonlycollection;
         /// <summary><inheritdoc/>ReadOnlyの公開用プロパティ</summary>
         public virtual IEnumerable<TNode> Children => _readonlycollection ??= ChildNodes.AsReadOnlyEnumerable();
         /// <summary>子ノードを取得する内部処理用のプロパティ</summary>
         protected abstract IEnumerable<TNode> ChildNodes { get; }
-        protected TNode Self => (this as TNode)!;
+
+        internal TNode Self => (this as TNode)!;
 
         /// <summary>追加、削除などのプロセス中に親ノードから呼び出される</summary>
         /// <param name="newParent"></param>
@@ -57,26 +60,26 @@ namespace TreeStructure {
             return true;
         }
         #region edit actions
-        /// <summary>子ノードの追加処理。<para>追加する子ノートと<see cref="ChildNodes"/>を引数にとる</para></summary>
+        /// <summary>子ノードの追加処理。<para><see cref="ChildNodes"/>と追加する子ノートを引数にとる</para></summary>
         /// <remarks>基底クラスでは<see cref="ICollection{TNode}"/>にキャストして処理します</remarks>
-        protected virtual Action<TNode,IEnumerable<TNode>> AddAction => (node, collection) => ((ICollection<TNode>)collection).Add(node);
+        protected virtual Action<IEnumerable<TNode>,TNode> AddAction => (collection, node) => ((ICollection<TNode>)collection).Add(node);
 
-        /// <summary>子ノードの挿入処理。<para>挿入する子ノードと<see cref="ChildNodes"/>を引数にとる</para></summary>
+        /// <summary>子ノードの挿入処理。<para><see cref="ChildNodes"/>と挿入する子ノードを引数にとる</para></summary>
         /// <remarks>基底クラスでは<see cref="IList{TNode}"/>にキャストして処理します</remarks>
-        protected virtual Action<int,TNode,IEnumerable<TNode>> InsertAction => (index, node, collection) => ((IList<TNode>)collection).Insert(index, node);
+        protected virtual Action<IEnumerable<TNode>,int,TNode> InsertAction => (collection, index, node) => ((IList<TNode>)collection).Insert(index, node);
 
-        /// <summary>子ノードの削除処理。<para>削除するノードと<see cref="ChildNodes"/>を引数にとる</para></summary>
+        /// <summary>子ノードの削除処理。<para><see cref="ChildNodes"/>と削除するノードを引数にとる</para></summary>
         /// <remarks>基底クラスでは<see cref="ICollection{TNode}"/>にキャストして処理します</remarks>
-        protected virtual Action<TNode,IEnumerable<TNode>> RemoveAction => (node, collection) => ((ICollection<TNode>)collection).Remove(node);
+        protected virtual Action<IEnumerable<TNode>, TNode> RemoveAction => (collection, node) => ((ICollection<TNode>)collection).Remove(node);
 
         /// <summary>子ノードのクリア処理。<see cref="ChildNodes"/>を引数にとる</summary>
         /// <remarks>基底クラスでは<see cref="ICollection{TNode}"/>にキャストして処理します</remarks>
         protected virtual Action<IEnumerable<TNode>> ClearAction => collection => ((ICollection<TNode>)collection).Clear();
 
-        /// <summary>コレクション内で子ノードの移動処理。<para>移動する要素のindex、移動先index、<see cref="ChildNodes"/>を引数にとる</para></summary>
+        /// <summary>コレクション内で子ノードの移動処理。<para><see cref="ChildNodes"/>,移動する要素のindex、移動先indexを引数にとる</para></summary>
         /// <remarks>基底クラスでは<see cref="IList{TNode}"/>にキャストして処理します</remarks>
-        protected virtual Action<int, int, IEnumerable<TNode>> MoveAction
-            => (oldIndex, newIndex, collection) => {
+        protected virtual Action<IEnumerable<TNode>,int, int> MoveAction
+            => (collection,oldIndex, newIndex) => {
                 var nodes = (IList<TNode>)collection;
                 var tgt = nodes[oldIndex];
                 nodes.RemoveAt(oldIndex);
@@ -96,7 +99,7 @@ namespace TreeStructure {
                 var p = child?.Parent;
                 child?.SetParent(Self);
                 p?.RemoveChildProcess(child);
-                AddAction(child, ChildNodes);
+                AddAction(ChildNodes,child);
             } catch(InvalidCastException ex) {
                 throw new NotSupportedException($"追加処理において指定された操作ができません。プロパティ:{nameof(AddAction)}を指定・確認してください。", ex);
             } catch (Exception) {
@@ -116,7 +119,7 @@ namespace TreeStructure {
                 var p = child?.Parent;
                 child?.SetParent(Self);
                 p?.RemoveChildProcess(child);
-                InsertAction(index, child, ChildNodes);
+                InsertAction(ChildNodes,index, child);
             }catch(InvalidCastException ex) {
                 throw new NotSupportedException($"挿入処理において指定された操作ができません。プロパティ:{nameof(InsertAction)}を指定・確認してください。", ex);
             } catch (Exception) {
@@ -132,7 +135,7 @@ namespace TreeStructure {
             var bfr = this.childCash();
             try {
                 if (child?.Parent == Self) child.SetParent(null);
-                RemoveAction(child, this.ChildNodes);
+                RemoveAction(ChildNodes,child);
             }catch(InvalidCastException ex) {
                 throw new NotSupportedException($"削除処理において指定された操作ができません。プロパティ:{nameof(RemoveAction)}を指定・確認してください。", ex);
             } catch (Exception) {
@@ -163,7 +166,7 @@ namespace TreeStructure {
         protected virtual void MoveChildProcess(int oldIndex,int newIndex) {
             var bfr = this.childCash();
             try {
-                MoveAction(oldIndex, newIndex, this.ChildNodes);
+                MoveAction(this.ChildNodes, oldIndex, newIndex);
             } catch (InvalidCastException ex) {
                 throw new NotSupportedException($"移動処理において指定された操作ができません。プロパティ:{nameof(MoveAction)}を指定・確認してください。", ex);
             }catch (Exception) {
@@ -200,6 +203,17 @@ namespace TreeStructure {
                     }
                 }
             }catch (Exception ignore) { }
+        }
+
+        /// <summary>Disposeを実行するプロセス<para>基底クラスで<see cref="RemoveChildProcess(TNode)"/>が実行されます</para></summary>
+        /// <remarks>現在のノードを親ノードから切り離し、<see cref="IDisposable"/>を実装している子孫ノードの末柄から順にDisposeメソッドを呼び出す</remarks>
+        protected void DisposeProcess() {
+            try {
+                this.Parent?.RemoveChildProcess(Self);
+            } catch { }
+            foreach (var cld in this.Levelorder().Skip(1).Reverse().OfType<IDisposable>().ToArray()) {
+                cld.Dispose();
+            }
         }
         #endregion
     }

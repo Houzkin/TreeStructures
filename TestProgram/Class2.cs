@@ -8,17 +8,30 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructure.Linq;
-using TreeStructure.EventManager;
+using TreeStructure.EventManagement;
 using TreeStructure.Utility;
 using TreeStructure;
+using TreeStructure.Tree;
 
 namespace TestProgram {
     internal class Class2 {
-        
+        public class TesTreeNode : TreeNodeCollection<TesTreeNode> { }
+        //public class ImitNode : CompositeImitator<TesTreeNode, ImitNode> {
+        //    public ImitNode(TesTreeNode sourceNode) : base(sourceNode) {
+        //    }
+        //    protected override ImitNode GenerateChild(TesTreeNode srcNode) {
+        //        return new ImitNode(srcNode);
+        //    }
+        //}
         static public void Main() {
+            var tt = new TesTreeNode();
+
+
+
             SampleClass sample = new SampleClass();
             //PropertyChainObserver.
-            var root = ObservablePropertyTree.Establish(sample);
+            var root = new ObservablePropertyTree<SampleClass>(sample);
+            
             var lst1 = root.Subscribe<INotifyPropertyChanged>(x => x.PropA.PropB, (o, e) => { Console.WriteLine($"changed {e.PropertyName}"); });
             var lst2 = root.Subscribe<PropC>(x => x.PropA.PropB.PropC, e => { Console.WriteLine($"changed A-B-C {e?.ToString() ?? "null"}"); });
             var lst3 = root.Subscribe<int>(x => x.PropA.PropB.PropC.PropD.Result, e => Console.WriteLine($"{e.ToString()}"));
@@ -40,6 +53,7 @@ namespace TestProgram {
             //Sample<SampleClass>(sample,x => x.PropA.PropB.PropC.PropD.Result);
             
         }
+        
 
         static void Sample<T>(T sampleObject, Expression<Func<T, object>> expression) {
             // プロパティチェーンを辿る
