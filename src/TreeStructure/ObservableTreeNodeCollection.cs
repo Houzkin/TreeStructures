@@ -21,7 +21,7 @@ namespace TreeStructure {
         /// </summary>
         public ObservableTreeNodeCollection() { this.PropertyChangeProxy = new PropertyChangeProxy(this); }
         /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="collection"></param>
+        /// <param name="collection">コレクション</param>
         public ObservableTreeNodeCollection(IEnumerable<TNode> collection) : this() {
             foreach (var item in collection) { this.AddChild(item); }
         }
