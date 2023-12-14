@@ -30,7 +30,7 @@ namespace TreeStructures {
         /// <typeparam name="T">ノードの型</typeparam>
         /// <param name="self">現在のノード</param>
         /// <param name="getnewseeds">要素から、追加するノードを指定する</param>
-        /// <param name="updateseeds">展開元の要素、追加された要素、未処理要素を引数にり、未処理要素を更新する。<para>未処理要素は先頭から展開・列挙処理される。</para></param>
+        /// <param name="updateseeds">展開元の要素、追加された要素、未処理要素を引数にとり、未処理要素を更新する。<para>未処理要素は先頭から展開・列挙処理される。</para></param>
         /// <returns></returns>
         public static IEnumerable<T> Evolve<T>(this ITreeNode<T> self, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds) where T : ITreeNode<T> {
             ISet<T> exphistory = new HashSet<T>();//展開した履歴

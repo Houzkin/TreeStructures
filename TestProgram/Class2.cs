@@ -7,11 +7,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure.Linq;
-using TreeStructure.EventManagement;
-using TreeStructure.Utility;
-using TreeStructure;
-using TreeStructure.Tree;
+using TreeStructures.Linq;
+using TreeStructures.EventManagement;
+using TreeStructures.Utility;
+using TreeStructures;
+using TreeStructures.Tree;
 
 namespace TestProgram {
     internal class Class2 {

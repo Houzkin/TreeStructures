@@ -10,8 +10,8 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructure;
-using TreeStructure.EventManagement;
+using TreeStructures;
+using TreeStructures.EventManagement;
 
 namespace TestProgram {
     public static class TestNullElement {
