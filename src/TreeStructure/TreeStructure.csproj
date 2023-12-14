@@ -14,10 +14,18 @@
 Provides a tree structure where each node holds parent and children references.</Description>
     <RepositoryUrl>https://github.com/Houzkin/TreeStructure</RepositoryUrl>
     <PackageTags>tree;hierarchy;structure;</PackageTags>
+    <PackageIcon>TreeStructure.jpg</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Folder Include="Bindables\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon\TreeStructure.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
