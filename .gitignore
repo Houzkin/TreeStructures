@@ -365,3 +365,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /TestProgram/Class2.cs
 /TestProgram/TestProgram.csproj
+/TestProgram/Class1.cs
+/TestProgram/Program.cs
