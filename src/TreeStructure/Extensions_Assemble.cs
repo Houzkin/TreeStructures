@@ -43,7 +43,7 @@ namespace TreeStructures {
         /// <typeparam name="U">変換後の型</typeparam>
         /// <param name="self">対象ノード</param>
         /// <param name="generator">各ノードに適用されるノード変換関数</param>
-        /// <param name="addAction">親となるオブジェクトと子となるオブジェクトを引数に取り、その関係を成り立たせる関数</param>
+        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
         public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator, Action<U, U> addAction)
         where T : ITreeNode<T> {
             return convert(self, generator, addAction);
@@ -76,7 +76,7 @@ namespace TreeStructures {
         /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
         /// <typeparam name="T">データの型</typeparam>
         /// <param name="self">現在のオブジェクト</param>
-        /// <param name="addAction">追加処理</param>
+        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
         public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self, Action<T, T> addAction)where TKey : IEnumerable<int> {
             return assemble(self, x => x, addAction);
         }
@@ -97,7 +97,7 @@ namespace TreeStructures {
         /// <typeparam name="U">変換先の型</typeparam>
         /// <param name="self">現在のオブジェクト</param>
         /// <param name="conv">変換関数</param>
-        /// <param name="addAction">追加処理</param>
+        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
         public static U AssembleTree<TKey,T, U>(this IDictionary<TKey, T> self, Func<T, U> conv, Action<U, U> addAction) where TKey:IEnumerable<int> {
             return assemble(self, conv, addAction);
         }
@@ -111,7 +111,7 @@ namespace TreeStructures {
         /// <param name="self"></param>
         /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
         /// <param name="conv">要素からノードに変換する</param>
-        /// <param name="addAction">追加アクション</param>
+        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
         /// <returns>rootとなる最初の要素から変換されたノードを返す。</returns>
         public static U CreateAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
             if (self == null) throw new ArgumentNullException(nameof(self));
@@ -119,7 +119,7 @@ namespace TreeStructures {
             var nds = self.Select(a => conv(a)).SkipWhile(a=>a==null);
             U? root = nds.FirstOrDefault();
             if (root == null) throw new InvalidOperationException(nameof(conv));
-            Queue<U> items = new Queue<U>(nds.Skip(1));
+            Queue<U> items = new Queue<U>(nds.Skip(1));//ルート以外のノードを格納
             Queue<U> queue = new Queue<U>();
             queue.Enqueue(root);
             while (items.Any() && queue.Any()) {

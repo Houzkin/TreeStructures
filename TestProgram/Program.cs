@@ -3,5 +3,6 @@ using TestProgram;
 
 Console.WriteLine("Hello, World!");
 //TestNullElement.Test();
-TestProgram.Class2.Main();
+//TestProgram.Class2.Main();
+Class3.Main();
 Console.ReadKey();
