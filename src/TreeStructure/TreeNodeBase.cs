@@ -40,7 +40,7 @@ namespace TreeStructures {
         /// <remarks>基底クラスではnullの追加を許容します。</remarks>
         /// <param name="child">追加しようとする子ノード</param>
         /// <returns>Treeの循環、兄弟ノードとの重複をチェックします。</returns>
-        protected virtual bool CanAddChildNode(TNode child) {
+        protected virtual bool CanAddChildNode([AllowNull] TNode child) {
             if (child == null) return true;
             if (this.Upstream().Any(x => object.ReferenceEquals(x, child))) return false;
 
@@ -206,8 +206,8 @@ namespace TreeStructures {
         }
 
         /// <summary>Disposeを実行するプロセス<para>基底クラスで<see cref="RemoveChildProcess(TNode)"/>が実行されます</para></summary>
-        /// <remarks>現在のノードを親ノードから切り離し、<see cref="IDisposable"/>を実装している子孫ノードの末柄から順にDisposeメソッドを呼び出す</remarks>
-        protected void DisposeProcess() {
+        /// <remarks>基底クラスでは、現在のノードを親ノードから切り離し、<see cref="IDisposable"/>を実装している子孫ノードの末柄から順にDisposeメソッドを呼び出す</remarks>
+        protected virtual void DisposeProcess() {
             try {
                 this.Parent?.RemoveChildProcess(Self);
             } catch { }

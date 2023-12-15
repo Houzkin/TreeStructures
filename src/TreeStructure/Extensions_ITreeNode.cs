@@ -335,6 +335,7 @@ namespace TreeStructures {
         /// <param name="comparer"></param>
         /// <returns>全てのキーが一致したノード</returns>
         public static IEnumerable<T> DescendArrivals<T, Trc>(this ITreeNode<T> self, Func<T, Trc> selector, IEnumerable<Trc> trace, IEqualityComparer<Trc>? comparer = null) where T : ITreeNode<T> {
+            if(!trace.Any()) return Enumerable.Empty<T>();
             comparer ??= EqualityComparer<Trc>.Default;
             var matchs = new SequenceScroller<Trc>(trace);
             var startdpth = self.Depth();

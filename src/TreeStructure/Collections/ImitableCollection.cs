@@ -226,7 +226,7 @@ namespace TreeStructures.Collections {
         #endregion
     }
 
-    /// <summary><inheritdoc/></summary>
+    /// <inheritdoc/>
     public class ImitableCollection<TSrc,TConv> : ImitableCollection<TConv> where TSrc :class where TConv : class {
         internal ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, ConvertPair<TSrc, TConv>> toSetConverter, Action<TConv> removedAction)
             : base(collection: collection, toSetConverter: src => toSetConverter(src as TSrc), removedAction: removedAction) {

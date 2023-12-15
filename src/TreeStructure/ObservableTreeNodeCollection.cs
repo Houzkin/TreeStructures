@@ -26,17 +26,17 @@ namespace TreeStructures {
             foreach (var item in collection) { this.AddChild(item); }
         }
         ReadOnlyObservableCollection<TNode>? _readonlyobservablecollection;
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         public override ReadOnlyObservableCollection<TNode> Children => _readonlyobservablecollection ??= new ReadOnlyObservableCollection<TNode>(ChildNodes);
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override ObservableCollection<TNode> ChildNodes { get; } = new ObservableCollection<TNode>();
 
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override Action<IEnumerable<TNode>, int, int> MoveAction => (collection, oldIdx, newIdx) =>
             ((ObservableCollection<TNode>)collection).Move(oldIdx, newIdx);
 
 
-        IDisposable ShiftParentChangedNotification() {
+        IDisposable DeferParentChangedNotification() {
             return UniqueExcutor.LateEvalute(parentchangedeventkey, () => Parent);
         }
         readonly string parentchangedeventkey = "in Library : " + nameof(ObservableTreeNodeCollection<TNode>)+ "." + nameof(Parent);
@@ -63,7 +63,7 @@ namespace TreeStructures {
         protected virtual bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
             return PropertyChangeProxy.SetWithNotify(ref strage, value, propertyName);
         }
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged {
             add { PropertyChangeProxy.Changed += value; }
             remove { PropertyChangeProxy.Changed -= value; }
@@ -75,8 +75,7 @@ namespace TreeStructures {
         }
         /// <summary>破棄されたとき発生する</summary>
         public event EventHandler? Disposed;
-        /// <summary><inheritdoc/></summary>
-        /// <param name="disposing"></param>
+        /// <inheritdoc/>
         protected override void Dispose(bool disposing) {
             IDisposable? dsp = null;
             if (disposing){
@@ -88,35 +87,35 @@ namespace TreeStructures {
             dsp?.Dispose();
             Disposed = null;
         }
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override void AddChildProcess(TNode child) {
             using (child.UniqueExcutor.LateEvaluateTree())
-            using (child.ShiftParentChangedNotification()) {
+            using (child.DeferParentChangedNotification()) {
                 base.AddChildProcess(child);
             }
         }
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override void InsertChildProcess(int index, TNode child) {
             using (child.UniqueExcutor.LateEvaluateTree())
-            using (child.ShiftParentChangedNotification()) {
+            using (child.DeferParentChangedNotification()) {
                 base.InsertChildProcess(index, child);
             }
         }
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override void RemoveChildProcess(TNode child) {
             using (child?.UniqueExcutor.LateEvaluateTree()) 
-            using (child?.ShiftParentChangedNotification()) {
+            using (child?.DeferParentChangedNotification()) {
                 base.RemoveChildProcess(child);
             }
         }
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override void ClearChildProcess() {
             using (ChildNodes.Select(a => a?.UniqueExcutor.LateEvaluateTree()).OfType<IDisposable>().ToLumpDisposables()) 
-            using (ChildNodes.Select(a => a?.ShiftParentChangedNotification()).OfType<IDisposable>().ToLumpDisposables()) {
+            using (ChildNodes.Select(a => a?.DeferParentChangedNotification()).OfType<IDisposable>().ToLumpDisposables()) {
                 base.ClearChildProcess();
             }
         }
-        /// <summary><inheritdoc/></summary>
+        /// <inheritdoc/>
         protected override void MoveChildProcess(int oldIndex, int newIndex) {
             using (ChildNodes.ElementAt(oldIndex)?.UniqueExcutor.LateEvaluateTree()){
                 base.MoveChildProcess(oldIndex, newIndex);

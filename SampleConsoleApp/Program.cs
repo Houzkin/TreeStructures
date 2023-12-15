@@ -2,4 +2,6 @@
 using SampleConsoleApp;
 
 //Console.WriteLine("Hello, World!");
-CreateTreeExample.CreateSample();
+//SampleA.Method();
+SampleB.Method1();
+SampleB.Method2();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -68,8 +69,15 @@ namespace TreeStructures {
         /// <param name="sourceChildNode">ラップされる子ノード</param>
         /// <returns>ラップした子ノード</returns>
         protected abstract TOur GenerateChild(TSrc sourceChildNode);
-        TOur _Generate(TSrc srcNode) {
-            var cld = GenerateChild(srcNode);
+        TOur _Generate(TSrc sourceChildNode) {
+            TOur? cld = null;
+            try {
+                cld = GenerateChild(sourceChildNode);
+            } catch(NullReferenceException e) {
+                string msg = $"{nameof(GenerateChild)}メソッドで{nameof(NullReferenceException)}が発生しました。";
+                if(sourceChildNode is null) { msg += $"{nameof(sourceChildNode)}は null です。"; }
+                throw new NullReferenceException( msg, e);
+            }
             if (cld != null) {
                 cld.Parent = this as TOur;
                 cld.ImitateSourceSubTree();

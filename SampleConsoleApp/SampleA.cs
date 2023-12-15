@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using TreeStructures;
 
 namespace SampleConsoleApp;
-public static　partial class CreateTreeExample {
-    public static void CreateSample() {
+public static　partial class SampleA {
+    public static void Method() {
         var A = new ExampleNode { Name = "A" };
         var B = new ExampleNode { Name = "B"};
         var C = new ExampleNode { Name = "C"};
@@ -103,4 +103,7 @@ public static　partial class CreateTreeExample {
 public class ExampleNode : TreeNodeCollection<ExampleNode> {
     public ExampleNode() { }
     public string Name { get; set; }
+    public override string ToString() {
+        return this.Name;
+    }
 }

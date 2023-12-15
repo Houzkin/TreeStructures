@@ -37,7 +37,7 @@ namespace TreeStructures {
         /// <remarks>基底クラスではnullの追加は非許容です。</remarks>
         /// <param name="child">追加しようとする子ノード</param>
         /// <returns>null、Treeの循環、兄弟ノードとの重複をチェックします。</returns>
-        protected override bool CanAddChildNode(TNode child) {
+        protected override bool CanAddChildNode([AllowNull] TNode child) {
             if (child == null) return false;
             return base.CanAddChildNode(child);
         }
