@@ -40,6 +40,16 @@ public static partial class TreeNodeExtenstions {
         if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
         return new ResultWithValue<T>(false, (T)self);
     }
+    /// <summary>子ノードを削除する。</summary>
+    /// <param name="child">削除する子ノード</param>
+    /// <param name="removeAction">第一引数に親ノード、第二引数に子ノードを取り、その関係を解消させる関数。</param>
+    /// <returns>正常に削除できた場合は<paramref name="child"/>、削除できなかった或いは子ノードに該当しなかった場合は現在のノードを返す。</returns>
+    public static ResultWithValue<T> TryRemoveChild<T>(this ITreeNode<T> self,T child, Action<T,T> removeAction)where T : ITreeNode<T> {
+        if (!self.Children.Contains(child)) return new ResultWithValue<T>(false, (T)self);
+        removeAction((T)self, child);
+        if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
+        return new ResultWithValue<T>(false, (T)self);
+    }
     /// <summary>現在のノードを削除する。</summary>
     /// <returns>正常に削除できた場合はture、削除できなかった或いは現在のノードがルートだった場合はfalse。何れも現在のノードが付与される。</returns>
     public static ResultWithValue<T> TryRemoveOwn<T>(this ITreeNodeCollection<T> self) where T : ITreeNodeCollection<T> {
@@ -79,11 +89,21 @@ public static partial class TreeNodeExtenstions {
     /// <param name="predicate">削除対象であればtrue</param>
     /// <returns>削除したノード</returns>
     public static IReadOnlyList<T> RemoveChild<T>(this ITreeNodeCollection<T> self, Predicate<T> predicate) where T : ITreeNodeCollection<T> {
+        return TreeNodeExtenstions.RemoveChild(self, predicate,(p,c)=>p.RemoveChild(c));
+    }
+    /// <summary>条件に一致する子ノードを全て削除する。</summary>
+    /// <typeparam name="T">ノードの型</typeparam>
+    /// <param name="self">現在のノード</param>
+    /// <param name="predicate">削除対象であればtrue</param>
+    /// <param name="removeAction">第一引数に親ノード、第二引数に子ノードを取り、その関係を解消させる関数。</param>
+    /// <returns>削除したノード</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public static IReadOnlyList<T> RemoveChild<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction) where T : ITreeNode<T> {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         var lst = new List<T>();
         foreach (var cld in self.Children.OfType<T>().ToArray()) {
             if (predicate(cld)) {
-                self.TryRemoveChild(cld).When(o => lst.Add(cld));
+                self.TryRemoveChild(cld,removeAction).When(o => lst.Add(cld));
             }
         }
         return lst;
@@ -94,15 +114,24 @@ public static partial class TreeNodeExtenstions {
     /// <param name="predicate">削除対象であればtrue</param>
     /// <returns>削除したノード</returns>
     public static IReadOnlyList<T> RemoveDescendant<T>(this ITreeNodeCollection<T> self, Predicate<T> predicate) where T : ITreeNodeCollection<T> {
+        return TreeNodeExtenstions.RemoveDescendant<T>(self, predicate, (p, c) => p.RemoveChild(c));
+    }
+    /// <summary>対象ノードからレベル順に、条件に一致したノードを全て削除する。</summary>
+    /// <typeparam name="T">ノードの型</typeparam>
+    /// <param name="self">現在のノード</param>
+    /// <param name="predicate">削除対象であればtrue</param>
+    /// <param name="removeAction">第一引数に親ノード、第二引数に子ノードを取り、その関係を解消させる関数。</param>
+    /// <returns>削除したノード</returns>
+    public static IReadOnlyList<T> RemoveDescendant<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction)where T : ITreeNode<T> {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+        if(removeAction==null) throw new ArgumentNullException(nameof(removeAction));
         var lst = new List<T>();
-        self.Evolve(a => {
-            lst.AddRange(a.RemoveChild(predicate).OfType<T>());
+        var dm = self.Evolve(a => {
+            lst.AddRange(a.RemoveChild(predicate, removeAction).OfType<T>());
             return a.Children;
-        },(a, b, c) => new T?[1] { a }.Concat(c).Concat(b));
+        }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b)).ToArray();
         return lst;
     }
-    
     #endregion
 }
 

@@ -120,7 +120,7 @@ namespace TreeStructures {
             U? root = nds.FirstOrDefault();
             if (root == null) throw new InvalidOperationException(nameof(conv));
             Queue<U> items = new Queue<U>(nds.Skip(1));//ルート以外のノードを格納
-            Queue<U> queue = new Queue<U>();
+            Queue<U> queue = new Queue<U>();//追加待ちのノード
             queue.Enqueue(root);
             while (items.Any() && queue.Any()) {
                 int cnt = 0;

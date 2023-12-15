@@ -10,7 +10,7 @@ namespace TreeStructures.Tree {
     public abstract class NAryTree<T> : TreeNodeBase<T> where T : NAryTree<T> {
         protected NAryTree(int nary) :base() {
             for(int i = 0; i < nary; i++) {
-                this.AddAction(this.ChildNodes, null);
+                this.AddAction.Invoke(this.ChildNodes, null);
             }
         }
         /// <inheritdoc/>
