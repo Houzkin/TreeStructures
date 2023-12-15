@@ -36,7 +36,7 @@ namespace TreeStructures {
             this.Parent = newParent;
             return true;
         }
-        /// <summary>ツリー構造において追加可能かどうかを示す。</summary>
+        /// <summary>ツリー構造をなす上で、指定されたノードが子ノードとして追加可能かどうかを示す。</summary>
         /// <remarks>基底クラスではnullの追加を許容します。</remarks>
         /// <param name="child">追加しようとする子ノード</param>
         /// <returns>Treeの循環、兄弟ノードとの重複をチェックします。</returns>

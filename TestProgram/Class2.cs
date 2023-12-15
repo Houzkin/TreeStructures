@@ -24,7 +24,8 @@ namespace TestProgram {
         //    }
         //}
         static public void Main() {
-            var tt = new TesTreeNode();
+            var lst = new List<string>(3);
+            Console.WriteLine(lst.Count);
 
 
 
