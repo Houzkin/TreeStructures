@@ -8,13 +8,15 @@
     <Authors>houzkin</Authors>
     <Copyright>houzkin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>各ノードが親と子の参照を保持するツリー構造を提供します。
 Provides a tree structure where each node holds parent and children references.</Description>
     <RepositoryUrl>https://github.com/Houzkin/TreeStructure</RepositoryUrl>
     <PackageTags>tree;hierarchy;structure;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>
+    <AssemblyVersion></AssemblyVersion>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

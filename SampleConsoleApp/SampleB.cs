@@ -51,8 +51,11 @@ internal class SampleB {
         Console.WriteLine($"Inorder:{string.Join(',', convertedRoot.Inorder().Select(x => x.Value))}");
 
         Console.WriteLine("\n各ノードの値をDictionaryで表すノードマップに変換して、組み立てる");
+        //キーにNodeIndexをとるDictionaryに変換
         var dic = root.ToNodeMap(x => x.Value);
+        //NodeIndexを使って組み立てる
         var assembledRoot = dic.AssembleTree(x => new BSampleBinary() { Value = x }, (p, c) => p.AddChild(c));
+
         Console.WriteLine(assembledRoot.ToTreeDiagram(x=> $"[{x.Value}]"));
         Console.WriteLine($"Preorder:{string.Join(",", assembledRoot.Preorder().Select(x => x.Value))}");
         Console.WriteLine($"Inorder:{string.Join(',', assembledRoot.Inorder().Select(x => x.Value))}");

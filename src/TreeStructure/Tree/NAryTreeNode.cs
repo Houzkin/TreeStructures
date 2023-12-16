@@ -40,7 +40,7 @@ namespace TreeStructures.Tree {
         /// <returns>現在のノード</returns>
         public T AddChild(T child) {
             if (!base.CanAddChildNode(child)) return Self;
-            var idx = this.ChildNodes/*.ToList()*/.IndexOf(null);
+            var idx = ChildNodes/*.ToList()*/.IndexOf(null);
             if(0<=idx) 
                 SetChildProcess(idx, child);
             return Self;

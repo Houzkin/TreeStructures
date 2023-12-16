@@ -24,7 +24,7 @@ namespace TreeStructures {
         IEnumerable<TNode>? _readonlycollection;
         /// <summary><inheritdoc/>ReadOnlyの公開用プロパティ</summary>
         public virtual IEnumerable<TNode> Children => _readonlycollection ??= ChildNodes.AsReadOnlyEnumerable();
-        /// <summary>子ノードを取得する内部処理用のプロパティ</summary>
+        /// <summary>子ノードを管理する、内部処理用のプロパティ</summary>
         protected abstract IEnumerable<TNode> ChildNodes { get; }
 
         internal TNode Self => (this as TNode)!;
