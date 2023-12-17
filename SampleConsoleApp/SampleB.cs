@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -9,76 +10,66 @@ using TreeStructures;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public class BSampleBinary : BinaryTreeNode<BSampleBinary> {
-    protected override ObservableCollection<BSampleBinary> ChildNodes { get; } = new();
-
-    ReadOnlyObservableCollection<BSampleBinary>? _children;
-    public override IEnumerable<BSampleBinary> Children => _children ??= new ReadOnlyObservableCollection<BSampleBinary>(ChildNodes);
-    public string Value { get; set; }
-    
-}
-public class BSampleImitator : TreeNodeImitator<BSampleBinary, BSampleImitator> {
-    public BSampleImitator(BSampleBinary sourceNode) : base(sourceNode) { }
-    public string Value => "(" + (this.SourceNode.Value ?? string.Empty) + ")";
-    protected override BSampleImitator GenerateChild(BSampleBinary sourceChildNode) {
-        if (sourceChildNode == null) return null; 
-        return new BSampleImitator(sourceChildNode);
+public class ObservableSampleNode: ObservableTreeNodeCollection<ObservableSampleNode> {
+    public string Name { get; set; }
+    public override string ToString() {
+        return this.Name;
     }
-       
 }
-internal class SampleB {
-    public static void Method1() {
-        
-        Console.WriteLine("バイナリーツリーを作成");
-        var root = "ABCDEF00IJ0LMNOPQ0S00VWX0Z".ToCharArray()
-            .CreateAsNAryTree(2, x => new BSampleBinary() { Value = x.ToString() }, (p, c) => p.AddChild(c));
 
-        Console.WriteLine(root.ToTreeDiagram(x=>x.Value));
-        Console.WriteLine($"Preorder:{string.Join(",", root.Preorder().Select(x=>x.Value))}");
-        Console.WriteLine($"Inorder:{string.Join(',', root.Inorder().Select(x => x.Value))}");
+public static class SampleB {
+    public static void Method() {
+        Console.WriteLine("コレクションをN分木として組み立てる");
 
-        Console.WriteLine("\nValueが０のノードを全て削除する");
-        root.RemoveDescendant(x => x.Value == "0", (p, c) => p.RemoveChild(c));
+        var nodesDic = "ABCDEFGHI".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableSampleNode() { Name = x });
+        var root = nodesDic.Values.CreateAsNAryTree(2);
+        //移動前のツリーを表示
+        Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine(root.ToTreeDiagram(x => x.Value));
-        Console.WriteLine($"Preorder:{string.Join(",", root.Preorder().Select(x=>x.Value))}");
-        Console.WriteLine($"Inorder:{string.Join(',', root.Inorder().Select(x=>x.Value))}");
+        EventHandler<StructureChangedEventArgs<ObservableSampleNode>> structreChangedHdlr = (s, e) => {
+            Console.WriteLine($"sender:{s} \nTarget:{e.Target} TreeAction:{e.TreeAction} PreviousParentOfTarget:{e.PreviousParentOfTarget} OldIndex:{e.OldIndex} AncestorWasChanged:{e.AncestorWasChanged} DescendantWasChanged:{e.DescendantWasChanged}");
+            if (e.AncestorWasChanged) {
+                var info = e.AncestorInfo!;
+                Console.WriteLine($"MovedTarget:{info.MovedTarget} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget} RootWasChanged:{info.RootWasChanged}");
+            } 
+            if (e.DescendantWasChanged) {
+                var info = e.DescendantInfo!;
+                Console.WriteLine($"Target:{info.Target} NodeAction:{info.NodeAction} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget}");
+            }
+            Console.Write("\n");
+        };
+        PropertyChangedEventHandler propertyChangedHdlr = (s, e) => { Console.WriteLine($"sender:{s} Parent Changed.\n"); };
 
-        Console.WriteLine("\n各ノードを別のノードに変換して組み立てる");
-        var convertedRoot = root.Convert(x => new BSampleBinary() { Value = x.Value },(p,c)=>p.AddChild(c));
-        Console.WriteLine(convertedRoot.ToTreeDiagram(x => $"({x.Value})"));
-        Console.WriteLine($"Preorder:{string.Join(",", convertedRoot.Preorder().Select(x => x.Value))}");
-        Console.WriteLine($"Inorder:{string.Join(',', convertedRoot.Inorder().Select(x => x.Value))}");
+        EventHandler disposedHdlr = (s, e) => { Console.WriteLine($"sender:{s} Disposed.\n"); };
 
-        Console.WriteLine("\n各ノードの値をDictionaryで表すノードマップに変換して、組み立てる");
-        //キーにNodeIndexをとるDictionaryに変換
-        var dic = root.ToNodeMap(x => x.Value);
-        //NodeIndexを使って組み立てる
-        var assembledRoot = dic.AssembleTree(x => new BSampleBinary() { Value = x }, (p, c) => p.AddChild(c));
+        foreach (var node in root.Preorder()) {
+            node.StructureChanged += structreChangedHdlr;
+            node.PropertyChanged += propertyChangedHdlr;
+            node.Disposed += disposedHdlr;
+        }
+        Console.WriteLine("node D を削除\n");
+        nodesDic["B"].RemoveChild(nodesDic["D"]);
+        //削除後のツリーを表示
+        Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine(assembledRoot.ToTreeDiagram(x=> $"[{x.Value}]"));
-        Console.WriteLine($"Preorder:{string.Join(",", assembledRoot.Preorder().Select(x => x.Value))}");
-        Console.WriteLine($"Inorder:{string.Join(',', assembledRoot.Inorder().Select(x => x.Value))}");
+        Console.WriteLine("node D を node E の子ノードに追加");
+        nodesDic["E"].AddChild(nodesDic["D"]);
+        //追加後のツリーを表示
+        Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        Console.ReadLine();
-    }
-    public static void Method2() {
+        Console.WriteLine("node E を node C の子ノードに移動\n");
+        nodesDic["C"].AddChild(nodesDic["E"]);
+        //移動後のツリーを表示
+        Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        var root = "ABCDEF00IJ0LMNOPQ0S00VWX0Z".ToCharArray()
-            .CreateAsNAryTree(2, x => new BSampleBinary() { Value = x.ToString() }, (p, c) => p.AddChild(c));
+        Console.WriteLine("node E を Dispose\n");
+        nodesDic["E"].Dispose();
+        Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        var wrapperRoot = new BSampleImitator(root);
-
-        Console.WriteLine(root.ToTreeDiagram(x => x.Value));
-
-        Console.WriteLine(wrapperRoot.ToTreeDiagram(x => x.Value));
-
-        root.RemoveDescendant(x => x.Value == "0", (p, c) => p.RemoveChild(c));
-
-        Console.WriteLine(root.ToTreeDiagram(x => x.Value));
-        Console.WriteLine(wrapperRoot.ToTreeDiagram(x => x.Value));
 
         Console.ReadLine();
     }
 }
+
+
 

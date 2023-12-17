@@ -3,5 +3,5 @@ using SampleConsoleApp;
 
 //Console.WriteLine("Hello, World!");
 //SampleA.Method();
-SampleB.Method1();
-SampleB.Method2();
+SampleB.Method();
+SampleC.Method1();
