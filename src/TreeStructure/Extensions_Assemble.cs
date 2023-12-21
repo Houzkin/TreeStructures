@@ -141,7 +141,7 @@ namespace TreeStructures {
         /// <param name="conv">要素からノードに変換する</param>
         /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
         /// <returns>rootとなる最初の要素から変換されたノードを返す。</returns>
-        public static U CreateAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
+        public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (!self.Any()) throw new InvalidOperationException(nameof(self));
             var nds = self.Select(a => conv(a)).SkipWhile(a=>a==null);
@@ -172,8 +172,8 @@ namespace TreeStructures {
         /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
         /// <param name="conv">要素からノードに変換する</param>
         /// <returns>rootとなる最初の要素から変換されたノードを返す。</returns>
-        public static U CreateAsNAryTree<T,U>(this IEnumerable<T> self,int nary,Func<T,U> conv) where U : ITreeNodeCollection<U> {
-            return self.CreateAsNAryTree(nary, conv, (a, b) => a.AddChild(b));
+        public static U AssembleAsNAryTree<T,U>(this IEnumerable<T> self,int nary,Func<T,U> conv) where U : ITreeNodeCollection<U> {
+            return self.AssembleAsNAryTree(nary, conv, (a, b) => a.AddChild(b));
         }
 
         /// <summary>最初の要素を起点としたN分木を作成する。</summary>
@@ -182,8 +182,8 @@ namespace TreeStructures {
         /// <param name="self"></param>
         /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
         /// <returns>rootとなる最初のノードを返す。</returns>
-        public static T CreateAsNAryTree<T>(this IEnumerable<T> self,int nary) where T : ITreeNodeCollection<T> {
-            return self.CreateAsNAryTree(nary, a => a)!;
+        public static T AssembleAsNAryTree<T>(this IEnumerable<T> self,int nary) where T : ITreeNodeCollection<T> {
+            return self.AssembleAsNAryTree(nary, a => a)!;
         }
         #endregion
     }

@@ -12,12 +12,12 @@ namespace TreeStructures.Tree {
         protected BinaryTreeNode() : base(2) { }
         /// <summary>インデックス０で示すノード</summary>
         public T? Left {
-            get { return ChildNodes[0]; }
+            get { return ChildNodes.ElementAt(0); }
             set { if (base.CanAddChildNode(value)) SetChildProcess(0, value); }
         }
         /// <summary>インデックス1で示すノード</summary>
         public T? Right {
-            get { return ChildNodes[1]; }
+            get { return ChildNodes.ElementAt(1); }
             set { if (base.CanAddChildNode(value)) SetChildProcess(1, value); }
         }
     }

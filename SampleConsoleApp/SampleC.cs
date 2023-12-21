@@ -9,12 +9,6 @@ using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
 public class SampleBinary : BinaryTreeNode<SampleBinary> {
-    //protected override ObservableCollection<BSampleBinary> ChildNodes { get; } = new();
-
-    //ReadOnlyObservableCollection<BSampleBinary>? _children;
-
-    ////Step1) 子ノードコレクションを観測可能なコレクションで公開する
-    //public override IEnumerable<BSampleBinary> Children => _children ??= new ReadOnlyObservableCollection<BSampleBinary>(ChildNodes);
     public string Value { get; set; }
 
 }

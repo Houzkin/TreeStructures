@@ -25,15 +25,22 @@ namespace TreeStructures {
         public ObservableTreeNodeCollection(IEnumerable<TNode> collection) : this() {
             foreach (var item in collection) { this.AddChild(item); }
         }
-        ReadOnlyObservableCollection<TNode>? _readonlyobservablecollection;
-        /// <inheritdoc/>
-        public override ReadOnlyObservableCollection<TNode> Children => _readonlyobservablecollection ??= new ReadOnlyObservableCollection<TNode>(ChildNodes);
-        /// <inheritdoc/>
-        protected override ObservableCollection<TNode> ChildNodes { get; } = new ObservableCollection<TNode>();
+        //ReadOnlyObservableCollection<TNode>? _readonlyobservablecollection;
+        ///// <inheritdoc/>
+        //public override ReadOnlyObservableCollection<TNode> Children => _readonlyobservablecollection ??= new ReadOnlyObservableCollection<TNode>(ChildNodes);
+        ///// <inheritdoc/>
+        //protected override ObservableCollection<TNode> ChildNodes { get; } = new ObservableCollection<TNode>();
 
         /// <inheritdoc/>
-        protected override Action<IEnumerable<TNode>, int, int> MoveAction => (collection, oldIdx, newIdx) =>
-            ((ObservableCollection<TNode>)collection).Move(oldIdx, newIdx);
+        protected override IEnumerable<TNode> SetupInnerChildCollection() => new ObservableCollection<TNode>();
+        /// <inheritdoc/>
+        protected override IEnumerable<TNode> SetupPublicChildCollection(IEnumerable<TNode> innerCollection) 
+            => new ReadOnlyObservableCollection<TNode>((innerCollection as ObservableCollection<TNode>)!);
+        
+
+        ///// <inheritdoc/>
+        //protected override Action<IEnumerable<TNode>, int, int> MoveAction => (collection, oldIdx, newIdx) =>
+        //    ((ObservableCollection<TNode>)collection).Move(oldIdx, newIdx);
 
 
         IDisposable DeferParentChangedNotification() {
@@ -88,37 +95,56 @@ namespace TreeStructures {
             Disposed = null;
         }
         /// <inheritdoc/>
-        protected override void AddChildProcess(TNode child) {
+        protected override void AddChildProcess(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
             using (child.UniqueExcutor.LateEvaluateTree())
             using (child.DeferParentChangedNotification()) {
-                base.AddChildProcess(child);
+                base.AddChildProcess(child,action);
             }
         }
         /// <inheritdoc/>
-        protected override void InsertChildProcess(int index, TNode child) {
+        protected override void InsertChildProcess(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
             using (child.UniqueExcutor.LateEvaluateTree())
             using (child.DeferParentChangedNotification()) {
-                base.InsertChildProcess(index, child);
+                base.InsertChildProcess(index, child,action);
             }
         }
         /// <inheritdoc/>
-        protected override void RemoveChildProcess(TNode child) {
+        protected override void SetChildProcess(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
+            var rmv = ChildNodes.ElementAt(index);
+            using (child.UniqueExcutor.LateEvaluateTree())
+            using(child.DeferParentChangedNotification())
+            using(rmv?.UniqueExcutor.LateEvaluateTree())
+            using (rmv?.DeferParentChangedNotification())
+                base.SetChildProcess(index, child,action);
+        }
+        /// <inheritdoc/>
+        protected override void RemoveChildProcess(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
             using (child?.UniqueExcutor.LateEvaluateTree()) 
             using (child?.DeferParentChangedNotification()) {
-                base.RemoveChildProcess(child);
+                base.RemoveChildProcess(child,action);
             }
         }
         /// <inheritdoc/>
-        protected override void ClearChildProcess() {
+        protected override void ClearChildProcess(Action<IEnumerable<TNode>>? action = null) {
             using (ChildNodes.Select(a => a?.UniqueExcutor.LateEvaluateTree()).OfType<IDisposable>().ToLumpDisposables()) 
             using (ChildNodes.Select(a => a?.DeferParentChangedNotification()).OfType<IDisposable>().ToLumpDisposables()) {
-                base.ClearChildProcess();
+                base.ClearChildProcess(action);
             }
         }
-        /// <inheritdoc/>
-        protected override void MoveChildProcess(int oldIndex, int newIndex) {
+        /// <summary>コレクション内の要素の移動を実行するプロセス。</summary>
+        /// <param name="oldIndex">移動対象となる要素のインデックス</param>
+        /// <param name="newIndex">移動先のインデックス</param>
+        /// <param name="action">コレクションの操作を指示。以下、基底クラスでの指示<br/>
+        /// <code>(collection, idx1, idx2) =>
+        ///     ((ObservableCollection&lt;<typeparamref name="TNode"/>&gt;)collection).Move(idx1, idx2);
+        /// </code>
+        /// </param>
+        protected override void ShiftChildProcess(int oldIndex, int newIndex,Action<IEnumerable<TNode>,int,int>? action = null) {
+            action ??= (collection, idx1, idx2) =>
+                ((ObservableCollection<TNode>)collection).Move(idx1, idx2);
+            
             using (ChildNodes.ElementAt(oldIndex)?.UniqueExcutor.LateEvaluateTree()){
-                base.MoveChildProcess(oldIndex, newIndex);
+                base.ShiftChildProcess(oldIndex, newIndex,action);
             }
         }
 

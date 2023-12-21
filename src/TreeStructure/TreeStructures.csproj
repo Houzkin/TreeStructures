@@ -16,7 +16,7 @@ Provides a tree structure where each node holds parent and children references.<
     <PackageTags>tree;hierarchy;structure;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

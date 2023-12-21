@@ -129,7 +129,8 @@ public static partial class TreeNodeExtenstions {
         var dm = self.Evolve(a => {
             lst.AddRange(a.RemoveChild(predicate, removeAction).OfType<T>());
             return a.Children;
-        }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b)).ToArray();
+        }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b))
+            .LastOrDefault();
         return lst;
     }
     #endregion

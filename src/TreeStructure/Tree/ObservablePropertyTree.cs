@@ -110,15 +110,17 @@ namespace TreeStructures.Tree {
                 SubscribePropertyValue(target);
             }
             #endregion
-            /// <summary><inheritdoc/></summary>
-            protected override ISet<PropertyChainNode> ChildNodes { get; } = new HashSet<PropertyChainNode>();
+            /// <inheritdoc/>
+            protected override IEnumerable<ObservablePropertyTree<TSrc>.PropertyChainNode> SetupInnerChildCollection()
+                => new HashSet<PropertyChainNode>();
+            //protected override ISet<PropertyChainNode> ChildNodes { get; } = new HashSet<PropertyChainNode>();
 
-            /// <summary><inheritdoc/></summary>
-            protected override void AddChildProcess(PropertyChainNode child) {
-                if(this.CanAddChildNode(child)) base.AddChildProcess(child);
+            /// <summary>子ノードを追加する</summary>
+            protected void AddChildProcess(PropertyChainNode child) {
+                if (this.CanAddChildNode(child)) base.InsertChildProcess(0, child, (c, i, n) => ((ICollection<PropertyChainNode>)c).Add(n));
             }
             /// <summary><inheritdoc/></summary>
-            protected override void RemoveChildProcess(PropertyChainNode child) {
+            protected override void RemoveChildProcess(PropertyChainNode child,Action<IEnumerable<PropertyChainNode>,PropertyChainNode>? action = null) {
                 if (!ChildNodes.Contains(child)) return;
                 base.RemoveChildProcess(child);
                 foreach (var item in ChainToLeafs.Where(x => x.First() == child.NamedProperty).ToArray()){
@@ -189,6 +191,7 @@ namespace TreeStructures.Tree {
                 chgcld.SubscribePropertyValue(GetValueFromPropertyName(Target, e.PropertyName));
                 RaisePropertyChanged( e, chgcld.Leafs());
             }
+            /// <summary>イベントの発行</summary>
             protected virtual void RaisePropertyChanged(PropertyChangedEventArgs e, IEnumerable<PropertyChainNode> leafs) {
                 var root = this.Root();
                 if(object.ReferenceEquals(root, this)) return;

@@ -21,12 +21,15 @@ namespace TreeStructures {
         protected TreeNodeCollection(IEnumerable<TNode> nodes) : this() {
             foreach (var node in nodes) { this.AddChild(node); }
         }
-        IReadOnlyList<TNode>? _readonlylist;
-        /// <summary><inheritdoc/></summary>
-        public override IReadOnlyList<TNode> Children =>_readonlylist ??= new ReadOnlyCollection<TNode>(ChildNodes);
+        //IReadOnlyList<TNode>? _readonlylist;
+        ///// <summary><inheritdoc/></summary>
+        //public new IReadOnlyList<TNode> Children => (base.Children as IReadOnlyList<TNode>)!;
 
-        /// <summary><inheritdoc/></summary>
-        protected override IList<TNode> ChildNodes { get; } = new List<TNode>();
+        ///// <summary><inheritdoc/></summary>
+        //protected override IEnumerable<TNode> ChildNodes { get; } = new List<TNode>();
+        /// <inheritdoc/>
+        protected override IEnumerable<TNode> SetupInnerChildCollection() => new List<TNode>();
+
 
         /// <summary>子ノードとして追加可能かどうかを示す</summary>
         public bool CanAddChild(TNode node) {
@@ -43,12 +46,12 @@ namespace TreeStructures {
         }
         /// <summary>子ノードとして追加する</summary>
         public TNode AddChild(TNode child) {
-            if (CanAddChild(child)) AddChildProcess(child);
+            AddChildProcess(child);
             return Self;
         }
         /// <summary>子ノードとして挿入する</summary>
         public TNode InsertChild(int index, TNode child) {
-            if (CanAddChild(child)) InsertChildProcess(index, child);
+            InsertChildProcess(index, child);
             return Self;
         }
         /// <summary>子ノードから削除する</summary>
@@ -69,35 +72,53 @@ namespace TreeStructures {
         /// <param name="newIndex">移動先</param>
         /// <returns>現在のノード</returns>
         public TNode MoveChild(int oldIndex,int newIndex) {
-            MoveChildProcess(oldIndex, newIndex);
+            ShiftChildProcess(oldIndex, newIndex);
             return Self;
+        }
+        /// <summary>子ノードを差し替える</summary>
+        /// <returns>削除された子ノード</returns>
+        public TNode SetChild(int index, TNode child) {
+            var rmv = ChildNodes.ElementAt(index);
+            SetChildProcess(index, child);
+            return rmv;
         }
 
         #region Process
-        /// <summary><inheritdoc/></summary>
-        protected override void AddChildProcess(TNode child) {
+        /// <summary>子ノードの追加プロセス</summary>
+        /// <remarks><paramref name="action"/> = null で、<see cref="ICollection{T}"/>へキャストして追加する</remarks>
+        /// <param name="child"></param>
+        /// <param name="action">コレクションの操作を指示。以下、デフォルトの処理<br/>
+        /// <code>(collection, node)=>((ICollection&lt;<typeparamref name="TNode"/>&gt;)collection).Add(node);</code></param>
+        protected virtual void AddChildProcess(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
             this.ThrowExceptionIfDisposed();
-            base.AddChildProcess(child);
+            //base.AddChildProcess(child);
+            action ??= (collection, node) => ((ICollection<TNode>)collection).Add(node);
+            base.InsertChildProcess(0, child, (collection, idx, node) => action(collection,node));
         }
-        /// <summary><inheritdoc/></summary>
-        protected override void InsertChildProcess(int index, TNode child) {
+        /// <inheritdoc/>
+        protected override void InsertChildProcess(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
             this.ThrowExceptionIfDisposed();
-            base.InsertChildProcess(index, child);
+            base.InsertChildProcess(index, child,action);
         }
-        /// <summary><inheritdoc/></summary>
-        protected override void MoveChildProcess(int oldIndex, int newIndex) {
+        /// <inheritdoc/>
+        protected override void SetChildProcess(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
             this.ThrowExceptionIfDisposed();
-            base.MoveChildProcess(oldIndex, newIndex);
+            base.SetChildProcess(index, child,action);
         }
-        /// <summary><inheritdoc/></summary>
-        protected override void RemoveChildProcess(TNode child) {
+        /// <inheritdoc/>
+        protected override void ShiftChildProcess(int oldIndex, int newIndex, Action<IEnumerable<TNode>, int, int>? action = null) {
             this.ThrowExceptionIfDisposed();
-            base.RemoveChildProcess(child);
+            base.ShiftChildProcess(oldIndex, newIndex, action);
         }
-        /// <summary><inheritdoc/></summary>
-        protected override void ClearChildProcess() {
+        /// <inheritdoc/>
+        protected override void RemoveChildProcess(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
             this.ThrowExceptionIfDisposed();
-            base.ClearChildProcess();
+            base.RemoveChildProcess(child, action);
+        }
+        /// <inheritdoc/>
+        protected override void ClearChildProcess(Action<IEnumerable<TNode>>? action = null) {
+            this.ThrowExceptionIfDisposed();
+            base.ClearChildProcess(action);
         }
 
         #endregion process
@@ -139,7 +160,7 @@ namespace TreeStructures {
         /// <summary>子孫ノードを全て破棄する。</summary>
         /// <returns>現在のノード</returns>
         public TNode DisposeDescendants() {
-            foreach (var cld in this.ChildNodes.OfType<IDisposable>().ToArray())
+            foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
                 cld.Dispose();
             return Self;
         }

@@ -22,7 +22,7 @@ public static class SampleB {
         Console.WriteLine("コレクションをN分木として組み立てる");
 
         var nodesDic = "ABCDEFGHI".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableSampleNode() { Name = x });
-        var root = nodesDic.Values.CreateAsNAryTree(2);
+        var root = nodesDic.Values.AssembleAsNAryTree(2);
         //移動前のツリーを表示
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 

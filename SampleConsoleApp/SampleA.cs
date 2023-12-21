@@ -69,7 +69,7 @@ public static　partial class SampleA {
 
         Console.WriteLine("コレクションをN分木として組み立てる");
         var root = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray().Select(x => x.ToString())
-            .CreateAsNAryTree(3, x => new ExampleNode() { Name = x });
+            .AssembleAsNAryTree(3, x => new ExampleNode() { Name = x });
         
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
         Console.WriteLine($"Levelorder:{string.Join(",", root.Levelorder().Select(x=>x.Name))}");

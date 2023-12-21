@@ -11,13 +11,17 @@ namespace TreeStructures.Linq {
     /// <summary>Linqの拡張メソッド</summary>
     public static class LinqExtensions {
         /// <summary>読取専用</summary>
-        public static IEnumerable<T> AsReadOnlyEnumerable<T>(this IEnumerable<T> enumerable) {
+        public static IEnumerable<T> AsReadOnly<T>(this IEnumerable<T> enumerable) {
             return new EnumerableCollection<T>(enumerable);
         }
-        internal class EnumerableCollection<T> : IEnumerable<T> {
+        
+        internal class EnumerableCollection<T> : IEnumerable<T>,IReadOnlyList<T> {
             public EnumerableCollection(IEnumerable<T> collection) {
                 _collection = collection;
             }
+            public T this[int index] => this.ElementAt(index);
+
+            public int Count => this.Count();
             IEnumerable<T> _collection;
             public IEnumerator<T> GetEnumerator() {
                 return _collection.GetEnumerator();
@@ -27,6 +31,7 @@ namespace TreeStructures.Linq {
                 return _collection.GetEnumerator();
             }
         }
+        
         /// <summary>破棄可能なコレクションをまとめる</summary>
         public static IDisposable ToLumpDisposables<T>(this IEnumerable<T> enumerable) where T:IDisposable {
             return new LumpedDisopsables(enumerable.OfType<IDisposable>());
