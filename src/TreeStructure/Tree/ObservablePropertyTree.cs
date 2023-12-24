@@ -13,6 +13,7 @@ using System.Xml.Serialization;
 using TreeStructures.Collections;
 using TreeStructures.EventManagement;
 using TreeStructures.Internals;
+using TreeStructures.Linq;
 using TreeStructures.Utility;
 
 namespace TreeStructures.Tree {
@@ -47,7 +48,7 @@ namespace TreeStructures.Tree {
         public ObservablePropertyTree(TSrc target) {
             _root = new PropertyChainRoot(target);
         }
-        /// <summary>観測元が再設定されたとき、変更通知を発行するかどうかを示す値</summary>
+        /// <summary>観測元が再設定されたとき、変更通知を発行するかどうかを示す値。初期値:true</summary>
         public bool IsEvaluateTargetChanged {
             get => _root.IsEvaluateTargetChanged;
             set => _root.IsEvaluateTargetChanged = value;
@@ -151,7 +152,7 @@ namespace TreeStructures.Tree {
                 if(cld != null) {
                     cld.AddSubscribeProperty(propNames.Skip(1));
                 } else {
-                    var propValue = GetValueFromPropertyName(Target, obsname);
+                    var propValue = PropertyUtils.GetValueFromPropertyName(Target, obsname);
                     this.AddChildProcess(new PropertyChainNode(propValue, obsname, propNames.Skip(1)));
                 }
             }
@@ -174,7 +175,7 @@ namespace TreeStructures.Tree {
                 foreach(var chain in ChainToLeafs) {
                     if (!chain.Any()) return;
                     var obsname = chain.First();
-                    var propValue = GetValueFromPropertyName(Target, obsname);
+                    var propValue = PropertyUtils.GetValueFromPropertyName(Target, obsname);
                     var cld = ChildNodes.FirstOrDefault(a => a.NamedProperty == obsname);
                     if (cld != null) {
                         cld.SubscribePropertyValue(propValue);
@@ -188,7 +189,7 @@ namespace TreeStructures.Tree {
                 //観測プロパティの変更だった場合、該当する子ノードの値を再設定
                 var chgcld = this.ChildNodes.FirstOrDefault(a => a.NamedProperty == e.PropertyName);
                 if (chgcld == null) return;
-                chgcld.SubscribePropertyValue(GetValueFromPropertyName(Target, e.PropertyName));
+                chgcld.SubscribePropertyValue(PropertyUtils.GetValueFromPropertyName(Target, e.PropertyName));
                 RaisePropertyChanged( e, chgcld.Leafs());
             }
             /// <summary>イベントの発行</summary>
@@ -211,25 +212,25 @@ namespace TreeStructures.Tree {
                 var pre = this.Target;
                 this.SubscribePropertyValue(target);
                 if (IsEvaluateTargetChanged && !ReferenceEquals(pre, this.Target)) {
-                    this.RaisePropertyChanged(null,this.Leafs().Except(new[] { this }));
+                    this.RaisePropertyChanged(null,this.Leafs());
                 }
             }
             
             public IDisposable Subscribe<TValue>(Expression<Func<TSrc, object>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
-                var propChain = GetPropertyPath(expression);
+                var propChain = PropertyUtils.GetPropertyPath(expression).Prepend(string.Empty);
                 var status = addChainStatus<TValue, object>(propChain);
                 return getListener(status, changedAction);
             }
             public NotifyObject<TValue> ToNotifyObject<TValue>(Expression<Func<TSrc,TValue>> expression) {
-                var propChain = GetPropertyPath(expression);
+                var propChain = PropertyUtils.GetPropertyPath(expression).Prepend(string.Empty);
                 return new NotifyObject<TValue>(propChain, addChainStatus<TValue,TValue>, getListener);
             }
             ChainStatus<TValue> addChainStatus<TValue, TProp>(IEnumerable<string> propChain) {
-                this.AddSubscribeProperty(propChain);
+                this.AddSubscribeProperty(propChain.Except(new string[] { string.Empty }));
                 Func<TValue> getvalue = () => {
                     try {
                         if (this.Target != null) {
-                            var val = this.DescendArrivals(a => a.NamedProperty, propChain.Prepend(string.Empty)).Single().Target;
+                            var val = this.DescendArrivals(a => a.NamedProperty, propChain).Single().Target;
                             if (val is TValue va) return va;
                         }
                         return default;
@@ -241,7 +242,8 @@ namespace TreeStructures.Tree {
 
                 var status = chainStatuses.OfType<ChainStatus<TValue>>().FirstOrDefault(x => x.Key.SequenceEqual(propChain) && x.PropertyValueType == typeof(TValue).FullName);
                 if (status == null) {
-                    status = new ChainStatus<TValue>(propChain, getvalue);
+                    var chain = propChain.Any() ? propChain : new string[] { string.Empty };
+                    status = new ChainStatus<TValue>(chain, getvalue);
                     chainStatuses.Add(status);
                 }
                 return status;
@@ -264,7 +266,8 @@ namespace TreeStructures.Tree {
             protected override void RaisePropertyChanged(PropertyChangedEventArgs e, IEnumerable<PropertyChainNode> leafs) {
                 HashSet<ChainStatus> args = new();
                 foreach (var leaf in leafs) {
-                    var lfchain = leaf.Upstream().Reverse().Skip(1).Select(a => a.NamedProperty).ToArray();
+                    var lfchain = leaf.Upstream().Reverse()/*.Skip(1)*/.Select(a => a.NamedProperty).ToArray();
+                    lfchain = lfchain.Any() ? lfchain : new string[] { string.Empty };
                     foreach (var sts in chainStatuses) {
                         if (args.Contains(sts)) continue;
                         var mth = sts.Key.Zip(lfchain).TakeWhile((x, y) => x.First.Equals(x.Second));
@@ -273,7 +276,7 @@ namespace TreeStructures.Tree {
                     if (args.Count == chainStatuses.Count) break;
                 }
                 foreach (var sts in args) {
-                    sts.OnPropertyChanged(Target,e, sts);
+                    sts.OnPropertyChanged(Target,e);
                 }
             }
             void TryRemoveNode(IEnumerable<string> seq) {
@@ -345,7 +348,7 @@ namespace TreeStructures.Tree {
         internal abstract class ChainStatus {
             public abstract IEnumerable<string> Key { get; }
             public abstract string PropertyValueType { get; }
-            public abstract void OnPropertyChanged(object? sender, PropertyChangedEventArgs e, ChainStatus propertyName);
+            public abstract void OnPropertyChanged(object? sender, PropertyChangedEventArgs e);
         }
         internal class ChainStatus<TVal> : ChainStatus {
             public ChainStatus(IEnumerable<string> key,Func<TVal> getPresentValue) {
@@ -359,60 +362,20 @@ namespace TreeStructures.Tree {
             public EventHandler<ChainedPropertyChangedEventArgs<TVal>>? ChainedPropertyChanged;
             public Func<TVal> GetPresentValue { get; private set; }
 
-            public override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e, ChainStatus status) {
+            public override void OnPropertyChanged(object? sender, PropertyChangedEventArgs e) {
                 var curv = GetPresentValue();
                 if(object.Equals(this.BeforeValue, curv)) return;
                 //var arg = new ChainedPropertyChangedEventArgs<TVal>(string.Join('.',status.Key), curv);
-                var arg = new ChainedPropertyChangedEventArgs<TVal>(e?.PropertyName, status.Key, curv);
+                var arg = new ChainedPropertyChangedEventArgs<TVal>(e?.PropertyName ?? string.Empty, this.Key, curv);
                 ChainedPropertyChanged?.Invoke(sender, arg);
                 BeforeValue = curv;
             }
         
         }
 
-        #region static methods
-        static IEnumerable<string> GetPropertyPath<T,TValue>(Expression<Func<T, TValue>> expression) {
-            var memberExpression = GetMemberExpression(expression.Body);
-
-            if (memberExpression == null) {
-                throw new ArgumentException("Expression must be a member access expression");
-            }
-            var propNames = new Stack<string>();
-            //var propertyNames = new List<string>();
-
-            while (memberExpression != null) {
-                //propertyNames.Insert(0, memberExpression.Member.Name);
-                propNames.Push(memberExpression.Member.Name);
-                memberExpression = GetMemberExpression(memberExpression.Expression);
-            }
-
-            return propNames;
-        }
-
-        static MemberExpression? GetMemberExpression([AllowNull]Expression expression) {
-            if (expression is UnaryExpression unaryExpression) {
-                return unaryExpression.Operand as MemberExpression;
-            }
-            return expression as MemberExpression;
-        }
-
-        static object? GetValueFromPropertyName(object? obj, string propertyName) {
-            // obj が null の場合 null を返す
-            if (obj == null) return null;
-            // obj の型から指定されたプロパティを取得
-            PropertyInfo? propertyInfo = obj.GetType().GetProperty(propertyName);
-
-            // プロパティが存在するか確認
-            if (propertyInfo != null) {
-                // プロパティの値を取得
-                return propertyInfo.GetValue(obj);
-            } else {
-                // プロパティが存在しない場合
-                throw new ArgumentException($"Property '{propertyName}' not found in type {obj.GetType().Name}");
-            }
-        }
-        #endregion
+        
     }
+    
     //public class ObservablePropertyTree {
     //    public static ObservablePropertyTree<TSrc> Establish<TSrc>(TSrc target) {
     //        return new ObservablePropertyTree<TSrc>(target);

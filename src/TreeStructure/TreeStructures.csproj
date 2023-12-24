@@ -8,7 +8,7 @@
     <Authors>houzkin</Authors>
     <Copyright>houzkin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>各ノードが親と子の参照を保持するツリー構造を提供します。
 Provides a tree structure where each node holds parent and children references.</Description>
@@ -18,10 +18,6 @@ Provides a tree structure where each node holds parent and children references.<
     <AssemblyVersion></AssemblyVersion>
     <Version>1.1.0</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Bindables\" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\icon\treestrucuture.jpg">

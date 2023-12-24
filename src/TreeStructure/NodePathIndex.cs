@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TreeStructures.Linq;
 
 namespace TreeStructures {
 
@@ -137,7 +138,7 @@ namespace TreeStructures {
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            if (_nodePath == null) return new int[0].GetEnumerator();
+            if (_nodePath == null) return Array.Empty<int>().GetEnumerator();
             return this._nodePath.GetEnumerator();
         }
         /// <summary>

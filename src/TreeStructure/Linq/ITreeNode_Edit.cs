@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Utility;
 
-namespace TreeStructures;
+namespace TreeStructures.Linq;
 
 /// <summary>
 /// ツリー構造を成すオブジェクトに対する拡張メソッドを定義する。

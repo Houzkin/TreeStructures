@@ -9,7 +9,7 @@ using TreeStructures.Internals;
 
 namespace TreeStructures.Linq {
     /// <summary>Linqの拡張メソッド</summary>
-    public static class LinqExtensions {
+    public static class EnumerableExtensions {
         /// <summary>読取専用</summary>
         public static IEnumerable<T> AsReadOnly<T>(this IEnumerable<T> enumerable) {
             return new EnumerableCollection<T>(enumerable);

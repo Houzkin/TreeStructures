@@ -21,15 +21,9 @@ namespace TreeStructures {
         protected TreeNodeCollection(IEnumerable<TNode> nodes) : this() {
             foreach (var node in nodes) { this.AddChild(node); }
         }
-        //IReadOnlyList<TNode>? _readonlylist;
-        ///// <summary><inheritdoc/></summary>
-        //public new IReadOnlyList<TNode> Children => (base.Children as IReadOnlyList<TNode>)!;
-
-        ///// <summary><inheritdoc/></summary>
-        //protected override IEnumerable<TNode> ChildNodes { get; } = new List<TNode>();
+        
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupInnerChildCollection() => new List<TNode>();
-
 
         /// <summary>子ノードとして追加可能かどうかを示す</summary>
         public bool CanAddChild(TNode node) {

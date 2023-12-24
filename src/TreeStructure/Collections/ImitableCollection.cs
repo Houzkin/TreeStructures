@@ -24,7 +24,7 @@ namespace TreeStructures.Collections {
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary><inheritdoc/></summary>
-        public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
+        public event NotifyCollectionChangedEventHandler? CollectionChanged;
         /// <summary>
         /// プロパティ変更通知を発行する
         /// </summary>

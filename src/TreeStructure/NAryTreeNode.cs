@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructures.Tree {
+namespace TreeStructures {
 
     /// <summary>N分木を表す</summary>
     /// <typeparam name="TNode">共通となる型</typeparam>
@@ -46,6 +46,7 @@ namespace TreeStructures.Tree {
             if(0<=idx) base.SetChildProcess(idx, null);
         }
         /// <summary><inheritdoc/></summary>
+        /// <remarks><see cref="IList{T}"/>へキャストして、全ての要素をnullに置き換える</remarks>
         /// <param name="action">コレクションの操作を指示。以下、基底クラスでの処理<br/>
         /// <code>collection => {
         /// var lst = (IList&lt;<typeparamref name="TNode"/>&gt;)collection;
@@ -109,7 +110,7 @@ namespace TreeStructures.Tree {
         /// <param name="idxB"></param>
         /// <returns>現在のノード</returns>
         public TNode SwapChild(int idxA, int idxB) {
-            this.SwapChild(idxA, idxB);
+            this.SwapChildProcess(idxA, idxB);
             return Self;
         }
     }

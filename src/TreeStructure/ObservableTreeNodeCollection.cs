@@ -25,24 +25,13 @@ namespace TreeStructures {
         public ObservableTreeNodeCollection(IEnumerable<TNode> collection) : this() {
             foreach (var item in collection) { this.AddChild(item); }
         }
-        //ReadOnlyObservableCollection<TNode>? _readonlyobservablecollection;
-        ///// <inheritdoc/>
-        //public override ReadOnlyObservableCollection<TNode> Children => _readonlyobservablecollection ??= new ReadOnlyObservableCollection<TNode>(ChildNodes);
-        ///// <inheritdoc/>
-        //protected override ObservableCollection<TNode> ChildNodes { get; } = new ObservableCollection<TNode>();
-
+        
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupInnerChildCollection() => new ObservableCollection<TNode>();
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupPublicChildCollection(IEnumerable<TNode> innerCollection) 
             => new ReadOnlyObservableCollection<TNode>((innerCollection as ObservableCollection<TNode>)!);
         
-
-        ///// <inheritdoc/>
-        //protected override Action<IEnumerable<TNode>, int, int> MoveAction => (collection, oldIdx, newIdx) =>
-        //    ((ObservableCollection<TNode>)collection).Move(oldIdx, newIdx);
-
-
         IDisposable DeferParentChangedNotification() {
             return UniqueExcutor.LateEvalute(parentchangedeventkey, () => Parent);
         }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Internals;
+using TreeStructures.Linq;
 using TreeStructures.Utility;
 
 namespace TreeStructures.EventManagement {

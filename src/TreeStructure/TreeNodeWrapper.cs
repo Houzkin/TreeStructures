@@ -5,18 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TreeStructures {
-    /// <summary>連動の停止とインスタンスの破棄が可能な、TreeNodeをラップするオブジェクト</summary>
+    /// <summary>ツリー構造をなすノードをラップする<br/>参照は子孫方向へのみ広がります。</summary>
     /// <remarks><inheritdoc/></remarks>
     /// <typeparam name="TSrc">ラップされるノード</typeparam>
     /// <typeparam name="TOur">ラップするノード</typeparam>
-    public abstract class TreeNodeImitator<TSrc, TOur> : CompositeImitator<TSrc, TOur>
-    where TSrc : class, ITreeNode<TSrc>
-    where TOur : TreeNodeImitator<TSrc, TOur> {
+    public abstract class TreeNodeWrapper<TSrc,TOur> : CompositeWrapper<TSrc,TOur>
+        where TSrc : class, ITreeNode<TSrc>
+        where TOur : TreeNodeWrapper<TSrc,TOur> {
+
         /// <summary>新規インスタンスを初期化する</summary>
         /// <param name="sourceNode">ラップされるノード</param>
-        protected TreeNodeImitator(TSrc sourceNode) : base(sourceNode) { }
+        protected TreeNodeWrapper(TSrc sourceNode) : base(sourceNode) { }
         /// <summary><inheritdoc/></summary>
         protected override IEnumerable<TSrc>? SourceNodeChildren => SourceNode?.Children;
     }
-
 }

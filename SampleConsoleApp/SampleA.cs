@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
+using TreeStructures.Linq;
 
 namespace SampleConsoleApp;
 public static　partial class SampleA {

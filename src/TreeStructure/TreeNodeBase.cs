@@ -71,57 +71,8 @@ namespace TreeStructures {
             }
             return true;
         }
-        #region edit actions
-        ///// <summary>子ノードの追加処理。<para><see cref="ChildNodes"/>と追加する子ノートを引数にとる</para></summary>
-        ///// <remarks>基底クラスでは<see cref="ICollection{TNode}"/>にキャストして処理します</remarks>
-        //protected virtual Action<IEnumerable<TNode>,TNode> AddAction => (collection, node) => ((ICollection<TNode>)collection).Add(node);
-
-        ///// <summary>子ノードの挿入処理。<para><see cref="ChildNodes"/>と挿入する子ノードを引数にとる</para></summary>
-        ///// <remarks>基底クラスでは<see cref="IList{TNode}"/>にキャストして処理します</remarks>
-        //protected virtual Action<IEnumerable<TNode>,int,TNode> InsertAction => (collection, index, node) => ((IList<TNode>)collection).Insert(index, node);
-
-        ///// <summary>子ノードの削除処理。<para><see cref="ChildNodes"/>と削除するノードを引数にとる</para></summary>
-        ///// <remarks>基底クラスでは<see cref="ICollection{TNode}"/>にキャストして処理します</remarks>
-        //protected virtual Action<IEnumerable<TNode>, TNode> RemoveAction => (collection, node) => ((ICollection<TNode>)collection).Remove(node);
-
-        ///// <summary>子ノードのクリア処理。<see cref="ChildNodes"/>を引数にとる</summary>
-        ///// <remarks>基底クラスでは<see cref="ICollection{TNode}"/>にキャストして処理します</remarks>
-        //protected virtual Action<IEnumerable<TNode>> ClearAction => collection => ((ICollection<TNode>)collection).Clear();
-
-        ///// <summary>コレクション内で子ノードの移動処理。<para><see cref="ChildNodes"/>,移動する要素のindex、移動先indexを引数にとる</para></summary>
-        ///// <remarks>基底クラスでは<see cref="IList{TNode}"/>にキャストして処理します</remarks>
-        //protected virtual Action<IEnumerable<TNode>,int, int> MoveAction
-        //    => (collection,oldIndex, newIndex) => {
-        //        var nodes = (IList<TNode>)collection;
-        //        var tgt = nodes[oldIndex];
-        //        nodes.RemoveAt(oldIndex);
-        //        nodes.Insert(newIndex, tgt);
-        //    };
-        //protected virtual Action<IEnumerable<TNode>, int, TNode> SetAction => (collection, index, node) => ((IList<TNode>)collection)[index] = node;
-        #endregion
 
         #region edit processes
-        ///// <summary>子ノードの追加プロセスを実行する。
-        ///// <para>デフォルトでは<see cref="ChildNodes"/>が<see cref ="ICollection{TNode}"/>へキャストされます。</para>
-        ///// <para><see cref ="ICollection{TNode}"/>を実装していない場合は<see cref="AddAction"/>をオーバーライドして追加処理に準ずる処理を記述してください。</para>
-        ///// </summary>
-        ///// <param name="child">追加する子ノード</param>
-        //protected virtual void AddChildProcess(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
-        //    action ??= new ((collection, node) => ((ICollection<TNode>)collection).Add(node));
-        //    var bfr = this.childCash();
-        //    try {
-        //        var p = child?.Parent;
-        //        child?.SetParent(Self);
-        //        p?.RemoveChildProcess(child);
-        //        //AddAction(ChildNodes,child);
-        //        action(ChildNodes, child);
-        //    } catch(InvalidCastException ex) {
-        //        throw new NotSupportedException($"追加処理において指定された操作ができません。プロパティ:{nameof(AddAction)}を指定・確認してください。", ex);
-        //    } catch (Exception) {
-        //        ErrAdj(bfr);
-        //        throw;
-        //    }
-        //}
         /// <summary>子ノードの差替えを実行するプロセス。</summary>
         /// <remarks><paramref name="action"/> = null で、<see cref="IList{T}"/>へキャストし、インデクサーを使用して要素を差し替える</remarks>
         /// <param name="index">削除されるノードのインデックス</param>

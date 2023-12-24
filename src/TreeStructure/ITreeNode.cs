@@ -45,4 +45,7 @@ namespace TreeStructures {
         /// </summary>
         event EventHandler<StructureChangedEventArgs<TNode>>? StructureChanged;
     }
+    //public interface IImitableTreeNode<TNode> : ITreeNode<TNode> where TNode:IImitableTreeNode<TNode> {
+
+    //}
 }

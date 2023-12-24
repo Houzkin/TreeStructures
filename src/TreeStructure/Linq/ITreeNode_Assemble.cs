@@ -6,9 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Collections;
-using TreeStructures.Linq;
 
-namespace TreeStructures {
+namespace TreeStructures.Linq {
 
     // ツリー構造の組み立てを行うメソッドを提供する。
     public static partial class TreeNodeExtenstions {
