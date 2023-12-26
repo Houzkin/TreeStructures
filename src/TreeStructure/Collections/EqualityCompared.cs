@@ -8,11 +8,9 @@ using System.Threading.Tasks;
 namespace TreeStructures.Collections {
 
     // Helper class for construction
-    /// <summary>
-    /// 等価比較をサポートする
-    /// </summary>
+    /// <summary>Supports equality comparison.</summary>
     public static class EqualityCompared {
-        /// <summary>等価比較を行うキーを選択する</summary>
+        /// <summary>Selects the key for performing equality comparison.</summary>
         /// <typeparam name="TSource"></typeparam>
         /// <typeparam name="TKey"></typeparam>
         /// <param name="selector"></param>
@@ -26,11 +24,10 @@ namespace TreeStructures.Collections {
         //}
     }
 
-    /// <summary>
-    /// 等価比較をサポートする
-    /// </summary>
+
+    /// <summary>Supports equality comparison.</summary>
     public static class EqualityCompared<T> {
-        /// <summary>等価比較を行うキーを選択する</summary>
+        /// <summary>Selects the key for performing equality comparison.</summary>
         /// <typeparam name="TKey"></typeparam>
         /// <param name="selector"></param>
         /// <returns></returns>
@@ -39,16 +36,17 @@ namespace TreeStructures.Collections {
         }
         //public static IEqualityComparer<T> Default => System.Collections.Generic.EqualityComparer<T>.Default;
     }
-    /// <summary>等価比較をサポートするオブジェクト</summary>
+    /// <summary>An object that supports equality comparison.</summary>
     /// <typeparam name="TSource"></typeparam>
     /// <typeparam name="TKey"></typeparam>
     public class AnonymousEqualityComparer<TSource, TKey>: IEqualityComparer<TSource> {
         readonly Func<TSource, TKey> selector;
         readonly IEqualityComparer<TKey> comparer;
-        /// <summary>指定したキーのデフォルトの等価比較を行うインスタンスを初期化する</summary>
+        /// <summary>Initializes an instance for performing default equality comparison with the specified key.</summary>
         /// <param name="selector"></param>
         public AnonymousEqualityComparer(Func<TSource, TKey> selector): this(selector, null) { }
-        /// <summary>キーを指定して等価比較を行うインスタンスを初期化する</summary>
+
+        /// <summary>Initializes an instance for performing equality comparison with the specified key.</summary>
         /// <param name="selector"></param>
         /// <param name="comparer"></param>
         /// <exception cref="ArgumentNullException"></exception>

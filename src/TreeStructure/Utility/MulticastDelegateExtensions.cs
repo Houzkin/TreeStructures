@@ -9,7 +9,10 @@ namespace TreeStructures.Utility {
     /// 
     /// </summary>
     public static class MulticastDelegateExtensions {
-        /// <summary>登録されているハンドラーの数を取得する</summary>
+        /// <summary>
+        /// Gets the count of registered handlers.
+        /// </summary>
+        /// <returns>The count of registered handlers.</returns>
         public static int GetLength(this MulticastDelegate? self) {
             if (self == null || self.GetInvocationList() == null) {
                 return 0;

@@ -8,10 +8,10 @@ namespace TreeStructures {
     /// <summary>連動の停止とインスタンスの破棄が可能な、TreeNodeをラップするオブジェクト</summary>
     /// <remarks><inheritdoc/></remarks>
     /// <typeparam name="TSrc">ラップされるノード</typeparam>
-    /// <typeparam name="TOur">ラップするノード</typeparam>
-    public abstract class TreeNodeImitator<TSrc, TOur> : CompositeImitator<TSrc, TOur>
+    /// <typeparam name="TImtr">ラップするノード</typeparam>
+    public abstract class TreeNodeImitator<TSrc, TImtr> : CompositeImitator<TSrc, TImtr>
     where TSrc : class, ITreeNode<TSrc>
-    where TOur : TreeNodeImitator<TSrc, TOur> {
+    where TImtr : TreeNodeImitator<TSrc, TImtr> {
         /// <summary>新規インスタンスを初期化する</summary>
         /// <param name="sourceNode">ラップされるノード</param>
         protected TreeNodeImitator(TSrc sourceNode) : base(sourceNode) { }

@@ -13,15 +13,16 @@ using System.Threading.Tasks;
 using System.Xml;
 using TreeStructures.Collections;
 using TreeStructures.EventManagement;
+using TreeStructures.Linq;
 
 namespace TreeStructures {
     /// <summary>Compositeパターンをツリー構造としてラップする<br/>参照は子孫方向へのみ広がります。</summary>
     /// <remarks>プライベートなツリー構造をReadOnlyなデータ構造として公開する用途を想定しています。</remarks>
     /// <typeparam name="TSrc">Compositeパターンをなす型</typeparam>
-    /// <typeparam name="TOur">ラップするノードの型</typeparam>
-    public abstract class CompositeWrapper<TSrc,TOur> : ITreeNode<TOur> ,INotifyPropertyChanged, IDisposable
+    /// <typeparam name="TWrpr">ラップするノードの型</typeparam>
+    public abstract class CompositeWrapper<TSrc,TWrpr> : ITreeNode<TWrpr> ,INotifyPropertyChanged, IDisposable
         where TSrc : class
-        where TOur:CompositeWrapper<TSrc,TOur> {
+        where TWrpr:CompositeWrapper<TSrc,TWrpr> {
         /// <summary>ラップされたノード</summary>
         protected TSrc SourceNode { get; }
         /// <summary>新規インスタンスを初期化する</summary>
@@ -50,28 +51,28 @@ namespace TreeStructures {
             PropChangeProxy.Notify(propertyName);
         #endregion
 
-        TOur? _parent;
+        TWrpr? _parent;
         /// <summary><inheritdoc/></summary>
-        public TOur? Parent { 
+        public TWrpr? Parent { 
             get { return _parent; }
             private protected set { SetProperty(ref _parent, value); }
         }
         /// <summary><see cref="INotifyCollectionChanged"/>を実装した子ノードコレクションの参照を指定する</summary>
         protected abstract IEnumerable<TSrc>? SourceNodeChildren { get; }
 
-        private protected ImitableCollection<TOur>? _children;
+        private protected ImitableCollection<TWrpr>? _children;
 
         /// <summary><inheritdoc/>外部に公開するコレクション</summary>
         /// <remarks>基底クラスからは<see cref="SourceNodeChildren"/>をラップした<see cref="ImitableCollection{TSrc, TConv}"/>を返す。</remarks>
-        public virtual IEnumerable<TOur> Children => 
+        public virtual IEnumerable<TWrpr> Children => 
             _children ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild);
-        /// <summary>子ノードに適用される、<typeparamref name="TSrc"/>から<typeparamref name="TOur"/>への変換関数</summary>
+        /// <summary>子ノードに適用される、<typeparamref name="TSrc"/>から<typeparamref name="TWrpr"/>への変換関数</summary>
         /// <param name="sourceChildNode">ラップされる子ノード</param>
         /// <returns>ラップした子ノード</returns>
-        protected abstract TOur GenerateChild(TSrc sourceChildNode);
-        private protected virtual TOur GenerateAndSetupChild(TSrc sourceChildNode) {
+        protected abstract TWrpr GenerateChild(TSrc sourceChildNode);
+        private TWrpr GenerateAndSetupChild(TSrc sourceChildNode) {
             ThrowExceptionIfDisposed();
-            TOur? cld = null;
+            TWrpr? cld = null;
             try {
                 cld = GenerateChild(sourceChildNode);
             } catch(NullReferenceException e) {
@@ -79,12 +80,16 @@ namespace TreeStructures {
                 if(sourceChildNode is null) { msg += $"{nameof(sourceChildNode)}は null です。"; }
                 throw new NullReferenceException( msg, e);
             }
-            
+            if(cld != null) {
+                cld.Parent = this as TWrpr;
+                cld._children?.Imitate();
+            }
             return cld;
         }
         /// <summary>削除された子ノードに対する処理</summary>
-        /// <param name="removedNode"></param>
-        protected virtual void ManageRemovedChild(TOur removedNode) {
+        /// <remarks>基底クラスでは<see cref="Dispose()"/>メソッドが呼び出される</remarks>
+        /// <param name="removedNode">削除された子ノード</param>
+        protected virtual void ManageRemovedChild(TWrpr removedNode) {
             (removedNode as IDisposable)?.Dispose();
         }
 
@@ -93,10 +98,10 @@ namespace TreeStructures {
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
-                //    var nd = this.Levelorder().Skip(1).Reverse().ToArray();
-                //    this.StopImitate();
+                this.Parent = null;
+                var nd = this.Levelorder().Skip(1).Reverse().OfType<IDisposable>().ToArray();
                 _children?.Dispose();
-                //    foreach (var n in nd) n.Dispose();
+                foreach (var n in nd) n.Dispose();
             }
             isDisposed = true;
         }

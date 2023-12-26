@@ -11,24 +11,39 @@ using TreeStructures.EventManagement;
 using TreeStructures.Linq;
 
 namespace TreeStructures.Tree {
-    
+    /// <summary>
+    /// 日付のコレクションをツリー構造として構築する
+    /// </summary>
     public class DateTimeTree:DateTimeTree<DateTime> {
-        public DateTimeTree(IEnumerable<DateTime> collection,Func<DateTime,int> level1, params Func<DateTime, int>[] levels) :base(collection,x=>x,level1,levels) {
 
-        }
+        /// <summary>新規インスタンスを初期化する</summary>
+        /// <param name="collection"><see cref="DateTime"/>型のコレクション</param>
+        /// <param name="Lv1Classes">レベル１での分類</param>
+        /// <param name="nextsLvClasses">レベル２以降での各分類</param>
+        public DateTimeTree(IEnumerable<DateTime> collection, Func<DateTime, int> Lv1Classes, params Func<DateTime, int>[] nextsLvClasses)
+            : base(collection, x => x, Lv1Classes, nextsLvClasses) { }
     }
+    /// <summary>日付をプロパティとして保持するオブジェクトのコレクションをツリー構造として構築する</summary>
+    /// <typeparam name="T">日付をプロパティとして保持するオブジェクト</typeparam>
     public class DateTimeTree<T> {
-        public DateNodeBase Root { get; }
+        private InnerNodeBase _root { get; }
+        /// <summary>構築されたツリー</summary>
+        public DateTimeNode Root { get; }
         Dictionary<int, Func<DateTime, int>> selectChargeDic = new();
         Func<T, DateTime> SelectDateTime;
         IEnumerable<T> _collection;
         IDisposable? _dispo = null;
-        public DateTimeTree(IEnumerable<T> collection,Func<T,DateTime> selectDateTime,Func<DateTime,int> level1,params Func<DateTime, int>[] levels) {
-            Root = new DateRoot();
-            var levlst = new List<Func<DateTime, int>> { level1 };
-            levlst.AddRange(levels);
+        /// <summary>新規インスタンスを初期化する</summary>
+        /// <param name="collection">日付をプロパティとして保持するオブジェクトのコレクション</param>
+        /// <param name="dateTimeSelector">日付を示す</param>
+        /// <param name="Lv1Classes">レベル１での分類</param>
+        /// <param name="nextsLvClasses">レベル２以降での各分類</param>
+        public DateTimeTree(IEnumerable<T> collection,Func<T,DateTime> dateTimeSelector,Func<DateTime,int> Lv1Classes,params Func<DateTime, int>[] nextsLvClasses) {
+            _root = new InnerDateRoot();
+            var levlst = new List<Func<DateTime, int>> { Lv1Classes };
+            levlst.AddRange(nextsLvClasses);
             _collection = collection;
-            SelectDateTime = selectDateTime; 
+            SelectDateTime = dateTimeSelector; 
             for(int i = 0; i < levlst.Count; i++) {
                 selectChargeDic[i+1] = levlst[i];
             }
@@ -39,6 +54,7 @@ namespace TreeStructures.Tree {
                     h => notifir.CollectionChanged -= h, 
                     CollectionChanged);
             }
+            Root = new DateTimeNode(_root);
         }
 
         private void CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -52,6 +68,7 @@ namespace TreeStructures.Tree {
             }
             if(e.Action == NotifyCollectionChangedAction.Reset) { ReCollect(_collection); }
         }
+        /// <summary>コレクションを入替える</summary>
         public void Reset(IEnumerable<T> collection) {
             _dispo?.Dispose();
             if (collection is INotifyCollectionChanged notifir) {
@@ -63,21 +80,21 @@ namespace TreeStructures.Tree {
             ReCollect(collection);
         }
         void ReCollect(IEnumerable<T> collection) {
-            Root.ClearChildren();
+            _root.ClearChildren();
             foreach(var itm in collection) AddDateTime(itm);
         }
 
         internal void AddDateTime(T item) {
             var addlst = selectChargeDic.Select(x => x.Value(SelectDateTime(item))).ToArray();
-            var nd = Root;
+            var nd = _root;
             for(int i = 0; i < addlst.Length; i++) {
-                var ele = nd.Children.FirstOrDefault(x => x.ChargedValue == addlst[i]);
+                var ele = nd.Children.FirstOrDefault(x => x.NodeClass == addlst[i]);
                 if (ele == null) {
-                    ele = new DateNode(addlst[i]);
+                    ele = new InnerDateNode(addlst[i]);
                     nd.AddChild(ele);
                 }
                 if (i+1 == addlst.Length) {
-                    ele.AddChild(new DateLeaf<T>(addlst[i], SelectDateTime(item),item));
+                    ele.AddChild(new InnerDateLeaf<T>(addlst[i], SelectDateTime(item),item));
                     break;
                 } else {
                     nd = ele;
@@ -86,53 +103,53 @@ namespace TreeStructures.Tree {
         }
         internal void DeleteDateTime(T item) {
             var dt = SelectDateTime(item);
-            var tgt = Root.Leafs().OfType<DateLeaf<T>>().FirstOrDefault(x => object.Equals(x,item));
+            var tgt = _root.Leafs().OfType<InnerDateLeaf<T>>().FirstOrDefault(x => object.Equals(x,item));
             if (tgt != null) {
                 var ans = tgt.Ancestors().ToArray();
                 tgt.TryRemoveOwn();
                 foreach(var nd  in ans) {
-                    if (!nd.Leafs().OfType<DateLeaf<T>>().Any()) nd.TryRemoveOwn();
+                    if (!nd.Leafs().OfType<InnerDateLeaf<T>>().Any()) nd.TryRemoveOwn();
                 }
             }
         }
-        
-        public class DateNodeBase : TreeNodeCollection<DateNodeBase> {
-            protected override IEnumerable<DateTimeTree<T>.DateNodeBase> SetupInnerChildCollection()
+        /// <summary>ツリーをなすBaseNode</summary>
+        public class InnerNodeBase : TreeNodeCollection<InnerNodeBase> {
+            protected override IEnumerable<DateTimeTree<T>.InnerNodeBase> SetupInnerChildCollection()
                 => new SortedObableList();
-            protected override IEnumerable<DateTimeTree<T>.DateNodeBase> SetupPublicChildCollection(IEnumerable<DateTimeTree<T>.DateNodeBase> innerCollection)
-                => new ReadOnlyObservableCollection<DateTimeTree<T>.DateNodeBase>((innerCollection as ObservableCollection<DateTimeTree<T>.DateNodeBase>)!);
+            protected override IEnumerable<DateTimeTree<T>.InnerNodeBase> SetupPublicChildCollection(IEnumerable<DateTimeTree<T>.InnerNodeBase> innerCollection)
+                => new ReadOnlyObservableCollection<DateTimeTree<T>.InnerNodeBase>((innerCollection as ObservableCollection<DateTimeTree<T>.InnerNodeBase>)!);
 
-            public DateNodeBase(int chargedValue) {
-                ChargedValue = chargedValue;
+            internal InnerNodeBase(int chargedValue) {
+                NodeClass = chargedValue;
             }
-            public int ChargedValue { get; }
+            public int NodeClass { get; }
             public override string ToString() {
-                return ChargedValue.ToString();
+                return NodeClass.ToString();
             }
 
-            private class SortedObableList : ObservableCollection<DateTimeTree<T>.DateNodeBase> {
-                static readonly IComparer<DateTimeTree<T>.DateNodeBase> comp = Comparer<DateTimeTree<T>.DateNodeBase>.Create((a, b) => {
-                    if (a is DateLeaf<T> leafA && b is DateLeaf<T> leafB) {
+            private class SortedObableList : ObservableCollection<DateTimeTree<T>.InnerNodeBase> {
+                static readonly IComparer<DateTimeTree<T>.InnerNodeBase> comp = Comparer<DateTimeTree<T>.InnerNodeBase>.Create((a, b) => {
+                    if (a is InnerDateLeaf<T> leafA && b is InnerDateLeaf<T> leafB) {
                         return leafA.DateTimeValue.CompareTo(leafB.DateTimeValue);
                     } else {
-                        return a.ChargedValue - b.ChargedValue;
+                        return a.NodeClass - b.NodeClass;
                     }
                 });
                 public SortedObableList() {
                 }
                 //int FirstIndexOf(DateTimeTree<T>.DateNodeBase other) => this.IndexOf(this.FirstOrDefault(x => comparer.Compare(x, other) >= 0));
-                int LastIndexOf(DateTimeTree<T>.DateNodeBase other) => this.IndexOf(this.LastOrDefault(x=>comp.Compare(x, other) <= 0));
-                protected override void InsertItem(int _, DateTimeTree<T>.DateNodeBase item) {
+                int LastIndexOf(DateTimeTree<T>.InnerNodeBase other) => this.IndexOf(this.LastOrDefault(x=>comp.Compare(x, other) <= 0));
+                protected override void InsertItem(int _, DateTimeTree<T>.InnerNodeBase item) {
                     var idx = LastIndexOf(item) + 1;
                     base.InsertItem(idx, item);
                 }
             }
         }
-        public class DateNode :DateNodeBase{
-            public DateNode(int chargedValue) : base(chargedValue) { }
+        private class InnerDateNode :InnerNodeBase{
+            public InnerDateNode(int chargedValue) : base(chargedValue) { }
         }
-        public class DateLeaf<TItem> : DateNodeBase {
-            public DateLeaf(int chargedValue,DateTime datetime,TItem item) : base(chargedValue) {
+        private class InnerDateLeaf<TItem> : InnerNodeBase {
+            public InnerDateLeaf(int chargedValue,DateTime datetime,TItem item) : base(chargedValue) {
                 DateTimeValue = datetime;
                 Item = item;
             }
@@ -142,11 +159,26 @@ namespace TreeStructures.Tree {
                 return DateTimeValue.ToString();
             }
         }
-        public class DateRoot : DateNodeBase {
-            public DateRoot() : base(0) {
+        private class InnerDateRoot : InnerNodeBase {
+            public InnerDateRoot() : base(0) {
 
             }
         }
+        /// <summary>分類または値を持ったノードを表す</summary>
+        public sealed class DateTimeNode : TreeNodeWrapper<InnerNodeBase, DateTimeNode> {
+            internal DateTimeNode(DateTimeTree<T>.InnerNodeBase sourceNode) : base(sourceNode) { }
+
+            protected override DateTimeTree<T>.DateTimeNode GenerateChild(DateTimeTree<T>.InnerNodeBase sourceChildNode) {
+                return new DateTimeNode(sourceChildNode);
+            }
+            public int NodeClass => this.SourceNode.NodeClass;
+            public bool HasValue  => (this.SourceNode is InnerDateLeaf<T>);
+            
+            public DateTime? DateTimeValue => (this.SourceNode is InnerDateLeaf<T> leaf) ? leaf.DateTimeValue : null;
+            
+            public T Value => (this.SourceNode is InnerDateLeaf<T> leaf) ? leaf.Item : default;
+        }
+
     }
 
 }
