@@ -16,17 +16,22 @@ using TreeStructures.EventManagement;
 using TreeStructures.Linq;
 
 namespace TreeStructures {
-    /// <summary>Compositeパターンをツリー構造としてラップする<br/>参照は子孫方向へのみ広がります。</summary>
-    /// <remarks>プライベートなツリー構造をReadOnlyなデータ構造として公開する用途を想定しています。</remarks>
-    /// <typeparam name="TSrc">Compositeパターンをなす型</typeparam>
-    /// <typeparam name="TWrpr">ラップするノードの型</typeparam>
+    /// <summary>
+    /// Wraps the Composite pattern as a tree structure.
+    /// References are only propagated in the descendant direction.
+    /// Intended for exposing a mutable structure as a read-only or restricted-change data structure.
+    /// </summary>
+    /// <typeparam name="TSrc">Type representing the Composite pattern</typeparam>
+    /// <typeparam name="TWrpr">Type of the wrapper node</typeparam>
     public abstract class CompositeWrapper<TSrc,TWrpr> : ITreeNode<TWrpr> ,INotifyPropertyChanged, IDisposable
         where TSrc : class
         where TWrpr:CompositeWrapper<TSrc,TWrpr> {
-        /// <summary>ラップされたノード</summary>
+
+        /// <summary>The wrapped node</summary>
         protected TSrc SourceNode { get; }
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="sourceNode">ラップされるノード</param>
+
+        /// <summary>Initializes a new instance</summary>
+        /// <param name="sourceNode">The node to be wrapped</param>
         protected CompositeWrapper(TSrc sourceNode) { 
             SourceNode = sourceNode;
         }
@@ -39,12 +44,12 @@ namespace TreeStructures {
             remove { this.PropChangeProxy.Changed -= value; }
         }
         /// <summary>
-        /// 値の変更と変更通知の発行を行う
+        /// Performs the change of value and issues a change notification.
         /// </summary>
-        protected virtual bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) =>
-            PropChangeProxy.SetWithNotify(ref strage, value, propertyName);
+        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
+            PropChangeProxy.SetWithNotify(ref storage, value, propertyName);
         /// <summary>
-        /// プロパティ変更通知を発行する
+        ///  Issues a property change notification.
         /// </summary>
         /// <param name="propertyName"></param>
         protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null) =>
@@ -57,18 +62,24 @@ namespace TreeStructures {
             get { return _parent; }
             private protected set { SetProperty(ref _parent, value); }
         }
-        /// <summary><see cref="INotifyCollectionChanged"/>を実装した子ノードコレクションの参照を指定する</summary>
+        /// <summary>Specifies a reference to a child node collection that implements <see cref="INotifyCollectionChanged"/>.</summary>
         protected abstract IEnumerable<TSrc>? SourceNodeChildren { get; }
 
-        private protected ImitableCollection<TWrpr>? _children;
+        private protected ImitableCollection<TWrpr>? _innerChildren;
+        private ImitableCollection<TWrpr> InnerChildren => 
+            _innerChildren ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild,IsImitating);
 
-        /// <summary><inheritdoc/>外部に公開するコレクション</summary>
-        /// <remarks>基底クラスからは<see cref="SourceNodeChildren"/>をラップした<see cref="ImitableCollection{TSrc, TConv}"/>を返す。</remarks>
-        public virtual IEnumerable<TWrpr> Children => 
-            _children ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild);
-        /// <summary>子ノードに適用される、<typeparamref name="TSrc"/>から<typeparamref name="TWrpr"/>への変換関数</summary>
-        /// <param name="sourceChildNode">ラップされる子ノード</param>
-        /// <returns>ラップした子ノード</returns>
+        private IEnumerable<TWrpr>? _children;
+        //public virtual IEnumerable<TWrpr> Children => 
+        //    _innerChildren ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild);
+        /// <inheritdoc/>
+        public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildren);
+        /// <summary>Sets the collection to be exposed externally.</summary>
+        /// <remarks>From the base class, it returns a wrapped <see cref="ImitableCollection{TSrc, TConv}"/> of <see cref="SourceNodeChildren"/>.</remarks>
+        protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(ImitableCollection<TWrpr> children) => children;
+        /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
+        /// <param name="sourceChildNode">Child node to be wrapped</param>
+        /// <returns>Wrapped child node</returns>
         protected abstract TWrpr GenerateChild(TSrc sourceChildNode);
         private TWrpr GenerateAndSetupChild(TSrc sourceChildNode) {
             ThrowExceptionIfDisposed();
@@ -82,30 +93,41 @@ namespace TreeStructures {
             }
             if(cld != null) {
                 cld.Parent = this as TWrpr;
-                cld._children?.Imitate();
+                cld.IsImitating = true;
+                cld._innerChildren?.Imitate();
             }
             return cld;
         }
-        /// <summary>削除された子ノードに対する処理</summary>
-        /// <remarks>基底クラスでは<see cref="Dispose()"/>メソッドが呼び出される</remarks>
-        /// <param name="removedNode">削除された子ノード</param>
+        /// <summary>Processing for removed child nodes.</summary>
+        /// <remarks>Invoked by the <see cref="Dispose"/> method in the base class.</remarks>
+        /// <param name="removedNode">Removed child node</param>
         protected virtual void ManageRemovedChild(TWrpr removedNode) {
             (removedNode as IDisposable)?.Dispose();
         }
-
+        bool _isImitating = true;
+        /// <summary>Parameter indicating the state of whether the child node collection is in the imitating state when generating an instance.</summary>
+        private protected bool IsImitating {
+            get { return _isImitating; }
+            set { if (_isImitating != value) _isImitating = value; }
+        }
         private bool isDisposed;
         /// <summary></summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
                 this.Parent = null;
-                var nd = this.Levelorder().Skip(1).Reverse().OfType<IDisposable>().ToArray();
-                _children?.Dispose();
+                var nd = this
+                    .Evolve(a => {
+                        a.IsImitating = false;
+                        return a.Children;
+                    }, (a, b, c) => b.Prepend(a).Concat(c))
+                    .Skip(1).Reverse().OfType<IDisposable>().ToArray();
+                _innerChildren?.Dispose();
                 foreach (var n in nd) n.Dispose();
             }
             isDisposed = true;
         }
-        /// <summary>既に破棄されたインスタンスの操作を禁止する。</summary>
+        /// <summary>Prohibits operations on an instance that has already been disposed.</summary>
         protected void ThrowExceptionIfDisposed() {
             if (isDisposed) throw new ObjectDisposedException(this.ToString(), "既に破棄されたインスタンスが操作されました。");
         }

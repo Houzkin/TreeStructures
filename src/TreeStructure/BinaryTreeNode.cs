@@ -5,18 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TreeStructures {
-    /// <summary>バイナリーツリーを表す</summary>
-    /// <typeparam name="T">共通となる型</typeparam>
-    public abstract class BinaryTreeNode<T> : NAryTreeNode<T> where T : BinaryTreeNode<T> {
-        /// <summary>コンストラクタ</summary>
+    /// <summary>Represents a binary tree.</summary>
+    /// <typeparam name="TNode">The common base type for each node.</typeparam>
+    public abstract class BinaryTreeNode<TNode> : NAryTreeNode<TNode> where TNode : BinaryTreeNode<TNode> {
+        /// <summary>Constructor.</summary>
         protected BinaryTreeNode() : base(2) { }
-        /// <summary>インデックス０で示すノード</summary>
-        public T? Left {
+        /// <summary>The node indicated by index 0.</summary>
+        public TNode? Left {
             get { return ChildNodes.ElementAt(0); }
             set { if (base.CanAddChildNode(value)) SetChildProcess(0, value); }
         }
-        /// <summary>インデックス1で示すノード</summary>
-        public T? Right {
+        /// <summary>The node indicated by index 1.</summary>
+        public TNode? Right {
             get { return ChildNodes.ElementAt(1); }
             set { if (base.CanAddChildNode(value)) SetChildProcess(1, value); }
         }

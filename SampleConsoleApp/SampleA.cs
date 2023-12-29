@@ -39,7 +39,7 @@ public static　partial class SampleA {
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
         Console.WriteLine("高さ、レベル、ノードインデックスも追加で表示");
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},NodeIndex:{x.NodeIndex()}"));
-        A.Dismantle();//全て分解
+        A.Disassemble();//全て分解
         Console.ReadLine();
 
         Console.WriteLine("インデックスを指定したDictionaryから組み立てる");
@@ -65,7 +65,7 @@ public static　partial class SampleA {
         Console.WriteLine("親ノードから振り当てられているインデックスと、パスを追加で表示");
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},BranchIndex:{x.BranchIndex()},NodePath:{x.NodePath(y=>y.Name)}"));
 
-        A.Dismantle();//全て分解
+        A.Disassemble();//全て分解
         Console.ReadLine();
 
         Console.WriteLine("コレクションをN分木として組み立てる");
@@ -101,7 +101,7 @@ public static　partial class SampleA {
     }
 }
 
-public class ExampleNode : TreeNodeCollection<ExampleNode> {
+public class ExampleNode : TreeNode<ExampleNode> {
     public ExampleNode() { }
     public string Name { get; set; }
     public override string ToString() {

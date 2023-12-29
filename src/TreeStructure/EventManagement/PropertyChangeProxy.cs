@@ -24,33 +24,34 @@ namespace TreeStructures.EventManagement {
     //    protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null) =>
     //        PropChangeProxy.Notify(propertyName);
     //}
-    /// <summary><see cref="INotifyPropertyChanged"/>の実装をサポートする</summary>
+
+    /// <summary>Supports the implementation of <see cref="INotifyPropertyChanged"/>.</summary>
     public class PropertyChangeProxy :INotifyPropertyChanged {
         object? sender;
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="sender">イベント発行時、発行元として指定するインスタンス</param>
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="sender">The instance to be specified as the sender when the event is raised.</param>
         public PropertyChangeProxy(object? sender) {
             this.sender = sender;
         }
-        /// <summary>値の変更と変更通知の発行を行う</summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="strage"></param>
-        /// <param name="value"></param>
-        /// <param name="propertyName"></param>
-        /// <returns></returns>
-        public bool SetWithNotify<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
-            if (Equals(strage, value)) return false;
-            strage = value;
+        /// <summary>Performs value change and issues change notifications.</summary>
+        /// <typeparam name="T">The type of the value.</typeparam>
+        /// <param name="storage">The storage for the value.</param>
+        /// <param name="value">The new value.</param>
+        /// <param name="propertyName">The name of the property (automatically provided by the compiler).</param>
+        /// <returns>True if there was a change in the value, false otherwise.</returns>
+        public bool SetWithNotify<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) {
+            if (Equals(storage, value)) return false;
+            storage = value;
             Notify(propertyName);
             return true;
         }
-        /// <summary>プロパティ変更通知を発行する</summary>
-        /// <param name="propertyName">プロパティ名</param>
+        /// <summary>Issues property change notification.</summary>
+        /// <param name="propertyName">The name of the property.</param>
         public void Notify([CallerMemberName] string? propertyName = null) {
             if (string.IsNullOrEmpty(propertyName)) return;
             Changed?.Invoke(sender, new PropertyChangedEventArgs(propertyName));
         }
-        /// <summary>登録されている全てのハンドラーを削除する</summary>
+        /// <summary>Removes all registered handlers.</summary>
         public void ClearHandler() { 
             Changed = null;
         }
@@ -58,7 +59,7 @@ namespace TreeStructures.EventManagement {
             add { Changed += value; }
             remove { Changed -= value; }
         }
-        /// <summary>プロパティ変更時、処理される</summary>
+        /// <summary>Occurs when a property is changed.</summary>
         public event PropertyChangedEventHandler? Changed;
     }
 }

@@ -8,81 +8,88 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TreeStructures {
-    /// <summary>多分木構造をなすノードを表す</summary>
-    /// <typeparam name="TNode">各ノードの共通基底クラスとなる型</typeparam>
+    /// <summary>Represents a mutable node forming a general tree structure.</summary>
+    /// <typeparam name="TNode">The common base type for each node.</typeparam>
     [Serializable]
-    public abstract class TreeNodeCollection<TNode> : TreeNodeBase<TNode>, ITreeNodeCollection<TNode>, IDisposable where TNode : TreeNodeCollection<TNode> {
-        /// <summary>新規インスタンスを初期化する。</summary>
-        protected TreeNodeCollection() {
+    public abstract class TreeNode<TNode> : TreeNodeBase<TNode>, IMutableTreeNode<TNode>, IDisposable where TNode : TreeNode<TNode> {
+        /// <summary>Initializes a new instance.</summary>
+        protected TreeNode() {
             //Children = new ReadOnlyCollection<TNode>(ChildNodes);
         }
-        /// <summary>新規インスタンスを初期化する</summary>
+        /// <summary>Initializes a new instance.</summary>
         /// <param name="nodes"></param>
-        protected TreeNodeCollection(IEnumerable<TNode> nodes) : this() {
+        protected TreeNode(IEnumerable<TNode> nodes) : this() {
             foreach (var node in nodes) { this.AddChild(node); }
         }
         
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupInnerChildCollection() => new List<TNode>();
 
-        /// <summary>子ノードとして追加可能かどうかを示す</summary>
+        /// <summary>Indicates whether the node can be added as a child node.</summary>
         public bool CanAddChild(TNode node) {
             return CanAddChildNode(node);
         }
 
         /// <summary><inheritdoc/></summary>
-        /// <remarks>基底クラスではnullの追加は非許容です。</remarks>
-        /// <param name="child">追加しようとする子ノード</param>
-        /// <returns>null、Treeの循環、兄弟ノードとの重複をチェックします。</returns>
+        /// <remarks>In the base class, adding null is not allowed.</remarks>
+        /// <param name="child">The child node to be added.</param>
+        /// <returns>Checks for null, tree cycles, and duplicates with sibling nodes.</returns>
         protected override bool CanAddChildNode([AllowNull] TNode child) {
             if (child == null) return false;
             return base.CanAddChildNode(child);
         }
-        /// <summary>子ノードとして追加する</summary>
+        /// <summary>Adds the node as a child node.</summary>
+        /// <returns>The current node.</returns>
         public TNode AddChild(TNode child) {
             AddChildProcess(child);
             return Self;
         }
-        /// <summary>子ノードとして挿入する</summary>
+        /// <summary>Inserts the node as a child node at the specified index.</summary>
+        /// <returns>The current node.</returns>
         public TNode InsertChild(int index, TNode child) {
             InsertChildProcess(index, child);
             return Self;
         }
-        /// <summary>子ノードから削除する</summary>
+
+        /// <summary>Removes the specified child node.</summary>
+        /// <returns>The removed child node.</returns>
         public TNode RemoveChild(TNode child) {
             if (ChildNodes.Contains(child))
                 RemoveChildProcess(child);
             return child;
         }
-        /// <summary>子ノードを全て削除する</summary>
-        /// <returns>削除された子ノード</returns>
+
+        /// <summary>Removes all child nodes.</summary>
+        /// <returns>The removed child nodes.</returns>
         public IReadOnlyList<TNode> ClearChildren() {
-            var clrs = this.ChildNodes.OfType<TNode>().ToArray();
+            var removedChildren = this.ChildNodes.OfType<TNode>().ToArray();
             ClearChildProcess();
-            return clrs.Except(this.ChildNodes.OfType<TNode>()).ToArray();
+            return removedChildren.Except(this.ChildNodes.OfType<TNode>()).ToArray();
         }
-        /// <summary>子ノードの位置を移動する</summary>
-        /// <param name="oldIndex">移動元</param>
-        /// <param name="newIndex">移動先</param>
-        /// <returns>現在のノード</returns>
-        public TNode MoveChild(int oldIndex,int newIndex) {
+
+        /// <summary>Moves the child node from the old index to the new index.</summary>
+        /// <param name="oldIndex">The original index.</param>
+        /// <param name="newIndex">The new index.</param>
+        /// <returns>The current node.</returns>
+        public TNode MoveChild(int oldIndex, int newIndex) {
             ShiftChildProcess(oldIndex, newIndex);
             return Self;
         }
-        /// <summary>子ノードを差し替える</summary>
-        /// <returns>削除された子ノード</returns>
+
+        /// <summary>Replaces the child node at the specified index with a new node.</summary>
+        /// <returns>The removed child node.</returns>
         public TNode SetChild(int index, TNode child) {
-            var rmv = ChildNodes.ElementAt(index);
+            var removedChild = ChildNodes.ElementAt(index);
             SetChildProcess(index, child);
-            return rmv;
+            return removedChild;
         }
 
         #region Process
-        /// <summary>子ノードの追加プロセス</summary>
-        /// <remarks><paramref name="action"/> = null で、<see cref="ICollection{T}"/>へキャストして追加する</remarks>
-        /// <param name="child"></param>
-        /// <param name="action">コレクションの操作を指示。以下、デフォルトの処理<br/>
-        /// <code>(collection, node)=>((ICollection&lt;<typeparamref name="TNode"/>&gt;)collection).Add(node);</code></param>
+        /// <summary>Child node addition process.</summary>
+        /// <remarks><paramref name="action"/> = null, it casts to <see cref="ICollection{T}"/> and adds the node.</remarks>
+        /// <param name="child">The child node to add.</param>
+        /// <param name="action">Specifies the collection operation. Default process is as follows:<br/>
+        /// <code>(collection, node) => ((ICollection&lt;<typeparamref name="TNode"/>&gt;)collection).Add(node);</code></param>
         protected virtual void AddChildProcess(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
             this.ThrowExceptionIfDisposed();
             //base.AddChildProcess(child);
@@ -122,12 +129,12 @@ namespace TreeStructures {
         bool _isDisposed;
         [NonSerialized]
         bool _isDisposing;
-        /// <summary>現在のインスタンスが既に破棄されているかどうかを示す値を取得する。</summary>
+        /// <summary>Gets a value indicating whether the current instance has already been disposed.</summary>
         protected bool IsDisposed {
             get { return _isDisposed; }
             private set { _isDisposed = value; }
         }
-        /// <summary>インスタンスを破棄する。対象ノードに加え、子孫ノードも破棄される。</summary>
+        /// <summary>Disposes the instance. Along with the target node, descendant nodes are also disposed.</summary>
         public void Dispose() {
             if (IsDisposed || _isDisposing) return;
             _isDisposing = true;
@@ -136,7 +143,7 @@ namespace TreeStructures {
             _isDisposing = false;
             return;
         }
-        /// <summary>リソースを破棄する。</summary>
+        /// <summary>Disposes of resources.</summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
@@ -147,12 +154,12 @@ namespace TreeStructures {
         void IDisposable.Dispose() {
             this.Dispose();
         }
-        /// <summary>既に破棄されたインスタンスの操作を禁止する。</summary>
+        /// <summary>Prevents operations on an instance that has already been disposed.</summary>
         protected void ThrowExceptionIfDisposed() {
             if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "既に破棄されたインスタンスが操作されました。");
         }
-        /// <summary>子孫ノードを全て破棄する。</summary>
-        /// <returns>現在のノード</returns>
+        /// <summary>Disposes of all descendant nodes.</summary>
+        /// <returns>The current node.</returns>
         public TNode DisposeDescendants() {
             foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
                 cld.Dispose();

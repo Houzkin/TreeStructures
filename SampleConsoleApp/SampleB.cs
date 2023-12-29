@@ -11,7 +11,7 @@ using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public class ObservableSampleNode: ObservableTreeNodeCollection<ObservableSampleNode> {
+public class ObservableSampleNode: ObservableTreeNode<ObservableSampleNode> {
     public string Name { get; set; }
     public override string ToString() {
         return this.Name;
@@ -28,14 +28,14 @@ public static class SampleB {
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
         EventHandler<StructureChangedEventArgs<ObservableSampleNode>> structreChangedHdlr = (s, e) => {
-            Console.WriteLine($"sender:{s} \nTarget:{e.Target} TreeAction:{e.TreeAction} PreviousParentOfTarget:{e.PreviousParentOfTarget} OldIndex:{e.OldIndex} AncestorWasChanged:{e.AncestorWasChanged} DescendantWasChanged:{e.DescendantWasChanged}");
-            if (e.AncestorWasChanged) {
+            Console.WriteLine($"sender:{s} \nTarget:{e.Target} TreeAction:{e.TreeAction} PreviousParentOfTarget:{e.PreviousParentOfTarget} OldIndex:{e.OldIndex} AncestorWasChanged:{e.IsAncestorChanged} DescendantWasChanged:{e.IsDescendantChanged}");
+            if (e.IsAncestorChanged) {
                 var info = e.AncestorInfo!;
-                Console.WriteLine($"MovedTarget:{info.MovedTarget} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget} RootWasChanged:{info.RootWasChanged}");
+                Console.WriteLine($"MovedTarget:{info.MovedTarget} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget} RootWasChanged:{info.IsRootChanged}");
             } 
-            if (e.DescendantWasChanged) {
+            if (e.IsDescendantChanged) {
                 var info = e.DescendantInfo!;
-                Console.WriteLine($"Target:{info.Target} NodeAction:{info.NodeAction} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget}");
+                Console.WriteLine($"Target:{info.Target} NodeAction:{info.SubTreeAction} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget}");
             }
             Console.Write("\n");
         };

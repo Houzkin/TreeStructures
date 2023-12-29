@@ -8,51 +8,51 @@ using TreeStructures.Utility;
 namespace TreeStructures.Linq;
 
 /// <summary>
-/// ツリー構造を成すオブジェクトに対する拡張メソッドを定義する。
+/// Defines extension methods for objects that form a tree structure.
 /// </summary>
 public static partial class TreeNodeExtenstions {
 
     #region 編集
 
-    /// <summary>子ノードを追加する。</summary>
-    /// <returns>正常に追加できた場合は現在のノード、追加できなかった、或いは既に追加済みの場合は<paramref name="child"/>を返す。</returns>
-    public static ResultWithValue<T> TryAddChild<T>(this ITreeNodeCollection<T> self, T child) where T : ITreeNodeCollection<T> {
+    /// <summary>Adds a child node.</summary>
+    /// <returns>If the addition is successful, returns the current node; if the addition is unsuccessful or the node is already added, returns <paramref name="child"/>.</returns>
+    public static ResultWithValue<T> TryAddChild<T>(this IMutableTreeNode<T> self, T child) where T : IMutableTreeNode<T> {
         if(self.Children.Contains(child)) return new ResultWithValue<T>(false, child);
         self.AddChild(child);
         var ncash = self.Children.ToArray();
         if (ncash.Contains(child)) return new ResultWithValue<T>((T)self);
         return new ResultWithValue<T>(false, child);
     }
-    /// <summary>指定したインデックスに子ノードを挿入する。</summary>
-    /// <returns>挿入できた場合は現在のノード、挿入できなかった、既に追加済み、追加はできたが指定したインデックスと一致しなかった場合は<paramref name="child"/>を返す。</returns>
-    public static ResultWithValue<T> TryInsertChild<T>(this ITreeNodeCollection<T> self, int index,T child) where T : ITreeNodeCollection<T> {
+    /// <summary>Inserts a child node at the specified index.</summary>
+    /// <returns>If the insertion is successful, returns the current node; if the insertion is unsuccessful, the node is already added, or the specified index does not match, returns <paramref name="child"/>.</returns>
+    public static ResultWithValue<T> TryInsertChild<T>(this IMutableTreeNode<T> self, int index,T child) where T : IMutableTreeNode<T> {
         if (self.Children.Contains(child)) return new ResultWithValue<T>(false, child);
         self.InsertChild(index, child);
         if (self.Children.Contains(child) && child.BranchIndex() == index) return new ResultWithValue<T>((T)self);
         return new ResultWithValue<T>(false, child);
     }
 
-    /// <summary>子ノードを削除する。</summary>
-    /// <returns>正常に削除できた場合は<paramref name="child"/>、削除できなかった或いは子ノードに該当しなかった場合は現在のノードを返す。</returns>
-    public static ResultWithValue<T> TryRemoveChild<T>(this ITreeNodeCollection<T> self, T child) where T : ITreeNodeCollection<T> {
+    /// <summary>Removes a child node.</summary>
+    /// <returns>If the removal is successful, returns <paramref name="child"/>; if the removal is unsuccessful or the specified child node does not exist, returns the current node.</returns>
+    public static ResultWithValue<T> TryRemoveChild<T>(this IMutableTreeNode<T> self, T child) where T : IMutableTreeNode<T> {
         if(!self.Children.Contains(child)) return new ResultWithValue<T>(false,(T)self);
         self.RemoveChild(child);
         if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
         return new ResultWithValue<T>(false, (T)self);
     }
-    /// <summary>子ノードを削除する。</summary>
-    /// <param name="child">削除する子ノード</param>
-    /// <param name="removeAction">第一引数に親ノード、第二引数に子ノードを取り、その関係を解消させる関数。</param>
-    /// <returns>正常に削除できた場合は<paramref name="child"/>、削除できなかった或いは子ノードに該当しなかった場合は現在のノードを返す。</returns>
+    /// <summary>Removes a child node.</summary>
+    /// <param name="child">The child node to remove.</param>
+    /// <param name="removeAction">A function that takes the parent node as the first parameter and the child node as the second parameter, dissolving their relationship.</param>
+    /// <returns>If the removal is successful, returns <paramref name="child"/>; if the removal is unsuccessful or the specified child node does not exist, returns the current node.</returns>
     public static ResultWithValue<T> TryRemoveChild<T>(this ITreeNode<T> self,T child, Action<T,T> removeAction)where T : ITreeNode<T> {
         if (!self.Children.Contains(child)) return new ResultWithValue<T>(false, (T)self);
         removeAction((T)self, child);
         if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
         return new ResultWithValue<T>(false, (T)self);
     }
-    /// <summary>現在のノードを削除する。</summary>
-    /// <returns>正常に削除できた場合はture、削除できなかった或いは現在のノードがルートだった場合はfalse。何れも現在のノードが付与される。</returns>
-    public static ResultWithValue<T> TryRemoveOwn<T>(this ITreeNodeCollection<T> self) where T : ITreeNodeCollection<T> {
+    /// <summary>Removes the current node.</summary>
+    /// <returns>If the removal is successful, returns true; if the removal is unsuccessful or the current node is the root, returns false. In either case, the current node is retained.</returns>
+    public static ResultWithValue<T> TryRemoveOwn<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         if (self == null) throw new ArgumentNullException("self");
         if (self.Parent != null) {
             return self.Parent.TryRemoveChild((T)self).When(
@@ -61,11 +61,11 @@ public static partial class TreeNodeExtenstions {
         }
         return new ResultWithValue<T>(false, (T)self);
     }
-    /// <summary>子孫ノードを分解する。</summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="self"></param>
-    /// <returns>切り離されたノードを返す</returns>
-    public static IReadOnlyList<T> DismantleDescendants<T>(this ITreeNodeCollection<T> self) where T : ITreeNodeCollection<T> {
+    /// <summary>Disassembles descendant nodes.</summary>
+    /// <typeparam name="T">Type of the nodes.</typeparam>
+    /// <param name="self">Current node.</param>
+    /// <returns>Returns the detached nodes.</returns>
+    public static IReadOnlyList<T> DisassembleDescendants<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         List<T> rmvs = new();
         var lst = self.Levelorder().ToArray();
         foreach (var cld in lst) {
@@ -73,32 +73,32 @@ public static partial class TreeNodeExtenstions {
         }
         return rmvs.AsReadOnly();
     }
-    /// <summary>対象から末端にかけて分解する。</summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="self"></param>
-    /// <returns>切り離されたノードを返す</returns>
-    public static IReadOnlyList<T> Dismantle<T>(this ITreeNodeCollection<T> self) where T : ITreeNodeCollection<T> {
+    /// <summary>Disassembles from the current node to the leaves.</summary>
+    /// <typeparam name="T">Type of the nodes.</typeparam>
+    /// <param name="self">Current node.</param>
+    /// <returns>Returns the detached nodes.</returns>
+    public static IReadOnlyList<T> Disassemble<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         List<T> rmvs=new();
         self.TryRemoveOwn().When(o => rmvs.Add(o));
-        rmvs.AddRange(self.DismantleDescendants());
+        rmvs.AddRange(self.DisassembleDescendants());
         return rmvs.AsReadOnly();
     }
-    /// <summary>条件に一致する子ノードを全て削除する。</summary>
-    /// <typeparam name="T">ノードの型</typeparam>
-    /// <param name="self">現在のノード</param>
-    /// <param name="predicate">削除対象であればtrue</param>
-    /// <returns>削除したノード</returns>
-    public static IReadOnlyList<T> RemoveChild<T>(this ITreeNodeCollection<T> self, Predicate<T> predicate) where T : ITreeNodeCollection<T> {
-        return TreeNodeExtenstions.RemoveChild(self, predicate,(p,c)=>p.RemoveChild(c));
+    /// <summary>Removes all child nodes that match the specified condition.</summary>
+    /// <typeparam name="T">Type of the nodes.</typeparam>
+    /// <param name="self">Current node.</param>
+    /// <param name="predicate">Condition for removal (true if it should be removed).</param>
+    /// <returns>The removed nodes.</returns>
+    public static IReadOnlyList<T> RemoveAllChild<T>(this IMutableTreeNode<T> self, Predicate<T> predicate) where T : IMutableTreeNode<T> {
+        return TreeNodeExtenstions.RemoveAllChild(self, predicate,(p,c)=>p.RemoveChild(c));
     }
-    /// <summary>条件に一致する子ノードを全て削除する。</summary>
-    /// <typeparam name="T">ノードの型</typeparam>
-    /// <param name="self">現在のノード</param>
-    /// <param name="predicate">削除対象であればtrue</param>
-    /// <param name="removeAction">第一引数に親ノード、第二引数に子ノードを取り、その関係を解消させる関数。</param>
-    /// <returns>削除したノード</returns>
+    /// <summary>Removes all child nodes that match the specified condition.</summary>
+    /// <typeparam name="T">Type of the nodes.</typeparam>
+    /// <param name="self">Current node.</param>
+    /// <param name="predicate">Condition for removal (true if it should be removed).</param>
+    /// <param name="removeAction">Function to break the relationship between the parent and the child. Takes the parent node as the first argument and the child node as the second argument.</param>
+    /// <returns>The removed nodes.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public static IReadOnlyList<T> RemoveChild<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction) where T : ITreeNode<T> {
+    public static IReadOnlyList<T> RemoveAllChild<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction) where T : ITreeNode<T> {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         var lst = new List<T>();
         foreach (var cld in self.Children.OfType<T>().ToArray()) {
@@ -108,26 +108,26 @@ public static partial class TreeNodeExtenstions {
         }
         return lst;
     }
-    /// <summary>対象ノードからレベル順に、条件に一致したノードを全て削除する。</summary>
-    /// <typeparam name="T">ノードの型</typeparam>
-    /// <param name="self">現在のノード</param>
-    /// <param name="predicate">削除対象であればtrue</param>
-    /// <returns>削除したノード</returns>
-    public static IReadOnlyList<T> RemoveDescendant<T>(this ITreeNodeCollection<T> self, Predicate<T> predicate) where T : ITreeNodeCollection<T> {
-        return TreeNodeExtenstions.RemoveDescendant<T>(self, predicate, (p, c) => p.RemoveChild(c));
+    /// <summary>Removes all nodes that match the condition in level order from the current node.</summary>
+    /// <typeparam name="T">Type of the node</typeparam>
+    /// <param name="self">Current node</param>
+    /// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
+    /// <returns>The removed nodes</returns>
+    public static IReadOnlyList<T> RemoveAllDescendant<T>(this IMutableTreeNode<T> self, Predicate<T> predicate) where T : IMutableTreeNode<T> {
+        return TreeNodeExtenstions.RemoveAllDescendant<T>(self, predicate, (p, c) => p.RemoveChild(c));
     }
-    /// <summary>対象ノードからレベル順に、条件に一致したノードを全て削除する。</summary>
-    /// <typeparam name="T">ノードの型</typeparam>
-    /// <param name="self">現在のノード</param>
-    /// <param name="predicate">削除対象であればtrue</param>
-    /// <param name="removeAction">第一引数に親ノード、第二引数に子ノードを取り、その関係を解消させる関数。</param>
-    /// <returns>削除したノード</returns>
-    public static IReadOnlyList<T> RemoveDescendant<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction)where T : ITreeNode<T> {
+    /// <summary>Removes all nodes that match the condition in level order from the current node.</summary>
+    /// <typeparam name="T">Type of the node</typeparam>
+    /// <param name="self">Current node</param>
+    /// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
+    /// <param name="removeAction">Function to dissolve the relationship, taking the parent node as the first argument and the child node as the second.</param>
+    /// <returns>The removed nodes</returns>
+    public static IReadOnlyList<T> RemoveAllDescendant<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction)where T : ITreeNode<T> {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         if(removeAction==null) throw new ArgumentNullException(nameof(removeAction));
         var lst = new List<T>();
         var dm = self.Evolve(a => {
-            lst.AddRange(a.RemoveChild(predicate, removeAction).OfType<T>());
+            lst.AddRange(a.RemoveAllChild(predicate, removeAction).OfType<T>());
             return a.Children;
         }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b))
             .LastOrDefault();

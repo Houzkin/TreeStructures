@@ -8,33 +8,47 @@ using System.Xml;
 
 namespace TreeStructures.Xml.Serialization {
 
-    /// <summary>シリアライズ可能な<see cref="Dictionary{TKey, TValue}"/>を提供する。</summary>
-    /// <typeparam name="TKey">キーの型</typeparam>
-    /// <typeparam name="TValue">値の型</typeparam>
+    /// <summary>
+    /// Provides a serializable <see cref="Dictionary{TKey, TValue}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">Type of keys</typeparam>
+    /// <typeparam name="TValue">Type of values</typeparam>
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IXmlSerializable where TKey : notnull {
-        /// <summary>新規インスタンスを初期化する。</summary>
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
         public SerializableDictionary() : base() { }
 
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="capacity">初期量</param>
+        /// <summary>
+        /// Initializes a new instance with the specified capacity.
+        /// </summary>
+        /// <param name="capacity">Initial capacity</param>
         public SerializableDictionary(int capacity) : base(capacity) { }
 
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="comparer">比較演算子</param>
+        /// <summary>
+        /// Initializes a new instance with the specified comparer.
+        /// </summary>
+        /// <param name="comparer">Comparer</param>
         public SerializableDictionary(IEqualityComparer<TKey> comparer) : base(comparer) { }
 
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="dictionary">コピーするDictionary</param>
+        /// <summary>
+        /// Initializes a new instance by copying the specified dictionary.
+        /// </summary>
+        /// <param name="dictionary">Dictionary to copy</param>
         public SerializableDictionary(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
 
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="capacity">初期量</param>
-        /// <param name="comparer">比較演算子</param>
+        /// <summary>
+        /// Initializes a new instance with the specified capacity and comparer.
+        /// </summary>
+        /// <param name="capacity">Initial capacity</param>
+        /// <param name="comparer">Comparer</param>
         public SerializableDictionary(int capacity, IEqualityComparer<TKey> comparer) : base(capacity, comparer) { }
 
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="dictionary">コピーするDictionary</param>
-        /// <param name="comparer">比較演算子</param>
+        /// <summary>
+        /// Initializes a new instance by copying the specified dictionary with the specified comparer.
+        /// </summary>
+        /// <param name="dictionary">Dictionary to copy</param>
+        /// <param name="comparer">Comparer</param>
         public SerializableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) : base(dictionary, comparer) { }
 
         DictionarySerializeManager<TKey, TValue>? _manager;
@@ -44,14 +58,21 @@ namespace TreeStructures.Xml.Serialization {
                 return _manager;
             }
         }
+
         System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema() {
             return Manager.GetSchema();
         }
-        /// <summary>XMLを読み込む。</summary>
+
+        /// <summary>
+        /// Reads XML.
+        /// </summary>
         public void ReadXml(XmlReader reader) {
             Manager.ReadXml(reader);
         }
-        /// <summary>XMLを書き込む。</summary>
+
+        /// <summary>
+        /// Writes XML.
+        /// </summary>
         /// <param name="writer"></param>
         public void WriteXml(XmlWriter writer) {
             Manager.WriteXml(writer);

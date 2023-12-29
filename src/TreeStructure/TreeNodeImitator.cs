@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TreeStructures {
-    /// <summary>連動の停止とインスタンスの破棄が可能な、TreeNodeをラップするオブジェクト</summary>
+    /// <summary>An object that wraps a <see cref="ITreeNode{TNode}"/> with the ability to pause/resume synchronization and dispose the instance.</summary>
     /// <remarks><inheritdoc/></remarks>
-    /// <typeparam name="TSrc">ラップされるノード</typeparam>
-    /// <typeparam name="TImtr">ラップするノード</typeparam>
+    /// <typeparam name="TSrc">Type of the wrapped node</typeparam>
+    /// <typeparam name="TImtr">Type of the wrapping node</typeparam>
     public abstract class TreeNodeImitator<TSrc, TImtr> : CompositeImitator<TSrc, TImtr>
     where TSrc : class, ITreeNode<TSrc>
     where TImtr : TreeNodeImitator<TSrc, TImtr> {
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="sourceNode">ラップされるノード</param>
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="sourceNode">The node to be wrapped</param>
         protected TreeNodeImitator(TSrc sourceNode) : base(sourceNode) { }
         /// <summary><inheritdoc/></summary>
         protected override IEnumerable<TSrc>? SourceNodeChildren => SourceNode?.Children;

@@ -3,49 +3,47 @@ using System.Collections.Specialized;
 using TreeStructures.EventManagement;
 namespace TreeStructures {
 
-    /// <summary>ツリー構造を提供する。</summary>
-    /// <typeparam name="TNode">各ノードの型</typeparam>
+    /// <summary>Provides a tree structure.</summary>
+    /// <typeparam name="TNode">The type of each node.</typeparam>
     public interface ITreeNode<TNode> where TNode : ITreeNode<TNode> {
-        /// <summary>親ノードを取得する。</summary>
+        /// <summary>Gets the parent node.</summary>
         TNode? Parent { get; }
-        /// <summary>子ノードを取得する。</summary>
+        /// <summary>Gets the child nodes.</summary>
         IEnumerable<TNode> Children { get; }
     }
 
-    /// <summary>子ノードをコレクションとして管理するツリー構造を定義する。</summary>
-    /// <typeparam name="TNode">ノードの型</typeparam>
-    public interface ITreeNodeCollection<TNode> : ITreeNode<TNode> 
-        where TNode : ITreeNodeCollection<TNode> {
-        /// <summary>子ノードを追加する。</summary>
-        /// <param name="child">子ノード</param>
-        /// <returns>現在のノード</returns>
+    /// <summary>Defines a mutable tree structure.</summary>
+    /// <typeparam name="TNode">The type of the nodes.</typeparam>
+    public interface IMutableTreeNode<TNode> : ITreeNode<TNode>
+        where TNode : IMutableTreeNode<TNode> {
+        /// <summary>Adds a child node.</summary>
+        /// <param name="child">The child node.</param>
+        /// <returns>The current node.</returns>
         TNode AddChild(TNode child);
-        /// <summary>指定されたインデックスの位置に子ノードを追加する。</summary>
-        /// <param name="index">インデックス</param>
-        /// <param name="child">子ノード</param>
-        /// <returns>現在のノード</returns>
+        /// <summary>Adds a child node at the specified index.</summary>
+        /// <param name="index">The index.</param>
+        /// <param name="child">The child node.</param>
+        /// <returns>The current node.</returns>
         TNode InsertChild(int index, TNode child);
-        /// <summary>子ノードを削除する。</summary>
-        /// <param name="child">削除する子ノード</param>
-        /// <returns>削除されたノード</returns>
+        /// <summary>Removes a child node.</summary>
+        /// <param name="child">The child node to remove.</param>
+        /// <returns>The removed node.</returns>
         TNode RemoveChild(TNode child);
-        /// <summary>子ノードを全て削除する。</summary>
-        /// <returns>削除されたノード</returns>
+        /// <summary>Removes all child nodes.</summary>
+        /// <returns>The removed nodes.</returns>
         IReadOnlyList<TNode> ClearChildren();
     }
-    /// <summary>観測可能なツリー構造を表す。</summary>
-    /// <typeparam name="TNode">ノードの型</typeparam>
-    public interface IObservableTreeNode<TNode>: ITreeNode<TNode> 
-        where TNode : IObservableTreeNode<TNode>{
-        /// <summary>ツリー構造変更時、<see cref="StructureChangedEventExecutor{TNode}"/>によって呼び出されます。</summary>
+    /// <summary>Represents an observable tree structure.</summary>
+    /// <typeparam name="TNode">The type of the nodes.</typeparam>
+    public interface IObservableTreeNode<TNode> : ITreeNode<TNode>
+        where TNode : IObservableTreeNode<TNode> {
+        /// <summary>Called by <see cref="StructureChangedEventExecutor{TNode}"/> when the tree structure changes.</summary>
         /// <param name="e"></param>
         void OnStructureChanged(StructureChangedEventArgs<TNode> e);
         /// <summary>
-        /// ツリー構造が変化したときの通知イベント
+        /// Notification event for when the tree structure changes.
         /// </summary>
         event EventHandler<StructureChangedEventArgs<TNode>>? StructureChanged;
     }
-    //public interface IImitableTreeNode<TNode> : ITreeNode<TNode> where TNode:IImitableTreeNode<TNode> {
 
-    //}
 }

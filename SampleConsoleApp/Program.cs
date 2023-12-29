@@ -2,6 +2,6 @@
 using SampleConsoleApp;
 
 //Console.WriteLine("Hello, World!");
+SampleC.Method1();
 SampleA.Method();
 SampleB.Method();
-SampleC.Method1();

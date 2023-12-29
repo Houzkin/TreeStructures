@@ -8,9 +8,9 @@ using TreeStructures.Collections;
 using TreeStructures.Internals;
 
 namespace TreeStructures.Linq {
-    /// <summary>Linqの拡張メソッド</summary>
+    /// <summary>Extension methods for <see cref="IEnumerable{T}"/>.</summary>
     public static class EnumerableExtensions {
-        /// <summary>読取専用</summary>
+        /// <summary>Converts to a read-only object.</summary>
         public static IEnumerable<T> AsReadOnly<T>(this IEnumerable<T> enumerable) {
             return new EnumerableCollection<T>(enumerable);
         }
@@ -19,9 +19,9 @@ namespace TreeStructures.Linq {
             public EnumerableCollection(IEnumerable<T> collection) {
                 _collection = collection;
             }
-            public T this[int index] => this.ElementAt(index);
+            public T this[int index] => _collection.ElementAt(index);
 
-            public int Count => this.Count();
+            public int Count => _collection.Count();
             IEnumerable<T> _collection;
             public IEnumerator<T> GetEnumerator() {
                 return _collection.GetEnumerator();
@@ -31,12 +31,12 @@ namespace TreeStructures.Linq {
                 return _collection.GetEnumerator();
             }
         }
-        
-        /// <summary>破棄可能なコレクションをまとめる</summary>
-        public static IDisposable ToLumpDisposables<T>(this IEnumerable<T> enumerable) where T:IDisposable {
+
+        /// <summary>Combines disposable collections.</summary>
+        public static IDisposable CombineDisposables<T>(this IEnumerable<T> enumerable) where T:IDisposable {
             return new LumpedDisopsables(enumerable.OfType<IDisposable>());
         }
-        /// <summary>シーケンス巡回用のインスタンスを生成する。</summary>
+        /// <summary>Generates an instance for traversing the sequence.</summary>
         public static SequenceScroller<T> ToSequenceScroller<T> (this IEnumerable<T> sequence) {
             return new SequenceScroller<T>(sequence);
         }

@@ -13,51 +13,48 @@ using TreeStructures.Internals;
 using TreeStructures.Linq;
 
 namespace TreeStructures.Collections {
-    /// <summary>連動するコレクションを提供する</summary>
+    /// <summary>Provides an imitable collection with synchronization.</summary>
     public abstract class ImitableCollection : INotifyPropertyChanged, INotifyCollectionChanged, IDisposable {
         protected readonly IEnumerable<object> _source;
         private bool disposedValue;
-        /// <summary>インスタンスを初期化する</summary>
-        /// <param name="source">連動元のコレクション</param>
+        /// <summary>Initializes an instance.</summary>
+        /// <param name="source">The source collection for synchronization.</param>
         protected ImitableCollection(IEnumerable<object> source) { _source = source; }
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary><inheritdoc/></summary>
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
-        /// <summary>
-        /// プロパティ変更通知を発行する
-        /// </summary>
+        /// <summary>Raises property change notifications.</summary>
         /// <param name="e"></param>
         protected void RaisePropertyChanged(PropertyChangedEventArgs e) {
             PropertyChanged?.Invoke(this, e);
         }
-        /// <summary>
-        /// コレクション変更通知を発行する
-        /// </summary>
+        /// <summary>Raises collection change notifications.</summary>
         /// <param name="e"></param>
         protected void RaiseCollectionChanged(NotifyCollectionChangedEventArgs e) {
             CollectionChanged?.Invoke(this, e);
         }
         #region static methods
-        /// <summary>インスタンス初期化を補助する</summary>
-        /// <typeparam name="TSrc">連動元のコレクション要素の型</typeparam>
-        /// <typeparam name="TConv">連動するコレクション要素の型</typeparam>
-        /// <param name="collection">連動元</param>
-        /// <param name="converter"><typeparamref name="TSrc"/>から対応する<typeparamref name="TConv"/>へ変換する</param>
-        /// <param name="removedAction">コレクションから削除された時の処理</param>
+        /// <summary>Assists in initializing an instance.</summary>
+        /// <typeparam name="TSrc">The type of elements in the source collection for synchronization.</typeparam>
+        /// <typeparam name="TConv">The type of elements in the target imitable collection.</typeparam>
+        /// <param name="collection">The source collection for synchronization.</param>
+        /// <param name="converter">A function to convert elements from <typeparamref name="TSrc"/> to corresponding <typeparamref name="TConv"/>.</param>
+        /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
+        /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
         /// <returns></returns>
-        public static ImitableCollection<TSrc,TConv> Create<TSrc,TConv>(IEnumerable<TSrc> collection,Func<TSrc,TConv> converter,Action<TConv> removedAction) where TConv : class  where TSrc : class{
+        public static ImitableCollection<TSrc,TConv> Create<TSrc,TConv>(IEnumerable<TSrc> collection,Func<TSrc,TConv> converter,Action<TConv> removedAction, bool isImitate = true) where TConv : class  where TSrc : class{
             Func<object, ConvertPair<TSrc, TConv>> generator = x => {
                 var m = x as TSrc;
                 return new ConvertPair<TSrc, TConv>(m, converter(m));
             };
-            return new ImitableCollection<TSrc,TConv>(collection, generator, removedAction);
+            return new ImitableCollection<TSrc,TConv>(collection, generator, removedAction,isImitate);
         }
         #endregion
 
         #region Dispose
-        /// <summary>継承先でリソースの破棄を追加</summary>
+        /// <summary>Adds resource disposal in derived classes.</summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
@@ -67,9 +64,7 @@ namespace TreeStructures.Collections {
             // TODO: 大きなフィールドを null に設定します
             disposedValue = true;
         }
-        /// <summary>
-        /// インスタンスを破棄する
-        /// </summary>
+        /// <summary>Disposes of the instance.</summary>
         public void Dispose() {
             // このコードを変更しないでください。クリーンアップ コードを 'Dispose(bool disposing)' メソッドに記述します
             if (disposedValue) return;
@@ -77,7 +72,7 @@ namespace TreeStructures.Collections {
             GC.SuppressFinalize(this);
             
         }
-        /// <summary>既に破棄されたインスタンスの操作を禁止する</summary>
+        /// <summary>Prevents operations on an already disposed instance.</summary>
         /// <exception cref="ObjectDisposedException"></exception>
         protected void ThrowExceptionIfDisposed() {
             if(disposedValue) throw new ObjectDisposedException(GetType().FullName,"既に破棄されたインスタンスが操作されました。");
@@ -97,7 +92,7 @@ namespace TreeStructures.Collections {
         }
     }
     /// <summary><inheritdoc/></summary>
-    /// <typeparam name="TConv">連動するコレクションの要素</typeparam>
+    /// <typeparam name="TConv">The type of elements in the imitable collection for synchronization.</typeparam>
     public class ImitableCollection<TConv> : ImitableCollection,IReadOnlyList<TConv> where TConv : class {
         LumpedDisopsables Disposables = new LumpedDisopsables();
         internal IList<ConvertPair> _references = new List<ConvertPair>();
@@ -106,18 +101,23 @@ namespace TreeStructures.Collections {
         internal Action<TConv> _removeAction;
         //readonly Func<object, IDisposable> _getSrcObjListener;
         //ObservableCollection<TConv> _convedlist = new();
-        internal ImitableCollection(IEnumerable<object> collection,Func<object,ConvertPair> toSetConverter,Action<TConv> removedAction): base(collection) {
+        internal ImitableCollection(IEnumerable<object> collection,Func<object,ConvertPair> toSetConverter,Action<TConv> removedAction,bool isImitate = true): base(collection) {
 
             _toSyncSet = toSetConverter;
             _removeAction = removedAction;
-            SetReferenceWithStartObserveCollection();
+            if (isImitate) {
+                SetReferenceWithStartObserveCollection();
+            } else {
+                this.SwitchConnection(false);
+            }
         }
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="collection">連動元</param>
-        /// <param name="converter"><see cref="object"/>から対応する<typeparamref name="TConv"/>へ変換する</param>
-        /// <param name="removedAction">コレクションから削除された時の処理</param>
-        public ImitableCollection(IEnumerable<object> collection,Func<object,TConv> converter,Action<TConv> removedAction) 
-            : this(collection,new Func<object,ConvertPair>(src => new ConvertPair(src, converter(src))), removedAction) { }
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="collection">The source collection for synchronization.</param>
+        /// <param name="converter">A function to convert elements from <see cref="object"/> to corresponding <typeparamref name="TConv"/>.</param>
+        /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
+        /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
+        public ImitableCollection(IEnumerable<object> collection,Func<object,TConv> converter,Action<TConv> removedAction,bool isImitate = true) 
+            : this(collection,new Func<object,ConvertPair>(src => new ConvertPair(src, converter(src))), removedAction, isImitate) { }
 
         void SetReferenceWithStartObserveCollection() {
             var ps = _source as INotifyPropertyChanged;
@@ -182,17 +182,17 @@ namespace TreeStructures.Collections {
         /// <summary><inheritdoc/></summary>
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing) {
-            if(disposing) { this.StopImitateAndClear(); }
+            if(disposing) { this.PauseImitationAndClear(); }
             base.Dispose(disposing);
         }
-        /// <summary>現在連動状態かどうかを示す</summary>
+        /// <summary>Indicates whether the current state is in synchronization.</summary>
         public bool IsImitating { get; private set; } = true;
         bool SwitchConnection(bool observe) {
             if (IsImitating == observe) return false;
             IsImitating = observe;
             return true;
         }
-        /// <summary>連動状態でなかった場合、連動を開始する</summary>
+        /// <summary>If not in synchronization state, starts synchronization.</summary>
         public void Imitate() {
             if (!SwitchConnection(true)) return;
             SetReferenceWithStartObserveCollection();
@@ -203,8 +203,8 @@ namespace TreeStructures.Collections {
                 }
             }
         }
-        /// <summary>連動を停止する</summary>
-        public void StopImitateAndClear() {
+        /// <summary>Stops synchronization and clears the imitable collection.</summary>
+        public void PauseImitationAndClear() {
             if(!SwitchConnection(false)) return;
             this.Disposables.Dispose();
             _references.Clear();
@@ -227,18 +227,21 @@ namespace TreeStructures.Collections {
     }
 
     /// <inheritdoc/>
+    /// <typeparam name="TSrc">The type of elements in the source collection for synchronization.</typeparam>
+    /// <typeparam name="TConv">The type of elements in the target imitable collection.</typeparam>
     public class ImitableCollection<TSrc,TConv> : ImitableCollection<TConv> where TSrc :class where TConv : class {
-        internal ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, ConvertPair<TSrc, TConv>> toSetConverter, Action<TConv> removedAction)
-            : base(collection: collection, toSetConverter: src => toSetConverter(src as TSrc), removedAction: removedAction) {
+        internal ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, ConvertPair<TSrc, TConv>> toSetConverter, Action<TConv> removedAction, bool isImitate = true)
+            : base(collection: collection, toSetConverter: src => toSetConverter(src as TSrc), removedAction: removedAction,isImitate: isImitate) {
 
 
         }
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="collection">連動元</param>
-        /// <param name="converter"><typeparamref name="TSrc"/>から対応する<typeparamref name="TConv"/>へ変換する</param>
-        /// <param name="removedAction">コレクションから削除された時の処理</param>
-        public ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TConv> converter, Action<TConv> removedAction)
-            : this(collection, new Func<TSrc, ConvertPair<TSrc, TConv>>(src => new ConvertPair<TSrc, TConv>(src, converter(src))), removedAction) { }
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="collection">The source collection for synchronization.</param>
+        /// <param name="converter">A function to convert elements from <typeparamref name="TSrc"/> to corresponding <typeparamref name="TConv"/>.</param>
+        /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
+        /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
+        public ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TConv> converter, Action<TConv> removedAction, bool isImitate = true)
+            : this(collection, new Func<TSrc, ConvertPair<TSrc, TConv>>(src => new ConvertPair<TSrc, TConv>(src, converter(src))), removedAction,isImitate) { }
        
         
     }

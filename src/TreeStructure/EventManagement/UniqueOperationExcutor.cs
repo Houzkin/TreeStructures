@@ -16,26 +16,26 @@ using System.Text.Json;
 
 namespace TreeStructures.EventManagement {
 
-    /// <summary>
-    /// 再帰的、または重複する処理を無視する
-    /// </summary>
+    /// <summary>Manages operations, ignoring recursive or duplicate executions.</summary>
     public class UniqueOperationExecutor {
-        /// <summary>キーとそれに対応する処理を管理する</summary>
+        /// <summary>Manages keys and their corresponding operations.</summary>
         readonly protected Dictionary<string, CountOperationPair> Operations = new();
         readonly Dictionary<int,CountOperationPair> TempOperations = new();
-        /// <summary>キーとそれに対応する処理を登録する</summary>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <summary>Registers a key and its corresponding operation.</summary>
+        /// <exception cref="InvalidOperationException">Thrown when an invalid operation is detected.</exception>
         public void Register(string key,Action action) {
             Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => throw new InvalidOperationException("指定されたキーは既に登録されています。"),
                 x => Operations[key] = new CountOperationPair() { Count = 0, Operation = action });
         }
-        /// <summary>初回メソッド呼び出し時と、戻り値の最後のDispose時で、<paramref name="getPropertyValue"/>の値が変化した場合、<paramref name="key"/>によって指定された処理を実行する</summary>
-        /// <typeparam name="TProp"></typeparam>
-        /// <param name="key">登録されている処理を示すkey</param>
-        /// <param name="getPropertyValue">評価する値を指定する</param>
+        /// <summary>
+        /// Executes the operation specified by <paramref name="key"/> when the value returned by <paramref name="getPropertyValue"/> changes, either during the first method call or at the end of the returned value's last Dispose.
+        /// </summary>
+        /// <typeparam name="TProp">The type of the property.</typeparam>
+        /// <param name="key">The key indicating the registered operation.</param>
+        /// <param name="getPropertyValue">Specifies the value to evaluate.</param>
         /// <returns></returns>
-        /// <exception cref="KeyNotFoundException"><paramref name="key"/>に対応する処理が登録されていない</exception>
+        /// <exception cref="KeyNotFoundException">Thrown when no operation is registered for <paramref name="key"/>.</exception>
         public IDisposable LateEvalute<TProp>(string key,Func<TProp> getPropertyValue) {
             var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
@@ -48,10 +48,10 @@ namespace TreeStructures.EventManagement {
                 ele.Count--;
             });
         }
-        /// <summary>戻り値の最後のDispose時に<paramref name="key"/>によって指定された処理を実行する</summary>
-        /// <param name="key">登録されている処理を指定するキー</param>
+        /// <summary>Executes the operation specified by <paramref name="key"/> at the end of the returned value's last Dispose.</summary>
+        /// <param name="key">The key indicating the registered operation.</param>
         /// <returns></returns>
-        /// <exception cref="KeyNotFoundException"></exception>
+        /// <exception cref="KeyNotFoundException">Thrown when no operation is registered for <paramref name="key"/>.</exception>
         public IDisposable ExecuteUnique(string key) {
             var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
@@ -64,9 +64,9 @@ namespace TreeStructures.EventManagement {
                 ele.Count--;
             });
         }
-        /// <summary>戻り値の最後のDispose時に<paramref name="operation"/>を実行する</summary>
-        /// <remarks>識別は<paramref name="operation"/>のメタデータトークンの値を使用します。</remarks>
-        /// <param name="operation">重複を防止して実行する処理</param>
+        /// <summary>Executes the <paramref name="operation"/> at the end of the returned value's last Dispose.</summary>
+        /// <remarks>Identification is based on the value of the metadata token of <paramref name="operation"/>.</remarks>
+        /// <param name="operation">The operation to be executed, preventing duplication.</param>
         /// <returns></returns>
         public IDisposable ExecuteUnique(Action operation) {
             int id = operation.Method.MetadataToken;
@@ -84,16 +84,14 @@ namespace TreeStructures.EventManagement {
                 ele.Count--;
             });
         }
-        /// <summary>カウンター</summary>
+        /// <summary>A pair of count and the corresponding operation to be executed.</summary>
         protected class CountOperationPair {
-            /// <summary>
-            /// コンストラクタ
-            /// </summary>
+            /// <summary>ctr</summary>
             public CountOperationPair() {
             }
-            /// <summary>カウンター</summary>
+            /// <summary>Count</summary>
             public int Count { get; set; }
-            /// <summary>処理</summary>
+            /// <summary>Operation</summary>
             public Action? Operation { get; init; }
         }
     }

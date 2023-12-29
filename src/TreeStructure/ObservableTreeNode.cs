@@ -11,21 +11,22 @@ using TreeStructures.EventManagement;
 using TreeStructures.Linq;
 
 namespace TreeStructures {
-    /// <summary>観測可能な多分木構造をなすノードを表す</summary>
-    /// <typeparam name="TNode">各ノードの共通基底クラスとなる型</typeparam>
+    /// <summary>Represents a mutable node forming an observable general tree structure.</summary>
+    /// <typeparam name="TNode">The common base type for each node.</typeparam>
     [Serializable]
-    public class ObservableTreeNodeCollection<TNode> : TreeNodeCollection<TNode>, IObservableTreeNode<TNode>, INotifyPropertyChanged
-        where TNode : ObservableTreeNodeCollection<TNode> {
+    public class ObservableTreeNode<TNode> : TreeNode<TNode>, IObservableTreeNode<TNode>, INotifyPropertyChanged
+        where TNode : ObservableTreeNode<TNode> {
         /// <summary>
-        /// 新規インスタンスを初期化する
+        /// Initializes a new instance.
         /// </summary>
-        public ObservableTreeNodeCollection() { this.PropertyChangeProxy = new PropertyChangeProxy(this); }
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="collection">コレクション</param>
-        public ObservableTreeNodeCollection(IEnumerable<TNode> collection) : this() {
+        public ObservableTreeNode() { this.PropertyChangeProxy = new PropertyChangeProxy(this); }
+
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="collection">The collection.</param>
+        public ObservableTreeNode(IEnumerable<TNode> collection) : this() {
             foreach (var item in collection) { this.AddChild(item); }
         }
-        
+
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupInnerChildCollection() => new ObservableCollection<TNode>();
         /// <inheritdoc/>
@@ -35,8 +36,8 @@ namespace TreeStructures {
         IDisposable DeferParentChangedNotification() {
             return UniqueExcutor.LateEvalute(parentchangedeventkey, () => Parent);
         }
-        readonly string parentchangedeventkey = "in Library : " + nameof(ObservableTreeNodeCollection<TNode>)+ "." + nameof(Parent);
-        readonly string disposedeventkey = "in Library : " + nameof(ObservableTreeNodeCollection<TNode>) + "." + nameof(Disposed);
+        readonly string parentchangedeventkey = "in Library : " + nameof(ObservableTreeNode<TNode>)+ "." + nameof(Parent);
+        readonly string disposedeventkey = "in Library : " + nameof(ObservableTreeNode<TNode>) + "." + nameof(Disposed);
 
         StructureChangedEventExecutor<TNode>? _uniqueExcutor;
         private StructureChangedEventExecutor<TNode> UniqueExcutor {
@@ -50,12 +51,13 @@ namespace TreeStructures {
             }
         }
         PropertyChangeProxy PropertyChangeProxy;
-        /// <summary>プロパティ変更通知を発行する</summary>
-        /// <param name="propName"></param>
-        protected void RaisePropertyChanged([CallerMemberName]string? propName = null) {
+        /// <summary>Raises the property changed notification.</summary>
+        /// <param name="propName">The property name.</param>
+        protected void RaisePropertyChanged([CallerMemberName] string? propName = null) {
             PropertyChangeProxy.Notify(propName);
         }
-        /// <summary>値の変更と変更通知の発行を行う</summary>
+
+        /// <summary>Performs value change and raises the change notification.</summary>
         protected virtual bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
             return PropertyChangeProxy.SetWithNotify(ref strage, value, propertyName);
         }
@@ -64,12 +66,14 @@ namespace TreeStructures {
             add { PropertyChangeProxy.Changed += value; }
             remove { PropertyChangeProxy.Changed -= value; }
         }
-        /// <summary>ツリー構造が変化したとき発生する</summary>
+        /// <summary>Occurs when the tree structure changes.</summary>
         public event EventHandler<StructureChangedEventArgs<TNode>>? StructureChanged;
+
         void IObservableTreeNode<TNode>.OnStructureChanged(StructureChangedEventArgs<TNode> e) {
             StructureChanged?.Invoke(this, e);
         }
-        /// <summary>破棄されたとき発生する</summary>
+
+        /// <summary>Occurs when the instance is disposed.</summary>
         public event EventHandler? Disposed;
         /// <inheritdoc/>
         protected override void Dispose(bool disposing) {
@@ -115,15 +119,15 @@ namespace TreeStructures {
         }
         /// <inheritdoc/>
         protected override void ClearChildProcess(Action<IEnumerable<TNode>>? action = null) {
-            using (ChildNodes.Select(a => a?.UniqueExcutor.LateEvaluateTree()).OfType<IDisposable>().ToLumpDisposables()) 
-            using (ChildNodes.Select(a => a?.DeferParentChangedNotification()).OfType<IDisposable>().ToLumpDisposables()) {
+            using (ChildNodes.Select(a => a?.UniqueExcutor.LateEvaluateTree()).OfType<IDisposable>().CombineDisposables()) 
+            using (ChildNodes.Select(a => a?.DeferParentChangedNotification()).OfType<IDisposable>().CombineDisposables()) {
                 base.ClearChildProcess(action);
             }
         }
-        /// <summary>コレクション内の要素の移動を実行するプロセス。</summary>
-        /// <param name="oldIndex">移動対象となる要素のインデックス</param>
-        /// <param name="newIndex">移動先のインデックス</param>
-        /// <param name="action">コレクションの操作を指示。以下、基底クラスでの指示<br/>
+        /// <summary>Executes the process of moving a child node within the collection.</summary>
+        /// <param name="oldIndex">The index of the child node to be moved.</param>
+        /// <param name="newIndex">The index to which the child node will be moved.</param>
+        /// <param name="action">Specifies the collection operation. The default operation in the base class is as follows:<br/>
         /// <code>(collection, idx1, idx2) =>
         ///     ((ObservableCollection&lt;<typeparamref name="TNode"/>&gt;)collection).Move(idx1, idx2);
         /// </code>

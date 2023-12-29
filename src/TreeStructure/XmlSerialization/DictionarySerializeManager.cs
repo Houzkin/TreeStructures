@@ -8,21 +8,26 @@ using System.Xml;
 
 namespace TreeStructures.Xml.Serialization {
 
-    /// <summary><see cref="Dictionary{TKey, TValue}"/>のシリアライズをサポートする。</summary>
-    /// <typeparam name="TKey">キーの型</typeparam>
-    /// <typeparam name="TValue">値の型</typeparam>
+    /// <summary>
+    /// Provides support for the serialization of <see cref="Dictionary{TKey, TValue}"/>.
+    /// </summary>
+    /// <typeparam name="TKey">The type of keys.</typeparam>
+    /// <typeparam name="TValue">The type of values.</typeparam>
     public class DictionarySerializeManager<TKey, TValue> : IXmlSerializable {
         readonly IDictionary<TKey, TValue> _dictionary;
-        /// <summary>シリアライズをサポートする<see cref="Dictionary{TKey, TValue}"/>を指定して、新規インスタンスを初期化する。</summary>
-        /// <param name="dictionary">サポートするDictionary</param>
+        /// <summary>
+        /// Initializes a new instance with the specified <see cref="Dictionary{TKey, TValue}"/> to support serialization.
+        /// </summary>
+        /// <param name="dictionary">The dictionary to support.</param>
         public DictionarySerializeManager(IDictionary<TKey, TValue> dictionary) {
             _dictionary = dictionary;
         }
-        /// <summary>スキーマを取得する。このメソッドはnullを返す。</summary>
+        /// <summary>Gets the schema. This method returns null.</summary>
         public System.Xml.Schema.XmlSchema GetSchema() {
             return null;
         }
-        /// <summary>XMLを読み込む。</summary>
+        /// <summary>Reads XML.</summary>
+        /// <param name="reader">The XmlReader used to read the XML document.</param>
         public void ReadXml(XmlReader reader) {
 
             var serializer = new XmlSerializer(typeof(KeyValueItem));
@@ -44,7 +49,8 @@ namespace TreeStructures.Xml.Serialization {
                 reader.Read();
             }
         }
-        /// <summary>XMLを書き込む。</summary>
+        /// <summary>Writes XML.</summary>
+        /// <param name="writer">The XmlWriter used to write the XML document.</param>
         public void WriteXml(XmlWriter writer) {
             var ns = new XmlSerializerNamespaces();
             ns.Add(string.Empty, string.Empty);
@@ -53,22 +59,24 @@ namespace TreeStructures.Xml.Serialization {
                 serializer.Serialize(writer, item, ns);
             }
         }
-        /// <summary>XMLにシリアライズされた<see cref="Dictionary{TKey, TValue}"/>の読み込みを行う。</summary>
-        /// <param name="reader">リーダー</param>
-        /// <returns>読み込んだ<see cref="Dictionary{TKey, TValue}"/></returns>
+        /// <summary>
+        /// Reads XML for serialized <see cref="Dictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="reader">The reader.</param>
+        /// <returns>The deserialized <see cref="Dictionary{TKey, TValue}"/>.</returns>
         public static IDictionary<TKey, TValue> Read(XmlReader reader) {
             var mng = new DictionarySerializeManager<TKey, TValue>(new Dictionary<TKey, TValue>());
             mng.ReadXml(reader);
             return mng._dictionary;
         }
-        /// <summary><see cref="Dictionary{TKey, TValue}"/>をXMLにシリアライズする。</summary>
-        /// <param name="dictionary">出力する<see cref="Dictionary{TKey, TValue}"/></param>
-        /// <param name="writer">ライター</param>
+        /// <summary>Serializes a <see cref="Dictionary{TKey, TValue}"/> to XML.</summary>
+        /// <param name="dictionary">The <see cref="Dictionary{TKey, TValue}"/> to be serialized.</param>
+        /// <param name="writer">The writer.</param>
         public static void Write(IDictionary<TKey, TValue> dictionary, XmlWriter writer) {
             var mng = new DictionarySerializeManager<TKey, TValue>(dictionary);
             mng.WriteXml(writer);
         }
-        /// <summary>シリアライズ用のキーと値のベア。</summary>
+        /// <summary>Key-value pair for serialization.</summary>
         public class KeyValueItem {
             /// <summary>キー</summary>
             public TKey Key { get; set; }

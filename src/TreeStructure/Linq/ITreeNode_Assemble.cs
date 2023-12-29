@@ -27,36 +27,44 @@ namespace TreeStructures.Linq {
             }
             return vst.Current.Item2;
         }
-        /// <summary>対象ノードを始点とするツリーと同じ構造で、各ノードの型を変換した構造を再構築する。</summary>
-        /// <typeparam name="T">変換前の型</typeparam>
-        /// <typeparam name="U">変換後の型</typeparam>
-        /// <param name="self">対象ノード</param>
-        /// <param name="generator">各ノードに適用されるノード変換関数</param>
+        /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
+        /// <typeparam name="T">Type before conversion.</typeparam>
+        /// <typeparam name="U">Type after conversion.</typeparam>
+        /// <param name="self">Current node.</param>
+        /// <param name="generator">Node transformation function applied to each node.</param>
+        /// <returns>The reconstructed structure with the converted node types.</returns>
         public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator)
-        where T : ITreeNode<T>
-        where U : ITreeNodeCollection<U> {
-            return convert(self, generator, (i, p, c) => p.AddChild(c));
+            where T : ITreeNode<T>
+            where U : IMutableTreeNode<U> {
+            return Convert(self, generator, (i, p, c) => p.AddChild(c));
         }
-        /// <summary>対象ノードを始点とするツリーと同じ構造で、各ノードの型を変換した構造を再構築する。</summary>
-        /// <typeparam name="T">変換前の型</typeparam>
-        /// <typeparam name="U">変換後の型</typeparam>
-        /// <param name="self">対象ノード</param>
-        /// <param name="generator">各ノードに適用されるノード変換関数</param>
-        /// <param name="addAction">第一引数に要求されるBranchIndex、第二引数に親となるオブジェクト、第三引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
+
+        /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
+        /// <typeparam name="T">Type before conversion.</typeparam>
+        /// <typeparam name="U">Type after conversion.</typeparam>
+        /// <param name="self">Current node.</param>
+        /// <param name="generator">Node transformation function applied to each node.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the BranchIndex, the second parameter being the parent object, and the third parameter being the child object.</param>
+        /// <returns>The reconstructed structure with the converted node types.</returns>
         public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator, Action<int, U, U> addAction)
-        where T : ITreeNode<T> {
+            where T : ITreeNode<T> {
             return convert(self, generator, addAction);
         }
-        /// <summary>対象ノードを始点とするツリーと同じ構造で、各ノードの型を変換した構造を再構築する。</summary>
-        /// <typeparam name="T">変換前の型</typeparam>
-        /// <typeparam name="U">変換後の型</typeparam>
-        /// <param name="self">対象ノード</param>
-        /// <param name="generator">各ノードに適用されるノード変換関数</param>
-        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
+
+        /// <summary>
+        /// Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.
+        /// </summary>
+        /// <typeparam name="T">Type before conversion.</typeparam>
+        /// <typeparam name="U">Type after conversion.</typeparam>
+        /// <param name="self">Current node.</param>
+        /// <param name="generator">Node transformation function applied to each node.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object and the second parameter being the child object.</param>
+        /// <returns>The reconstructed structure with the converted node types.</returns>
         public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator, Action<U, U> addAction)
-        where T : ITreeNode<T> {
+            where T : ITreeNode<T> {
             return convert(self, generator, (i, p, c) => addAction(p, c));
         }
+
         #endregion
 
         #region NodeIndexから組み立て
@@ -75,71 +83,94 @@ namespace TreeStructures.Linq {
             var seq = dictionary.Select(x => Tuple.Create(new NodeIndex(x.Key), conv(x.Value)));
             return _assemble(seq, addAction);
         }
-        /// <summary>各ノードをキーが示すインデックスをもとに組み立てる。</summary>
-        /// <typeparam name="T">ノードの型</typeparam>
-        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
-        public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self) where T : ITreeNodeCollection<T> where TKey: IEnumerable<int> {
+        /// <summary>
+        /// Assembles each node based on the index indicated by the key.
+        /// </summary>
+        /// <typeparam name="T">Type of the node.</typeparam>
+        /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
+        /// <param name="self">Dictionary where keys indicate node indices.</param>
+        /// <returns>The assembled tree structure.</returns>
+        public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self) where T : IMutableTreeNode<T> where TKey: IEnumerable<int> {
             return assemble(self, x => x, (i, p, c) => p.AddChild(c));
         }
-        /// <summary>各データをキーが示すインデックスをもとに組み立てる。</summary>
-        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
-        /// <typeparam name="T">データの型</typeparam>
-        /// <param name="self">現在のオブジェクト</param>
-        /// <param name="addAction">第一引数に要求されるBranchIndex、第二引数に親となるオブジェクト、第三引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
+        /// <summary>
+        /// Assembles each data based on the index indicated by the key.
+        /// </summary>
+        /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
+        /// <typeparam name="T">Type of the data.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the BranchIndex, the second parameter being the parent object, and the third parameter being the child object.</param>
+        /// <returns>The assembled tree structure.</returns>
         public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self, Action<int,T, T> addAction)where TKey : IEnumerable<int> {
             return assemble(self, x => x, addAction);
         }
-        /// <summary>各データをキーが示すインデックスをもとに組み立てる。</summary>
-         /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
-         /// <typeparam name="T">データの型</typeparam>
-         /// <param name="self">現在のオブジェクト</param>
-         /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
+        /// <summary>
+        /// Assembles each data based on the index indicated by the key.
+        /// </summary>
+        /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
+        /// <typeparam name="T">Type of the data.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
+        /// <returns>The assembled tree structure.</returns>
         public static T AssembleTree<TKey, T>(this IDictionary<TKey, T> self, Action<T, T> addAction) where TKey : IEnumerable<int> {
             return assemble(self, x => x, (i, p, c) => addAction(p, c));
         }
-        /// <summary>階層を示すインデックスをもとに、データからノードを生成しつつ組み立てる。</summary>
-        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
-        /// <typeparam name="T">データの型</typeparam>
-        /// <typeparam name="U">ノードの型</typeparam>
-        /// <param name="self">現在のオブジェクト</param>
-        /// <param name="conv">各データからノードへの変換関数</param>
+        /// <summary>
+        /// Generates and assembles nodes from data based on indices indicating the hierarchy.
+        /// </summary>
+        /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
+        /// <typeparam name="T">Type of the data.</typeparam>
+        /// <typeparam name="U">Type of the node.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="conv">Node conversion function applied to each data.</param>
+        /// <returns>The assembled tree structure.</returns>
         public static U AssembleTree<TKey,T, U>(this IDictionary<TKey, T> self, Func<T, U> conv)
         where TKey : IEnumerable<int>
-        where U : ITreeNodeCollection<U> {
+        where U : IMutableTreeNode<U> {
             return assemble(self, conv, (i, p, c) => p.AddChild(c));
         }
-        /// <summary>階層を示すインデックスをもとに、各データの変換と組み立てを行う。</summary>
-        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
-        /// <typeparam name="T">データ</typeparam>
-        /// <typeparam name="U">変換先の型</typeparam>
-        /// <param name="self">現在のオブジェクト</param>
-        /// <param name="conv">変換関数</param>
-        /// <param name="addAction">第一引数に要求されるBranchIndex、第二引数に親となるオブジェクト、第三引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
+        /// <summary>
+        /// Generates and assembles nodes from data based on indices indicating the hierarchy, performing conversion and assembly for each data.
+        /// </summary>
+        /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
+        /// <typeparam name="T">Type of the data.</typeparam>
+        /// <typeparam name="U">Type to convert to.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="conv">Conversion function.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the BranchIndex, the second parameter being the parent object, and the third parameter being the child object.</param>
+        /// <returns>The assembled tree structure.</returns>
         public static U AssembleTree<TKey,T, U>(this IDictionary<TKey, T> self, Func<T, U> conv, Action<int, U, U> addAction) where TKey:IEnumerable<int> {
             return assemble(self, conv, addAction);
         }
-        /// <summary>階層を示すインデックスをもとに、各データの変換と組み立てを行う。</summary>
-        /// <typeparam name="TKey">ノードインデックスを示す、<see cref="int"/>型の要素を持つ<see cref="IEnumerable"/></typeparam>
-        /// <typeparam name="T">データ</typeparam>
-        /// <typeparam name="U">変換先の型</typeparam>
-        /// <param name="self">現在のオブジェクト</param>
-        /// <param name="conv">変換関数</param>
-        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
+        /// <summary>
+        /// Generates and assembles nodes from data based on indices indicating the hierarchy, performing conversion and assembly for each data.
+        /// </summary>
+        /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
+        /// <typeparam name="T">Type of the data.</typeparam>
+        /// <typeparam name="U">Type to convert to.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="conv">Conversion function.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
+        /// <returns>The assembled tree structure.</returns>
         public static U AssembleTree<TKey, T, U>(this IDictionary<TKey, T> self, Func<T, U> conv, Action<U, U> addAction) where TKey : IEnumerable<int> {
             return assemble(self, conv, (i, p, c) => addAction(p, c));
         }
         #endregion
 
         #region IEnumerableからN分木を生成
-        /// <summary>最初の要素を起点としたN分木を作成する。</summary>
-        /// <remarks>各ノードはレベル順に追加されていきます。</remarks>
-        /// <typeparam name="T">要素の型</typeparam>
-        /// <typeparam name="U">ノードの型</typeparam>
-        /// <param name="self"></param>
-        /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
-        /// <param name="conv">要素からノードに変換する</param>
-        /// <param name="addAction">第一引数に親となるオブジェクト、第二引数に子となるオブジェクトを取り、その関係を成り立たせる関数。</param>
-        /// <returns>rootとなる最初の要素から変換されたノードを返す。</returns>
+        /// <summary>
+        /// Creates an N-ary tree starting from the first element.
+        /// </summary>
+        /// <remarks>
+        /// Each node is added in level order.
+        /// </remarks>
+        /// <typeparam name="T">Type of the elements.</typeparam>
+        /// <typeparam name="U">Type of the nodes.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="nary">Upper limit on the number of child nodes that a parent node can have.</param>
+        /// <param name="conv">Function to convert elements to nodes.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
+        /// <returns>The node converted from the first element that serves as the root.</returns>
         public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (!self.Any()) throw new InvalidOperationException(nameof(self));
@@ -163,25 +194,33 @@ namespace TreeStructures.Linq {
             }
             return root;
         }
-        /// <summary>最初の要素を起点としたN分木を作成する。</summary>
-        /// <remarks>各ノードはレベル順に追加されていきます。</remarks>
-        /// <typeparam name="T">要素の型</typeparam>
-        /// <typeparam name="U">ノードの型</typeparam>
-        /// <param name="self"></param>
-        /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
-        /// <param name="conv">要素からノードに変換する</param>
-        /// <returns>rootとなる最初の要素から変換されたノードを返す。</returns>
-        public static U AssembleAsNAryTree<T,U>(this IEnumerable<T> self,int nary,Func<T,U> conv) where U : ITreeNodeCollection<U> {
+        /// <summary>
+        /// Creates an N-ary tree starting from the first element.
+        /// </summary>
+        /// <remarks>
+        /// Each node is added in level order.
+        /// </remarks>
+        /// <typeparam name="T">Type of the elements.</typeparam>
+        /// <typeparam name="U">Type of the nodes.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="nary">Upper limit on the number of child nodes that a parent node can have.</param>
+        /// <param name="conv">Function to convert elements to nodes.</param>
+        /// <returns>The node converted from the first element that serves as the root.</returns>
+        public static U AssembleAsNAryTree<T,U>(this IEnumerable<T> self,int nary,Func<T,U> conv) where U : IMutableTreeNode<U> {
             return self.AssembleAsNAryTree(nary, conv, (a, b) => a.AddChild(b));
         }
 
-        /// <summary>最初の要素を起点としたN分木を作成する。</summary>
-        /// <remarks>各ノードはレベル順に追加されていきます。</remarks>
-        /// <typeparam name="T">ノードの型</typeparam>
-        /// <param name="self"></param>
-        /// <param name="nary">親ノードが持つ子ノードの数の上限</param>
-        /// <returns>rootとなる最初のノードを返す。</returns>
-        public static T AssembleAsNAryTree<T>(this IEnumerable<T> self,int nary) where T : ITreeNodeCollection<T> {
+        /// <summary>
+        /// Creates an N-ary tree starting from the first element.
+        /// </summary>
+        /// <remarks>
+        /// Each node is added in level order.
+        /// </remarks>
+        /// <typeparam name="T">Type of the nodes.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="nary">Upper limit on the number of child nodes that a parent node can have.</param>
+        /// <returns>The root node.</returns>
+        public static T AssembleAsNAryTree<T>(this IEnumerable<T> self,int nary) where T : IMutableTreeNode<T> {
             return self.AssembleAsNAryTree(nary, a => a)!;
         }
         #endregion

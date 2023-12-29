@@ -14,18 +14,18 @@ namespace TreeStructures.Utility {
     ///// <returns>実行の成否</returns>
     //public delegate bool TryParseCallback<TValue>(string input, [MaybeNullWhen(false)] out TValue value);
 
-    /// <summary>TryParseパターンによって処理されるメソッドを表す。</summary>
-    /// <typeparam name="TInput">入力値の型</typeparam>
-    /// <typeparam name="TValue">出力値の型</typeparam>
-    /// <param name="input">入力値</param>
-    /// <param name="value">出力値</param>
-    /// <returns>実行の成否</returns>
+    /// <summary>Represents a method processed by the TryParse pattern.</summary>
+    /// <typeparam name="TInput">The type of the input value.</typeparam>
+    /// <typeparam name="TValue">The type of the output value.</typeparam>
+    /// <param name="input">The input value.</param>
+    /// <param name="value">The output value.</param>
+    /// <returns>Success or failure of the operation.</returns>
     public delegate bool TryCallback<in TInput, TValue>(TInput input, [MaybeNullWhen(false)] out TValue value);
 
-    /// <summary>TryParseパターンによって処理されるメソッドを表す。</summary>
-    /// <typeparam name="TValue">出力値の型</typeparam>
-    /// <param name="value">出力値</param>
-    /// <returns>実行の成否</returns>
+    /// <summary>Represents a method processed by the TryParse pattern.</summary>
+    /// <typeparam name="TValue">The type of the output value.</typeparam>
+    /// <param name="value">The output value.</param>
+    /// <returns>Success or failure of the operation.</returns>
     public delegate bool TryCallback<TValue>([MaybeNullWhen(false)] out TValue value);
 
     ////// <summary>ResultWithValueに関するstaticメソッドを提供する。</summary>
@@ -57,24 +57,23 @@ namespace TreeStructures.Utility {
     //    }
     //}
 
-    /// <summary>ResultWithValueに関するstaticメソッドを提供する。</summary>
-    /// <typeparam name="TValue"></typeparam>
+    /// <summary>Provides static methods related to <see cref="ResultWithValue{TValue}"/>.</summary>
+    /// <typeparam name="TValue">The type of the output value.</typeparam>
     public static class Result<TValue> {
-        /// <summary>TryParseパターンによる処理をサポートする。</summary>
-        /// <typeparam name="TInput">入力値の型</typeparam>
-        /// <param name="tryMethod"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <summary>Supports processing using the TryParse pattern.</summary>
+        /// <typeparam name="TInput">The type of the input value.</typeparam>
+        /// <param name="tryMethod">The TryParse method.</param>
+        /// <param name="input">The input value.</param>
+        /// <returns>The result and its associated value.</returns>
         public static ResultWithValue<TValue> Of<TInput>(TryCallback<TInput, TValue> tryMethod, TInput input) {
             if (tryMethod(input, out var value))
                 return new ResultWithValue<TValue>(value);
             else
                 return new ResultWithValue<TValue>();
         }
-        /// <summary>TryParseパターンによる処理をサポートする。</summary>
-        /// <typeparam name="TValue">出力値の型</typeparam>
-        /// <param name="try">Tryメソッド</param>
-        /// <returns>結果とその値</returns>
+        /// <summary>Supports processing using the TryParse pattern.</summary>
+        /// <param name="try">The Try method.</param>
+        /// <returns>The result and its associated value.</returns>
         public static ResultWithValue<TValue> Of(TryCallback<TValue> @try) {
             //TValue value;
             if (@try(out var value))

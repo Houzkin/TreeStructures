@@ -8,45 +8,56 @@ using System.Xml.Serialization;
 using TreeStructures.Xml.Serialization;
 
 namespace TreeStructures.Xml.Serialization {
-    /// <summary><see cref="XmlSerializer"/>によってシリアライズ・デシリアライズ可能な、各ノードのインデックスとそのデータの組を表す。</summary>
-    /// <typeparam name="T">シリアライズ・デシリアライズを行う型</typeparam>
+    /// <summary>
+    /// Represents a pair of node index and its data that can be serialized and deserialized by <see cref="XmlSerializer"/>.
+    /// </summary>
+    /// <typeparam name="T">Type for serialization and deserialization</typeparam>
     public class SerializableNodeMap<T> : ReadOnlyDictionary<NodeIndex, T>, IXmlSerializable {
-        /// <summary>新規インスタンスを初期化する。</summary>
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
         public SerializableNodeMap() : base(new Dictionary<NodeIndex, T>()) { }
-        /// <summary>指定した<see cref="IDictionary{TKey, TValue}"/>をラップする新規スタンスを初期化する。</summary>
-        /// <param name="map">ラップする Dictionary</param>
+
+        /// <summary>
+        /// Initializes a new instance wrapping the specified <see cref="IDictionary{TKey, TValue}"/>.
+        /// </summary>
+        /// <param name="map">Dictionary to wrap</param>
         public SerializableNodeMap(IDictionary<NodeIndex, T> map) : base(map) { }
 
         System.Xml.Schema.XmlSchema IXmlSerializable.GetSchema() {
             return null;
         }
-        /// <summary>XMLを読み込む。</summary>
+
+        /// <summary>Reads XML.</summary>
         public void ReadXml(System.Xml.XmlReader reader) {
             var dic = DictionarySerializeManager<NodeIndexCode, T>.Read(reader);
-            foreach (var p in dic) this.Dictionary.Add(p.Key.ToNodeIndex(), p.Value);
+            foreach (var p in dic) {
+                this.Dictionary.Add(p.Key.ToNodeIndex(), p.Value);
+            }
         }
-        /// <summary>XMLとして書き込む。</summary>
+
+        /// <summary> Writes XML.</summary>
         public void WriteXml(System.Xml.XmlWriter writer) {
             DictionarySerializeManager<NodeIndexCode, T>
                 .Write(this.Dictionary.ToDictionary(x => new NodeIndexCode(x.Key), x => x.Value), writer);
         }
 
-        /// <summary><see cref="NodeIndex"/>を文字列として表す。</summary>
+        /// <summary>Represents <see cref="NodeIndex"/> as a string.</summary>
         public class NodeIndexCode {
             string _code = "[]";
-            /// <summary>現在のインスタンスが示す<see cref="NodeIndex"/>を文字列として取得・設定する。</summary>
+            /// <summary>Gets or sets the <see cref="NodeIndex"/> represented by the current instance as a string.</summary>
             public string IndexCode {
                 get { return _code; }
                 set {
                     _code = new NodeIndex(CodeToArray(value)).ToString();
                 }
             }
-            /// <summary>新規インスタンスを初期化する。</summary>
+            /// <summary>Initializes a new instance</summary>
             public NodeIndexCode() { }
-            /// <summary>新規インスタンスを初期化する。</summary>
-            /// <param name="ni">このインスタンスが示す NodeIndex</param>
+            /// <summary>Initializes a new Instance</summary>
+            /// <param name="ni">The NodeIndex represented by this instance.</param>
             public NodeIndexCode(NodeIndex ni) { _code = ni.ToString(); }
-            /// <summary>現在のインスタンスが示す<see cref="NodeIndex"/>を取得・設定する。</summary>
+            /// <summary>Gets or sets the <see cref="NodeIndex"/> represented by the current instance.</summary>
             public NodeIndex ToNodeIndex() {
                 return new NodeIndex(CodeToArray(_code));
             }
@@ -57,7 +68,7 @@ namespace TreeStructures.Xml.Serialization {
                     .ToArray();
             }
             /// <summary>現在のオブジェクトと等しいかどうかを判断する。</summary>
-            public override bool Equals(object obj) {
+            public override bool Equals(object? obj) {
                 var o = obj as NodeIndexCode;
                 if (o == null) return false;
                 return o.IndexCode == this.IndexCode;

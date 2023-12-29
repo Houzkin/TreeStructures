@@ -7,59 +7,68 @@ using TreeStructures.Linq;
 
 namespace TreeStructures {
 
-    /// <summary>ノードをたどる道筋を定義する。</summary>
-    /// <typeparam name="T">各ノードが示す型</typeparam>
+    /// <summary>Represents a path traversing nodes.</summary>
+    /// <typeparam name="T">The type represented by each node.</typeparam>
     public interface INodePath<T> : IEnumerable<T> {
-        /// <summary>指定したレベルでのパスを取得する。</summary>
-        /// <param name="level">レベル</param>
+        /// <summary>Gets the path at the specified level.</summary>
+        /// <param name="level">The level.</param>
         T this[int level] { get; }
-        /// <summary>
-        /// 現在のインスタンスのRootからの深さを取得する。
-        /// </summary>
-        int Depth { get; } //Level に変更した方がよい？
+        /// <summary>Gets the depth from the root.</summary>
+        int Depth { get; }
     }
-    /// <summary>ノードをだとる道筋を示す。</summary>
-    /// <typeparam name="T">各ノードを示すデータ型</typeparam>
+    /// <summary>Represents a path traversing nodes.</summary>
+    /// <typeparam name="T">The data type representing each node.</typeparam>
     public class NodePath<T> : INodePath<T> {
         readonly IReadOnlyList<T> _path;
-        /// <summary>新規インスタンスを初期化する。</summary>
+        /// <summary>Initializes a new instance of the class.</summary>
         public NodePath(params T[] path) : this(path ?? Array.Empty<T>().AsEnumerable()) { }
-        /// <summary>新規インスタンスを初期化する。</summary>
+        /// <summary>Initializes a new instance of the class.</summary>
         public NodePath(IEnumerable<T> path) { _path = path.ToArray(); }
         /// <summary>
-        /// ルートノードから指定したノードまでのパスを生成する。
+        /// Generates a path from the root node to the specified node.
         /// </summary>
-        /// <param name="node">ノード</param>
-        /// <param name="conv">各ノードから取得するパス</param>
+        /// <param name="node">The node.</param>
+        /// <param name="conv">A converter to obtain the path from each node.</param>
         public static NodePath<T> Create<TNode>(TNode node, Converter<TNode, T> conv) where TNode : ITreeNode<TNode> {
             return new NodePath<T>(node.Upstream().Select(x => conv(x)).Reverse());
         }
-        /// <summary>指定したレベルでのパスを取得する。</summary>
-        /// <param name="level">レベル</param>
+        /// <summary>Gets the path at the specified level.</summary>
+        /// <param name="level">The level.</param>
         public T this[int level] {
             get { return this._path[level]; }
         }
-        /// <summary>現在のインスタンスのRootからの深さを取得する。</summary>
+        /// <summary>Gets the depth from the root of the current instance.</summary>
         public int Depth {
             get {
                 if (this._path.Any()) return this._path.Count() - 1;
                 else return 0;
             }
         }
-        /// <summary>文字列として表す。</summary>
-        /// <param name="sepalater">各ノードのパスの区切りを指定する。</param>
-        public string ToString(string sepalater) {
+        /// <summary>Returns a string representation.</summary>
+        /// <param name="separator">Specifies the delimiter for each node's path.</param>
+        public string ToString(string separator) {
             var s = _path.FirstOrDefault()?.ToString() ?? "";
-            sepalater = sepalater ?? "";
+            separator = separator ?? "";
             foreach (var str in _path.Skip(1)) {
-                s += sepalater;
+                s += separator;
                 s += str?.ToString() ?? "";
             }
             return s;
         }
-        /// <summary>文字列として表す。</summary>
+        /// <summary>Returns a string representation.</summary>
         public override string ToString() {
             return this.ToString("/");
+        }
+        /// <summary>Determines whether the current object is equal to another object.</summary>
+        public override bool Equals(object? obj) {
+            if (obj is NodePath<T> np) {
+                if (this.SequenceEqual(np)) return true;
+            }
+            return false;
+        }
+        /// <summary>Returns the hash code representing the current object.</summary>
+        public override int GetHashCode() {
+            return this.ToArray().GetHashCode();
         }
         IEnumerator<T> IEnumerable<T>.GetEnumerator() {
             return _path.GetEnumerator();
@@ -70,13 +79,11 @@ namespace TreeStructures {
         }
     }
 
-    /// <summary>
-    /// 階層構造においてノードの位置を示すインデックスを表す。
-    /// </summary>
+    /// <summary>Represents an index indicating the position of a node in a tree structure.</summary>
     public struct NodeIndex : INodePath<int> {
         readonly IReadOnlyList<int> _nodePath;
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="nodePath">ルートを除く、各階層でのインデックス</param>
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="nodePath">Branch indices at each level, excluding the root.</param>
         public NodeIndex(params int[] nodePath) {
             if (nodePath == null) {
                 this._nodePath = new List<int>();
@@ -84,14 +91,14 @@ namespace TreeStructures {
                 this._nodePath = new List<int>(nodePath);
             }
         }
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="nodePath">ルートを除く、各階層でのインデックス</param>
+        /// <summary>Initializes a new instance.</summary>
+        /// <param name="nodePath">Branch indices at each level, excluding the root.</param>
         public NodeIndex(IEnumerable<int> nodePath)
             : this(nodePath == null ? null : nodePath.ToArray()) { }
 
-        /// <summary>指定された階層におけるコレクションのインデックスを取得する。
-        /// <para>ルートを示す0階層指定では定数0、指定された階層が存在しなかった場合は-1を返す。</para></summary>
-        /// <param name="level">階層を指定する。</param>
+        /// <summary>Gets the index of the collection at the specified level.
+        /// <para>Returns a constant 0 for 0-level specifying the root, and -1 if the specified level does not exist.</para></summary>
+        /// <param name="level">Specifies the level.</param>
         public int this[int level] {
             get {
                 var lv = level - 1;
@@ -103,14 +110,14 @@ namespace TreeStructures {
                 return _nodePath[lv];
             }
         }
-        /// <summary>このパスコードが示すノードのRootからの深さを取得する。</summary>
+        /// <summary>Gets the depth of the node indicated by this NodeIndex from the root.</summary>
         public int Depth {
             get {
                 if (_nodePath == null) return 0;
                 return _nodePath.Count;
             }
         }
-        /// <summary>パスコードを文字列として表す。</summary>
+        /// <summary>Represents as a string.</summary>
         public override string ToString() {
             string str = "[";
             for (int i = 0; i < _nodePath.Count; i++) {
@@ -120,7 +127,7 @@ namespace TreeStructures {
             str += "]";
             return str;
         }
-        /// <summary>現在のオブジェクトと等しいかどうかを判断する。</summary>
+        /// <summary>Determines whether the current object is equal to another object.</summary>
         public override bool Equals(object? obj) {
             if (obj is NodeIndex) {
                 var ob = (NodeIndex)obj;
@@ -128,7 +135,7 @@ namespace TreeStructures {
             }
             return false;
         }
-        /// <summary>現在のオブジェクトを表す文字列を返す。</summary>
+        /// <summary>Returns the hash code representing the current object.</summary>
         public override int GetHashCode() {
             return this.ToArray().GetHashCode();
         }
@@ -142,7 +149,7 @@ namespace TreeStructures {
             return this._nodePath.GetEnumerator();
         }
         /// <summary>
-        /// 先行順で並び替えを行うための比較方法を実装したオブジェクトを返す。
+        /// Returns an object implementing a comparison method for performing a pre-order sorting.
         /// </summary>
         public static IComparer<NodeIndex> GetPreorderComparer() {
             var cpn = new Comparison<NodeIndex>((x, y) => {
@@ -153,7 +160,7 @@ namespace TreeStructures {
             return Comparer<NodeIndex>.Create(cpn);
         }
         /// <summary>
-        /// 後行順で並び替えを行うための比較方法を実装したオブジェクトを返す。
+        /// Returns an object implementing a comparison method for performing a post-order sorting.
         /// </summary>
         public static IComparer<NodeIndex> GetPostorderComparer() {
             var cpn = new Comparison<NodeIndex>((x, y) => {
@@ -164,7 +171,7 @@ namespace TreeStructures {
             return Comparer<NodeIndex>.Create(cpn);
         }
         /// <summary>
-        /// 中間順で並び替えを行うための比較方法を実装したオブジェクトを返す。
+        /// Returns an object implementing a comparison method for performing an in-order sorting.
         /// </summary>
         public static IComparer<NodeIndex> GetLevelorderComparer() {
             var cpn = new Comparison<NodeIndex>((x, y) => {

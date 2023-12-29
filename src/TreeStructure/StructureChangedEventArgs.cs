@@ -7,98 +7,111 @@ using System.Threading.Tasks;
 namespace TreeStructures {
 
 
-    /// <summary>祖先ノードが追加または削除されたときのイベントにデータを提供する。</summary>
-    /// <typeparam name="TNode">ノードの型</typeparam>
+    /// <summary>Provides data for events when ancestor nodes are added or removed.</summary>
+    /// <typeparam name="TNode">The type of nodes.</typeparam>
     [Serializable]
     public sealed class ChangedAncestorInfo<TNode> {
-        /// <summary>変更前の祖先ノード。</summary>
+        /// <summary>Gets the ancestor node before the change.</summary>
         public TNode? PreviousParentOfTarget { get; private set; }
-        /// <summary>移動した祖先ノード。</summary>
+        /// <summary>Gets the moved ancestor node.</summary>
         public TNode MovedTarget { get; private set; }
-        /// <summary>移動前に振り当てられていたインデックス。<para>親ノードが存在しなかった場合は -1。</para></summary>
+        /// <summary>Gets the index assigned before the move. <para>If there was no parent node, it is -1.</para></summary>
         public int OldIndex { get; private set; }
-        /// <summary>ルートが変更したかどうかを示す値を取得する。</summary>
-        public bool RootWasChanged { get; private set; }
-        /// <summary>新しいインスタンスを初期化する。</summary>
-        /// <param name="movedTarget">移動したノード</param>
-        /// <param name="previous">移動元ノード</param>
-        /// <param name="oldIndex">移動前に振り当てられていたインデックス。</param>
-        /// <param name="rootChanged">ルートが変化したかどうかを示す値を設定する。</param>
+        /// <summary>Gets a value indicating whether the root has changed.</summary>
+        public bool IsRootChanged { get; private set; }
+        /// <summary>Initializes a new instance of the <see cref="ChangedAncestorInfo{TNode}"/> class.</summary>
+        /// <param name="movedTarget">The moved node.</param>
+        /// <param name="previous">The node from which it was moved.</param>
+        /// <param name="oldIndex">The index assigned before the move.</param>
+        /// <param name="rootChanged">A value indicating whether the root has changed.</param>
         public ChangedAncestorInfo(TNode movedTarget, TNode? previous, int oldIndex, bool rootChanged) {
             this.PreviousParentOfTarget = previous;
             this.MovedTarget = movedTarget;
             this.OldIndex = oldIndex;
-            this.RootWasChanged = rootChanged;
+            this.IsRootChanged = rootChanged;
         }
     }
 
-    /// <summary>子孫ノードが移動したときのイベントにデータを提供する。</summary>
-    /// <typeparam name="TNode">ノードの型</typeparam>
+
+    /// <summary>Provides data for events when descendant nodes are moved.</summary>
+    /// <typeparam name="TNode">Type of the node.</typeparam>
     [Serializable]
     public sealed class ChangedDescendantInfo<TNode> {
-        /// <summary>新しいインスタンスを初期化する。</summary>
-        /// <param name="action">イベントの原因となったアクション。</param>
-        /// <param name="target">アクションの対象となったノード。</param>
-        /// <param name="previousParent">対象の移動前の親ノード。</param>
-        /// <param name="oldIndex">移動前に振り当てられていたインデックス。</param>
+        /// <summary>Initializes a new instance of the class.</summary>
+        /// <param name="action">The action that caused the event.</param>
+        /// <param name="target">The node that is the target of the action.</param>
+        /// <param name="previousParent">The previous parent of the target before the move.</param>
+        /// <param name="oldIndex">The index assigned to the target before the move, or -1 if no parent existed.</param>
         public ChangedDescendantInfo(TreeNodeChangedAction action, TNode target, TNode? previousParent, int oldIndex) {
-            this.NodeAction = action;
+            this.SubTreeAction = action;
             this.Target = target;
             this.PreviousParentOfTarget = previousParent;
             this.OldIndex = oldIndex;
         }
-        /// <summary>各ノードにおける、イベントの原因となったアクションを取得する。</summary>
-        public TreeNodeChangedAction NodeAction { get; private set; }
-        /// <summary>アクションの対象となったノードを取得する。</summary>
+        /// <summary>Gets the action that caused the event for each node.</summary>
+        public TreeNodeChangedAction SubTreeAction { get; private set; }
+        /// <summary>Gets the node that is the target of the action.</summary>
         public TNode Target { get; private set; }
-        /// <summary>対象の、変更前の親ノードを取得する。</summary>
+        /// <summary>Gets the previous parent of the target node before the move.</summary>
         public TNode? PreviousParentOfTarget { get; private set; }
-        /// <summary>対象が移動前に振り当てられていたインデックス。<para>親ノードが存在しなかった場合は -1。</para></summary>
+        /// <summary>Gets the index assigned to the target node before the move. Returns -1 if no parent existed.</summary>
         public int OldIndex { get; private set; }
     }
-    /// <summary>再帰構造が変更されたときのイベントにデータを提供する。</summary>
-    /// <typeparam name="TNode">ノードの型</typeparam>
+
+    /// <summary>Provides data for events when the structure of the tree changes.</summary>
+    /// <typeparam name="TNode">Type of the node.</typeparam>
     [Serializable]
     public sealed class StructureChangedEventArgs<TNode> : EventArgs {
-        /// <summary>新規インスタンスを初期化する。</summary>
-        /// <param name="action">イベントの原因となったアクション。</param>
-        /// <param name="target">アクションの対象となったノード。</param>
-        /// <param name="previousParent">対象の移動前の親ノード。</param>
-        /// <param name="oldIndex">対象が移動前に振り当てられていたインデックス。</param>
+        /// <summary>
+        /// Initializes a new instance of the class.
+        /// </summary>
+        /// <param name="action">The action that caused the event.</param>
+        /// <param name="target">The node that is the target of the action.</param>
+        /// <param name="previousParent">The previous parent of the target node before the change.</param>
+        /// <param name="oldIndex">The index assigned to the target node before the change.</param>
         public StructureChangedEventArgs(TreeNodeChangedAction action, TNode target, TNode? previousParent, int oldIndex) {
             TreeAction = action;
             Target = target;
             PreviousParentOfTarget = previousParent;
             OldIndex = oldIndex;
         }
-        /// <summary>現在の再帰構造において、イベントの原因となったアクション。</summary>
+
+        /// <summary>Gets the action that caused the event in the current recursive structure.</summary>
         public TreeNodeChangedAction TreeAction { get; private set; }
-        /// <summary>アクションの対象となったノード。</summary>
+
+        /// <summary>Gets the node that is the target of the action.</summary>
         public TNode Target { get; private set; }
-        /// <summary>対象ノードの変更前の親ノード。</summary>
+
+        /// <summary>Gets the previous parent of the target node before the change.</summary>
         public TNode? PreviousParentOfTarget { get; private set; }
-        /// <summary>対象が移動前に振り当てられていたインデックス。<para>親ノードが存在しなかった場合は -1。</para></summary>
+
+        /// <summary>Gets the index assigned to the target node before the change. Returns -1 if no parent existed.</summary>
         public int OldIndex { get; private set; }
-        /// <summary>祖先方向に変更があったかどうかを示す値を取得する。</summary>
-        public bool AncestorWasChanged {
+
+        /// <summary>Gets a value indicating whether there was a change in the ancestor direction.</summary>
+        public bool IsAncestorChanged {
             get { return AncestorInfo != null; }
         }
-        /// <summary>子孫方向に変更があったかどうかを示す値を取得する。</summary>
-        public bool DescendantWasChanged {
+
+        /// <summary>Gets a value indicating whether there was a change in the descendant direction.</summary>
+        public bool IsDescendantChanged {
             get { return DescendantInfo != null; }
         }
-        /// <summary>各ノードにおいて、子孫方向に変更があった場合、その情報を示す参照が適宜設定される。</summary>
+
+        /// <summary>For each node, if there was a change in the descendant direction, a reference indicating that information is appropriately set.</summary>
         public ChangedDescendantInfo<TNode>? DescendantInfo { get; internal set; }
-        /// <summary>各ノードにおいて、子孫方向に変更があった場合、その情報を示す参照が適宜設定される。</summary>
+
+        /// <summary>For each node, if there was a change in the ancestor direction, a reference indicating that information is appropriately set.</summary>
         public ChangedAncestorInfo<TNode>? AncestorInfo { get; internal set; }
     }
-    /// <summary>特定のノードから広がるツリー構造がどのように変更されたかを示す。</summary>
+
+    /// <summary>Indicates how the tree structure, spreading from a specific node, has been modified.</summary>
     public enum TreeNodeChangedAction {
-        /// <summary>追加された。</summary>
+        /// <summary>Added within the tree structure spreading from a specific node.</summary>
         Join,
-        /// <summary>特定のノードから広がるツリー構造内を移動した。</summary>
+        /// <summary>Moved within the tree structure spreading from a specific node.</summary>
         Move,
-        /// <summary>特定のノードから広がるツリー構造から外れた。</summary>
+        /// <summary>Removed from the tree structure spreading from a specific node.</summary>
         Deviate,
     }
 }

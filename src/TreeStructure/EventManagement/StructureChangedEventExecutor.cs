@@ -11,10 +11,10 @@ using TreeStructures.Linq;
 using TreeStructures.Utility;
 
 namespace TreeStructures.EventManagement {
-    /// <summary><see cref="IObservableTreeNode{TNode}"/>の変更イベントを制御する</summary>
-    /// <typeparam name="TNode"></typeparam>
+    /// <summary>Controls the change events of <see cref="IObservableTreeNode{TNode}"/>.</summary>
+    /// <typeparam name="TNode">The type of the tree node.</typeparam>
     public sealed class StructureChangedEventExecutor<TNode> : UniqueOperationExecutor where TNode: class, IObservableTreeNode<TNode> {
-        /// <summary>新規インスタンスを初期化する</summary>
+        /// <summary>Initializes a new instance.</summary>
         /// <param name="self"></param>
         public StructureChangedEventExecutor(TNode self):base() {
             Self = self;
@@ -139,7 +139,7 @@ namespace TreeStructures.EventManagement {
             Self.Parent != null && Self.BranchIndex() != oldIndex ? true ://Parentに変化がなかった場合
             false;
 
-        /// <summary>初回メソッド呼び出し時と戻り値の最後のDispose時でツリー構造に変更があった場合、変更イベントを発行する</summary>
+        /// <summary>Issues change events if there are changes in the tree structure during the first method call and at the end of the returned value's last Dispose.</summary>
         /// <returns></returns>
         public IDisposable LateEvaluateTree() {
             var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, structureeventkey).When(

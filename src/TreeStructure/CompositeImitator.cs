@@ -6,16 +6,18 @@ using System.Threading.Tasks;
 using TreeStructures.Linq;
 
 namespace TreeStructures {
-    /// <summary>連動の停止とインスタンスの破棄が可能な、Compositeパターンをラップするオブジェクト</summary>
-    /// <remarks>MVVMパターンでのViewModelとしての使用を想定しています</remarks>
-    /// <typeparam name="TSrc">Compositeパターンをなす型</typeparam>
-    /// <typeparam name="TImtr">ラップするノードの型</typeparam>
+    /// <summary>An object that wraps a Composite pattern with the ability to pause/resume synchronization and dispose the instance.</summary>
+    /// <remarks>
+    /// Intended for use as a ViewModel in the MVVM pattern.
+    /// </remarks>
+    /// <typeparam name="TSrc">Type of the Composite pattern</typeparam>
+    /// <typeparam name="TImtr">Type of the wrapper node</typeparam>
     public abstract class CompositeImitator<TSrc, TImtr> : CompositeWrapper<TSrc, TImtr>
         where TSrc : class
         where TImtr : CompositeImitator<TSrc, TImtr> {
 
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="sourceNode">ラップされるノード</param>
+        /// <summary>Initializes a new instance of the class.</summary>
+        /// <param name="sourceNode">The node to be wrapped.</param>
         protected CompositeImitator(TSrc sourceNode) : base(sourceNode) { }
         //private protected override TOur GenerateAndSetupChild(TSrc sourceChildNode) {
         //    var cld = base.GenerateAndSetupChild(sourceChildNode);
@@ -26,54 +28,59 @@ namespace TreeStructures {
         //    return cld;
         //}
 
-        /// <summary>削除された子ノードに対する処理</summary>
-        /// <remarks>基底クラスでは<see cref="Dispose()"/>メソッドが呼び出される<br/>
-        /// インスタンスを再利用する場合は<see cref="StopImitate"/>メソッドを指定してください</remarks>
-        /// <param name="removedNode"></param>
+        /// <summary>Handles the removed child node.</summary>
+        /// <remarks>
+        /// The base class calls the <see cref="Dispose()"/> method.
+        /// If you intend to reuse the instance, please specify the <see cref="PauseImitation"/> method.
+        /// </remarks>
+        /// <param name="removedNode">The removed child node.</param>
+
         protected override void ManageRemovedChild(TImtr removedNode) {
             removedNode.Dispose();
         }
         private IReadOnlyList<TImtr> StopImitateProcess() {
             this.Parent = null;
-            var lst = this.Levelorder().Skip(1).Reverse().ToList();
+            var lst = this
+                .Evolve(a => {
+                    a.IsImitating = false;
+                    return a.Children; 
+                }, (a, b, c) => b.Prepend(a).Concat(c))
+                .Skip(1).Reverse().ToList();
             foreach (var item in lst) { 
                 item.StopImitateProcess();
             }
-            _children?.StopImitateAndClear();
+            _innerChildren?.PauseImitationAndClear();
             lst.Add((this as TImtr)!);
             return lst;
         }
-        /// <summary>子孫ノードの分解と、現在のノードを含む各ノードの<see cref="SourceNode"/> の子ノードコレクションに対する購読解除を実行する</summary>
-        /// <returns>分解された子孫ノード</returns>
-        public IReadOnlyList<TImtr> StopImitate() {
-            var rmc = _children?.Select(x => x.StopImitateProcess()).SelectMany(x => x).ToArray();
-            _children?.StopImitateAndClear();
+        /// <summary>
+        /// Disassembles descendant nodes and unsubscribes from the <see cref="CompositeWrapper{TSrc, TWrpr}.SourceNodeChildren"/> of each node, including the current node.
+        /// </summary>
+        /// <returns>The disassembled descendant nodes.</returns>
+        public IReadOnlyList<TImtr> PauseImitation() {
+            this.IsImitating = false;
+            var rmc = _innerChildren?.Select(x => x.StopImitateProcess()).SelectMany(x => x).ToArray();
+            _innerChildren?.PauseImitationAndClear();
             return rmc ?? Array.Empty<TImtr>();
 
-            //this.Parent = null;
-            //var lst = this.Levelorder().Skip(1).Reverse().ToList();
-            //foreach (var child in lst)
-            //    child.StopImitate();
-            //_children?.StopImitateAndClear();
-            //lst.Add((this as TOur)!);
-            //return lst;
         }
-        /// <summary><see cref="SourceNode"/>の子ノードコレクションに対する購読を再開する</summary>
+        /// <summary>Resume subscription to <see cref="CompositeWrapper{TSrc, TWrpr}.SourceNodeChildren"/> and imitate descendant nodes.</summary>
         public void ImitateSourceSubTree() {
             ThrowExceptionIfDisposed();
-            _children?.Imitate();
+            this.IsImitating = true;
+            _innerChildren?.Imitate();
         }
         /// <inheritdoc/>
         protected override void Dispose(bool disposing) {
             if (disposing) {
                 //var nd = this.Levelorder().Skip(1).Reverse().ToArray();
-                var nd = this.StopImitate();
-                _children?.Dispose();
+                var nd = this.PauseImitation();
+                _innerChildren?.Dispose();
                 foreach (var n in nd) n.Dispose();
                 base.Dispose(disposing);
             }
         }
-        /// <summary>インスタンスを破棄する</summary>
+        /// <summary>Dispose the instance</summary>
         public void Dispose() { (this as IDisposable)?.Dispose(); }
     }
 }

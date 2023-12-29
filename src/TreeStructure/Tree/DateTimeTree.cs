@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -12,32 +13,38 @@ using TreeStructures.Linq;
 
 namespace TreeStructures.Tree {
     /// <summary>
-    /// 日付のコレクションをツリー構造として構築する
+    /// Builds a tree structure of date collections.
     /// </summary>
     public class DateTimeTree:DateTimeTree<DateTime> {
 
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="collection"><see cref="DateTime"/>型のコレクション</param>
-        /// <param name="Lv1Classes">レベル１での分類</param>
-        /// <param name="nextsLvClasses">レベル２以降での各分類</param>
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        /// <param name="collection">Collection of <see cref="DateTime"/>.</param>
+        /// <param name="Lv1Classes">Classification at level 1.</param>
+        /// <param name="nextsLvClasses">Each classifications at levels 2 and above.</param>
         public DateTimeTree(IEnumerable<DateTime> collection, Func<DateTime, int> Lv1Classes, params Func<DateTime, int>[] nextsLvClasses)
             : base(collection, x => x, Lv1Classes, nextsLvClasses) { }
     }
-    /// <summary>日付をプロパティとして保持するオブジェクトのコレクションをツリー構造として構築する</summary>
-    /// <typeparam name="T">日付をプロパティとして保持するオブジェクト</typeparam>
+    /// <summary>
+    /// Builds a tree structure from a collection of objects holding a date as a property.
+    /// </summary>
+    /// <typeparam name="T">Type of objects holding a date as a property.</typeparam>
     public class DateTimeTree<T> {
         private InnerNodeBase _root { get; }
-        /// <summary>構築されたツリー</summary>
-        public DateTimeNode Root { get; }
+        /// <summary>The constructed tree.</summary>
+        public Node Root { get; }
         Dictionary<int, Func<DateTime, int>> selectChargeDic = new();
         Func<T, DateTime> SelectDateTime;
         IEnumerable<T> _collection;
         IDisposable? _dispo = null;
-        /// <summary>新規インスタンスを初期化する</summary>
-        /// <param name="collection">日付をプロパティとして保持するオブジェクトのコレクション</param>
-        /// <param name="dateTimeSelector">日付を示す</param>
-        /// <param name="Lv1Classes">レベル１での分類</param>
-        /// <param name="nextsLvClasses">レベル２以降での各分類</param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DateTimeTree{T}"/> class.
+        /// </summary>
+        /// <param name="collection">A collection of objects that hold a date as a property.</param>
+        /// <param name="dateTimeSelector">Function to extract the date from each object.</param>
+        /// <param name="Lv1Classes">Classification at level 1.</param>
+        /// <param name="nextsLvClasses">Each classification at levels 2 and above.</param>
         public DateTimeTree(IEnumerable<T> collection,Func<T,DateTime> dateTimeSelector,Func<DateTime,int> Lv1Classes,params Func<DateTime, int>[] nextsLvClasses) {
             _root = new InnerDateRoot();
             var levlst = new List<Func<DateTime, int>> { Lv1Classes };
@@ -54,7 +61,7 @@ namespace TreeStructures.Tree {
                     h => notifir.CollectionChanged -= h, 
                     CollectionChanged);
             }
-            Root = new DateTimeNode(_root);
+            Root = new Node(_root);
         }
 
         private void CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
@@ -68,7 +75,10 @@ namespace TreeStructures.Tree {
             }
             if(e.Action == NotifyCollectionChangedAction.Reset) { ReCollect(_collection); }
         }
-        /// <summary>コレクションを入替える</summary>
+        /// <summary>
+        /// Replaces the collection with a new one.
+        /// </summary>
+        /// <param name="collection">The new collection to replace the existing one.</param>
         public void Reset(IEnumerable<T> collection) {
             _dispo?.Dispose();
             if (collection is INotifyCollectionChanged notifir) {
@@ -112,8 +122,8 @@ namespace TreeStructures.Tree {
                 }
             }
         }
-        /// <summary>ツリーをなすBaseNode</summary>
-        public class InnerNodeBase : TreeNodeCollection<InnerNodeBase> {
+        /// <summary>Base node that forms the tree.</summary>
+        public class InnerNodeBase : TreeNode<InnerNodeBase> {
             protected override IEnumerable<DateTimeTree<T>.InnerNodeBase> SetupInnerChildCollection()
                 => new SortedObableList();
             protected override IEnumerable<DateTimeTree<T>.InnerNodeBase> SetupPublicChildCollection(IEnumerable<DateTimeTree<T>.InnerNodeBase> innerCollection)
@@ -122,6 +132,7 @@ namespace TreeStructures.Tree {
             internal InnerNodeBase(int chargedValue) {
                 NodeClass = chargedValue;
             }
+            /// <summary>The number assigned for the class at the corresponding level.</summary>
             public int NodeClass { get; }
             public override string ToString() {
                 return NodeClass.ToString();
@@ -164,19 +175,26 @@ namespace TreeStructures.Tree {
 
             }
         }
-        /// <summary>分類または値を持ったノードを表す</summary>
-        public sealed class DateTimeNode : TreeNodeWrapper<InnerNodeBase, DateTimeNode> {
-            internal DateTimeNode(DateTimeTree<T>.InnerNodeBase sourceNode) : base(sourceNode) { }
-
-            protected override DateTimeTree<T>.DateTimeNode GenerateChild(DateTimeTree<T>.InnerNodeBase sourceChildNode) {
-                return new DateTimeNode(sourceChildNode);
+        /// <summary>Represents a node with classification or value.</summary>
+        public sealed class Node : TreeNodeWrapper<InnerNodeBase, Node> {
+            internal Node(DateTimeTree<T>.InnerNodeBase sourceNode) : base(sourceNode) { }
+            /// <inheritdoc/>
+            protected override DateTimeTree<T>.Node GenerateChild(DateTimeTree<T>.InnerNodeBase sourceChildNode) {
+                return new Node(sourceChildNode);
             }
+            /// <summary>The number assigned for the class at the corresponding level.</summary>
             public int NodeClass => this.SourceNode.NodeClass;
             public bool HasValue  => (this.SourceNode is InnerDateLeaf<T>);
-            
+            /// <summary>This property is not null when <see cref="HasValue"/> is true.</summary>
             public DateTime? DateTimeValue => (this.SourceNode is InnerDateLeaf<T> leaf) ? leaf.DateTimeValue : null;
-            
+            /// <summary>
+            /// Returns the value of the element if <see cref="HasValue"/> is true; otherwise, returns the default value.
+            /// </summary>
             public T Value => (this.SourceNode is InnerDateLeaf<T> leaf) ? leaf.Item : default;
+            /// <inheritdoc/>
+            public override string ToString() {
+                return this.SourceNode.ToString();
+            }
         }
 
     }
