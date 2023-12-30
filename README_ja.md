@@ -14,9 +14,11 @@
 　abstractで定義された汎用ツリーノード、周辺オブジェクト、イベント引数
  
  汎用ツリーノードの継承図
+ 
 ![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructure/assets/12586097/f92aca9b-a8c1-4f18-998c-4c10da68e8ea)
 
  NodePathとNodeIndex (周辺オブジェクト) の継承図
+ 
 ![継承図_周辺オブジェクト](https://github.com/Houzkin/TreeStructure/assets/12586097/9f17c735-3e0e-40dc-b374-d4d6b380b03a)
 
 ### TreeStructures.Linq;
