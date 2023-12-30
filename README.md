@@ -1,6 +1,7 @@
 # Overview
 
 This library provides a class for creating a tree structure that can be used by inheriting from it.
+
 Features:
 
 1. Rich extension methods for ITreeNode<T>
@@ -45,17 +46,32 @@ Let's elaborate on the four features mentioned at the beginning.
 Over 60 extension methods for ITreeNode<T> are defined, including various overloads. Examples include:
 
 Enumeration: Preorder, Levelorder, all traversal methods, Leafs, Ancestors, DiscendArrivals, DescendTraces, etc.
+
 Navigation: Root, NextSibling, LastSibling, etc.
+
 Editing: Starting with TryAddChild, Try○○Child, Disassemble, RemoveAllDescendant, etc.
+
 Parameter Retrieval: NodeIndex, NodePath, Height, Depth, etc.
+
 Predicate Methods: IsDescendantOf, IsAncestorOf, IsRoot, etc.
+
 Conversion: ToNodeMap, ToSerializableNodeMap, ToTreeDiagram
+
 Assembly Methods: Convert, AssembleTree, AssembleAsNAryTree
-Mutual References Between Parent and Child Nodes
+
+### Mutual References Between Parent and Child Nodes
 Mutual references between parent and child nodes are handled by base classes (TreeNodeBase or CompositeWrapper). You can customize this behavior by overriding protected methods such as RemoveChildProcess, InsertChildProcess, etc.
 
 ### Classes Forming a Tree Structure and Their Generality
-If you want fine customization, use TreeNodeBase. For general data structures or containers, use TreeNode or ObservableTreeNode. If you want a tree with a fixed number of branches and treat empty nodes as null, use NAryTreeNode. If you want an object or tree structure forming the Composite pattern, or if you want to use it as a wrapper class with the ability to temporarily pause/resume the instance and dispose of it (e.g., ViewModel in MVVM), use (Composite | TreeNode)Wrapper or (Composite | TreeNode)Imitator.
+If you want to customize in detail, use TreeNodeBase. 
+
+For a GeneralTree, if you want to use it as a data structure or container for data, use TreeNode or ObservableTreeNode. 
+
+If you want to use an N-Ary Tree with a fixed number of branches and empty nodes set to null, use NAryTreeNode. 
+
+If you want to use an object or tree structure that forms the Composite pattern, use (Composite | TreeNode) Wrapper. 
+
+If you need a Wrapper that, in addition to its wrapper functionality, can temporarily pause/resume instance disposal and wrapping, as is the case with ViewModel in MVVM, use (Composite | TreeNode) Imitator. Inherit and use each as needed.
 
 ### Compatibility with Other Libraries
 In TreeNodeBase and its derived types, you can customize the collections used internally and those exposed externally by overriding the Setup(Inner | Public)ChildCollection methods.
