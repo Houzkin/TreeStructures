@@ -8,7 +8,8 @@ using TreeStructures.Linq;
 namespace TreeStructures {
     /// <summary>An object that wraps a Composite pattern with the ability to pause/resume synchronization and dispose the instance.</summary>
     /// <remarks>
-    /// Intended for use as a ViewModel in the MVVM pattern.
+    /// Although designed with the intention of being utilized as a ViewModel in the MVVM pattern, this wrapper object is not limited to that specific use case.<br/>
+    /// It can be applied for various purposes, serving as a ViewModel being just one example.
     /// </remarks>
     /// <typeparam name="TSrc">Type of the Composite pattern</typeparam>
     /// <typeparam name="TImtr">Type of the wrapper node</typeparam>
@@ -19,14 +20,6 @@ namespace TreeStructures {
         /// <summary>Initializes a new instance of the class.</summary>
         /// <param name="sourceNode">The node to be wrapped.</param>
         protected CompositeImitator(TSrc sourceNode) : base(sourceNode) { }
-        //private protected override TOur GenerateAndSetupChild(TSrc sourceChildNode) {
-        //    var cld = base.GenerateAndSetupChild(sourceChildNode);
-        //    if (cld != null) {
-        //        cld.Parent = this as TOur;
-        //        cld.ImitateSourceSubTree();
-        //    }
-        //    return cld;
-        //}
 
         /// <summary>Handles the removed child node.</summary>
         /// <remarks>
@@ -43,13 +36,13 @@ namespace TreeStructures {
             var lst = this
                 .Evolve(a => {
                     a.IsImitating = false;
-                    return a.Children; 
+                    return a.InnerChildren; 
                 }, (a, b, c) => b.Prepend(a).Concat(c))
                 .Skip(1).Reverse().ToList();
             foreach (var item in lst) { 
                 item.StopImitateProcess();
             }
-            _innerChildren?.PauseImitationAndClear();
+            InnerChildren.PauseImitationAndClear();
             lst.Add((this as TImtr)!);
             return lst;
         }
@@ -59,8 +52,8 @@ namespace TreeStructures {
         /// <returns>The disassembled descendant nodes.</returns>
         public IReadOnlyList<TImtr> PauseImitation() {
             this.IsImitating = false;
-            var rmc = _innerChildren?.Select(x => x.StopImitateProcess()).SelectMany(x => x).ToArray();
-            _innerChildren?.PauseImitationAndClear();
+            var rmc = InnerChildren.Select(x => x.StopImitateProcess()).SelectMany(x => x).ToArray();
+            InnerChildren.PauseImitationAndClear();
             return rmc ?? Array.Empty<TImtr>();
 
         }
@@ -68,14 +61,14 @@ namespace TreeStructures {
         public void ImitateSourceSubTree() {
             ThrowExceptionIfDisposed();
             this.IsImitating = true;
-            _innerChildren?.Imitate();
+            InnerChildren.Imitate();
         }
         /// <inheritdoc/>
         protected override void Dispose(bool disposing) {
             if (disposing) {
                 //var nd = this.Levelorder().Skip(1).Reverse().ToArray();
                 var nd = this.PauseImitation();
-                _innerChildren?.Dispose();
+                InnerChildren.Dispose();
                 foreach (var n in nd) n.Dispose();
                 base.Dispose(disposing);
             }

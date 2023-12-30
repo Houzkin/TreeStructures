@@ -65,8 +65,8 @@ namespace TreeStructures {
         /// <summary>Specifies a reference to a child node collection that implements <see cref="INotifyCollectionChanged"/>.</summary>
         protected abstract IEnumerable<TSrc>? SourceNodeChildren { get; }
 
-        private protected ImitableCollection<TWrpr>? _innerChildren;
-        private ImitableCollection<TWrpr> InnerChildren => 
+        private ImitableCollection<TWrpr>? _innerChildren;
+        private protected ImitableCollection<TWrpr> InnerChildren => 
             _innerChildren ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild,IsImitating);
 
         private IEnumerable<TWrpr>? _children;
@@ -117,10 +117,10 @@ namespace TreeStructures {
                 var nd = this
                     .Evolve(a => {
                         a.IsImitating = false;
-                        return a.Children;
+                        return a.InnerChildren;
                     }, (a, b, c) => b.Prepend(a).Concat(c))
                     .Skip(1).Reverse().OfType<IDisposable>().ToArray();
-                _innerChildren?.Dispose();
+                InnerChildren.Dispose();
                 foreach (var n in nd) n.Dispose();
             }
             isDisposed = true;
