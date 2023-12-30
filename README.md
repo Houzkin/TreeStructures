@@ -1,2 +1,66 @@
-# TreeStructures 
-this library provide tree structured object.
+# Overview
+
+This library provides a class for creating a tree structure that can be used by inheriting from it.
+Features:
+
+1. Rich extension methods for ITreeNode<T>
+1. Achieving mutual references between parent and child nodes
+1. Classes forming a tree structure and their extensibility
+1. Compatibility with other libraries
+These are the four main features of the library.
+
+## Namespaces and Their Classifications
+
+### TreeStructures;
+Abstract classes define generic tree nodes, peripheral objects, and event arguments.
+
+Inheritance diagram of generic tree nodes
+
+![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructure/assets/12586097/f92aca9b-a8c1-4f18-998c-4c10da68e8ea)
+
+Inheritance diagram of NodePath and NodeIndex (peripheral objects)
+
+![継承図_周辺オブジェクト](https://github.com/Houzkin/TreeStructure/assets/12586097/9f17c735-3e0e-40dc-b374-d4d6b380b03a)
+
+### TreeStructures.Linq;
+　Extension methods for ITreeNode<T>, IMutableTreeNode<T>, IEnumerable<T>
+### TreeStructures.Utility;
+　Definition of ResultWithValue<T> used as a return value for Try○○ methods
+### TreeStructures.Collections;
+　Collections used in internal implementations and processing of extension methods
+### TreeStructures.EventManagement;
+　Objects used in event handling, implementing Observable tree nodes
+### TreeStructures.Xml.Serialization;
+　Dictionary and others used in serialization and deserialization
+### TreeStrucutures.Tree;
+　Purpose-specific trees
+ 
+## Usage
+To be documented in the wiki.
+
+## Concept
+Let's elaborate on the four features mentioned at the beginning.
+
+### Rich Extension Methods
+Over 60 extension methods for ITreeNode<T> are defined, including various overloads. Examples include:
+
+Enumeration: Preorder, Levelorder, all traversal methods, Leafs, Ancestors, DiscendArrivals, DescendTraces, etc.
+Navigation: Root, NextSibling, LastSibling, etc.
+Editing: Starting with TryAddChild, Try○○Child, Disassemble, RemoveAllDescendant, etc.
+Parameter Retrieval: NodeIndex, NodePath, Height, Depth, etc.
+Predicate Methods: IsDescendantOf, IsAncestorOf, IsRoot, etc.
+Conversion: ToNodeMap, ToSerializableNodeMap, ToTreeDiagram
+Assembly Methods: Convert, AssembleTree, AssembleAsNAryTree
+Mutual References Between Parent and Child Nodes
+Mutual references between parent and child nodes are handled by base classes (TreeNodeBase or CompositeWrapper). You can customize this behavior by overriding protected methods such as RemoveChildProcess, InsertChildProcess, etc.
+
+### Classes Forming a Tree Structure and Their Generality
+If you want fine customization, use TreeNodeBase. For general data structures or containers, use TreeNode or ObservableTreeNode. If you want a tree with a fixed number of branches and treat empty nodes as null, use NAryTreeNode. If you want an object or tree structure forming the Composite pattern, or if you want to use it as a wrapper class with the ability to temporarily pause/resume the instance and dispose of it (e.g., ViewModel in MVVM), use (Composite | TreeNode)Wrapper or (Composite | TreeNode)Imitator.
+
+### Compatibility with Other Libraries
+In TreeNodeBase and its derived types, you can customize the collections used internally and those exposed externally by overriding the Setup(Inner | Public)ChildCollection methods.
+
+CompositeWrapper and its derived types allow customization only of the collection exposed externally. Additionally, CompositeWrapper and CompositeImitator provide the extension methods of ITreeNode<T> by wrapping an object that does not implement ITreeNode<T>.
+
+The Convert and AssembleTree extension methods can be used with Composite pattern objects that do not implement IMutableTreeNode.
+
