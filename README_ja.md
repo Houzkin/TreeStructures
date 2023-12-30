@@ -54,7 +54,7 @@ wikiに書く
 
 ### 親ノードと子ノードの相互参照
 親ノードと子ノードの相互参照は基底クラス(TreeNodeBase or CompositeWrapper)で処理されます。
-RemoveChildProcess、InsertChildProcessなどのprotected メソッドをoverrideすることでカスタマイズできます。
+TreeNodeBaseの派生型では、RemoveChildProcess、InsertChildProcessなど、protected virtualで定義された○○ChildProcessメソッドでカスタマイズできます。
 
 ### ツリー構造をなすクラス群とその汎用性
 細かくカスタマイズするならTreeNodeBase
