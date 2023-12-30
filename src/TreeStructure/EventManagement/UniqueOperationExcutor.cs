@@ -25,7 +25,7 @@ namespace TreeStructures.EventManagement {
         /// <exception cref="InvalidOperationException">Thrown when an invalid operation is detected.</exception>
         public void Register(string key,Action action) {
             Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
-                o => throw new InvalidOperationException("指定されたキーは既に登録されています。"),
+                o => throw new InvalidOperationException("The specified key is already registered."),
                 x => Operations[key] = new CountOperationPair() { Count = 0, Operation = action });
         }
         /// <summary>
@@ -39,7 +39,7 @@ namespace TreeStructures.EventManagement {
         public IDisposable LateEvalute<TProp>(string key,Func<TProp> getPropertyValue) {
             var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
-                x => throw new KeyNotFoundException("指定されたキーは登録されていません。"));
+                x => throw new KeyNotFoundException("The specified key is not registered."));
             var val = getPropertyValue();
             return new DisposableObject(() => {
                 if(ele.Count == 1 && !Equals(val, getPropertyValue())) {
@@ -55,7 +55,7 @@ namespace TreeStructures.EventManagement {
         public IDisposable ExecuteUnique(string key) {
             var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
-                x => throw new KeyNotFoundException("指定されたキーは登録されていません。"));
+                x => throw new KeyNotFoundException("The specified key is not registered."));
             
             return new DisposableObject(() => {
                 if(ele.Count == 1) {

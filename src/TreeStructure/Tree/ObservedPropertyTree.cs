@@ -29,69 +29,65 @@ namespace TreeStructures.Tree {
         public IEnumerable<string> ChainedProperties { get; init; }
         /// <summary>変更が行われたプロパティ名</summary>
         public string ChainedName => string.Join('.', ChainedProperties);
-        /// <summary>コンストラクタ</summary>
+        /// <summary>Constructor.</summary>
         public ChainedPropertyChangedEventArgs(string? propertyName,IEnumerable<string> propertyChain, [AllowNull] T propertyValue): base(propertyName ?? string.Empty) {
             PropertyValue=propertyValue;
             ChainedProperties = propertyChain;
         }
     }
-    /// <summary>
-    /// <typeparamref name="TSrc"/>において観測可能なプロパティをメソッドチェーンでの指定・購読を提供する
-    /// </summary>
-    /// <typeparam name="TSrc">観測対象となるインスタンスの型</typeparam>
-    public class ObservablePropertyTree<TSrc> {
+    /// <summary>Provides method chain specification and subscription for observable properties in <typeparamref name="TSrc"/>.</summary>
+    /// <typeparam name="TSrc">Type of the instance to be observed.</typeparam>
+    public class ObservedPropertyTree<TSrc> {
         PropertyChainRoot _root;
-        /// <summary>現在ハンドラーを登録しているプロパティを示すtree</summary>
+        /// <summary>Represents the tree of properties currently registered with handlers.</summary>
         public PropertyChainNode Root => _root;
-        /// <summary>コンストラクタ</summary>
-        /// <param name="target">観測するインスタンス</param>
-        public ObservablePropertyTree(TSrc target) {
+        /// <summary>Constructor.</summary>
+        /// <param name="target">The instance to observe.</param>
+        public ObservedPropertyTree(TSrc target) {
             _root = new PropertyChainRoot(target);
         }
-        /// <summary>観測元が再設定されたとき、変更通知を発行するかどうかを示す値。初期値:true</summary>
+        /// <summary>Gets or sets a value indicating whether change notifications should be issued when the source of observation is reset. Default value is true.</summary>
         public bool IsEvaluateTargetChanged {
             get => _root.IsEvaluateTargetChanged;
             set => _root.IsEvaluateTargetChanged = value;
         }
-        /// <summary>
-        /// 観測元を再設定する
-        /// </summary>
-        /// <param name="target"></param>
+        /// <summary>Resets the source of observation.</summary>
+        /// <param name="target">The new target instance to observe.</param>
         public void ChangeTarget(TSrc target) {
             _root.ChangeTarget(target);
         }
-        /// <summary>指定したプロパティを観測可能なオブジェクトを生成する</summary>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="expression">メソッドチェーンで記述されるプロパティを指定</param>
-        /// <returns>指定したプロパティの値を読取専用プロパティ<see cref="NotifyObject{T}.Value"/>として表す、<see cref="INotifyPropertyChanged"/>実装オブジェクトを返す。</returns>
+        /// <summary>Creates an observable object for the specified property.</summary>
+        /// <typeparam name="TValue">The type of the property.</typeparam>
+        /// <param name="expression">Specifies the property described in the method chain.</param>
+        /// <returns>Returns an object implementing <see cref="INotifyPropertyChanged"/> with a read-only property <see cref="NotifyObject{T}.Value"/> representing the value of the specified property.</returns>
         public NotifyObject<TValue> ToNotifyObject<TValue>(Expression<Func<TSrc, TValue>> expression) {
             return _root.ToNotifyObject(expression);
         }
-        /// <summary>指定したプロパティの変更通知を購読する</summary>
-        /// <param name="expression">プロパティを示す式</param>
-        /// <param name="changedAction"></param>
-        /// <returns>購読解除用インスタンス</returns>
+        /// <summary>Subscribes to the property change notification for the specified property.</summary>
+        /// <param name="expression">Expression indicating the property.</param>
+        /// <param name="changedAction">The action to be executed when the property changes.</param>
+        /// <returns>An instance for unsubscribing from the subscription.</returns>
         public IDisposable Subscribe(Expression<Func<TSrc, object>> expression, Action changedAction) {
             return Subscribe<object>(expression, (s, e) => changedAction());
         }
-        /// <summary>指定したプロパティの変更通知を購読する</summary>
-        /// <typeparam name="TValue">プロパティ値の型</typeparam>
-        /// <param name="expression">プロパティを示す式</param>
-        /// <param name="changedAction"></param>
-        /// <returns>購読解除用インスタンス</returns>
+        /// <summary>Subscribes to the property change notification for the specified property.</summary>
+        /// <typeparam name="TValue">Type of the property value.</typeparam>
+        /// <param name="expression">Expression indicating the property.</param>
+        /// <param name="changedAction">The action to be executed when the property changes.</param>
+        /// <returns>An instance for unsubscribing from the subscription.</returns>
         public IDisposable Subscribe<TValue>(Expression<Func<TSrc, object>> expression, Action<TValue> changedAction) {
             return Subscribe<TValue>(expression, (s, e) => changedAction(e.PropertyValue));
         }
-        /// <summary>指定したプロパティの変更通知を購読する</summary>
-        /// <typeparam name="TValue">プロパティ値の型</typeparam>
-        /// <param name="expression">プロパティを示す式</param>
-        /// <param name="changedAction"></param>
-        /// <returns>購読解除用インスタンス</returns>
+        /// <summary>Subscribes to the property change notification for the specified property.</summary>
+        /// <typeparam name="TValue">Type of the property value.</typeparam>
+        /// <param name="expression">Expression indicating the property.</param>
+        /// <param name="changedAction">The action to be executed when the property changes.</param>
+        /// <returns>An instance for unsubscribing from the subscription.</returns>
         public IDisposable Subscribe<TValue>(Expression<Func<TSrc, object>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
             return _root.Subscribe(expression, changedAction);
         }
         /// <summary>
-        /// プロパティチェーンを表すノード
+        /// Node representing a property chain.
         /// </summary>
         public class PropertyChainNode : TreeNodeBase<PropertyChainNode> {
             #region Fields
@@ -112,11 +108,11 @@ namespace TreeStructures.Tree {
             }
             #endregion
             /// <inheritdoc/>
-            protected override IEnumerable<ObservablePropertyTree<TSrc>.PropertyChainNode> SetupInnerChildCollection()
+            protected override IEnumerable<ObservedPropertyTree<TSrc>.PropertyChainNode> SetupInnerChildCollection()
                 => new HashSet<PropertyChainNode>();
             //protected override ISet<PropertyChainNode> ChildNodes { get; } = new HashSet<PropertyChainNode>();
 
-            /// <summary>子ノードを追加する</summary>
+            /// <summary>Add child node.</summary>
             protected void AddChildProcess(PropertyChainNode child) {
                 if (this.CanAddChildNode(child)) base.InsertChildProcess(0, child, (c, i, n) => ((ICollection<PropertyChainNode>)c).Add(n));
             }
@@ -132,18 +128,18 @@ namespace TreeStructures.Tree {
                     }
                 }
             }
-            /// <summary>監視対象またはプロパティ値</summary>
+            /// <summary>Monitored target or property value.</summary>
             [AllowNull]
             public object Target { get; private set; }
-            /// <summary>観測対象を示すプロパティ名</summary>
+            /// <summary>Name of the property indicating the target of observation.</summary>
             public string NamedProperty { get; init; }
             bool TrySetTarget(object? target) {
                 if (ReferenceEquals(target,Target)) return false;
                 Target = target;
                 return true;
             }
-            /// <summary>観測するプロパティを登録する</summary>
-            /// <param name="propNames"></param>
+            /// <summary>Registers properties to observe.</summary>
+            /// <param name="propNames">The names of the properties to observe.</param>
             protected void AddSubscribeProperty(IEnumerable<string> propNames) {
                 if (!propNames.Any()) return;
                 if (!ChainToLeafs.Add(propNames)) return;
@@ -156,7 +152,7 @@ namespace TreeStructures.Tree {
                     this.AddChildProcess(new PropertyChainNode(propValue, obsname, propNames.Skip(1)));
                 }
             }
-            /// <summary>プロパティ値の変更通知を購読する</summary>
+            /// <summary>Subscribes to property value change notifications.</summary>
             /// <param name="target"></param>
             /// <exception cref="InvalidCastException"></exception>
             protected void SubscribePropertyValue(object? target) {
@@ -170,7 +166,7 @@ namespace TreeStructures.Tree {
                 } else { 
                     if(target!=null && ChainToLeafs.Any()) 
                         throw new InvalidCastException(
-                            $"観測対象 : {this.Root().Target?.ToString()} において、PropertyChain : {string.Join('.',this.Upstream().Reverse().Skip(1))} の値は{nameof(INotifyPropertyChanged)}を実装している必要があります。"); 
+                            $"For the observed target: {this.Root().Target?.ToString()}, the value of the PropertyChain: {string.Join('.', this.Upstream().Reverse().Skip(1))} should implement {nameof(INotifyPropertyChanged)}."); 
                 }
                 foreach(var chain in ChainToLeafs) {
                     if (!chain.Any()) return;
@@ -235,7 +231,7 @@ namespace TreeStructures.Tree {
                         }
                         return default;
                     } catch (InvalidOperationException e) {
-                        throw new InvalidOperationException("PropertyChainに重複がある、或いは登録されていないプロパティ値が指定されました。", e);
+                        throw new InvalidOperationException("There is a duplicate or unregistered property value specified in the PropertyChain.", e);
                     }
                 };
                 var propValue = getvalue();
@@ -291,9 +287,10 @@ namespace TreeStructures.Tree {
             }
             
         }
-        /// <summary>指定されたプロパティの変更通知を購読可能なオブジェクト</summary>
-        /// <typeparam name="T"></typeparam>
-        public class NotifyObject<T> :INotifyPropertyChanged,IDisposable{
+        /// <summary>Represents an object capable of subscribing to change notifications for a specified property.</summary>
+        /// <remarks>When handlers are registered, they are referenced by the target object.<br/>If all handlers are removed or not registered,there is no need to dispose of this object.</remarks>
+        /// <typeparam name="T">The type of the property value.</typeparam>
+        public class NotifyObject<T> : INotifyPropertyChanged, IDisposable{
             IEnumerable<string> propChain;
             Func<IEnumerable<string>, ChainStatus<T>> setFunc;
             Func<ChainStatus<T>, EventHandler<ChainedPropertyChangedEventArgs<T>>,IDisposable> getListener;
@@ -334,10 +331,10 @@ namespace TreeStructures.Tree {
                 remove { Remove(value); }
             }
             /// <summary>
-            /// 生成時していされたプロパティの値。イベントハンドラーが登録されている時のみ値が更新される
+            /// The value of the specified property at the time of creation. The value is updated only when event handlers are registered.
             /// </summary>
             public T Value { get; private set; }
-            /// <summary>登録されているハンドラーを全て削除する</summary>
+            /// <summary>Removes all registered handlers.</summary>
             public void Dispose() {
                 var hdlrs = HandlerDispoPair.Select(x=>x.Item1).ToArray();
                 foreach (var hdlr in hdlrs) Remove(hdlr);

@@ -88,7 +88,7 @@ namespace TreeStructures {
         /// <summary>Child node addition process.</summary>
         /// <remarks><paramref name="action"/> = null, it casts to <see cref="ICollection{T}"/> and adds the node.</remarks>
         /// <param name="child">The child node to add.</param>
-        /// <param name="action">Specifies the collection operation. Default process is as follows:<br/>
+        /// <param name="action">Specifies the collection operation. Default behavior:
         /// <code>(collection, node) => ((ICollection&lt;<typeparamref name="TNode"/>&gt;)collection).Add(node);</code></param>
         protected virtual void AddChildProcess(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
             this.ThrowExceptionIfDisposed();

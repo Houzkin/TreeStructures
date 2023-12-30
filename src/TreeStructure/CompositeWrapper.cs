@@ -40,8 +40,8 @@ namespace TreeStructures {
         PropertyChangeProxy PropChangeProxy => _propChangeProxy ??= new PropertyChangeProxy(this);
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged {
-            add { this.PropChangeProxy.Changed += value; }
-            remove { this.PropChangeProxy.Changed -= value; }
+            add { this.PropChangeProxy.PropertyChanged += value; }
+            remove { this.PropChangeProxy.PropertyChanged -= value; }
         }
         /// <summary>
         /// Performs the change of value and issues a change notification.
@@ -70,8 +70,6 @@ namespace TreeStructures {
             _innerChildren ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild,IsImitating);
 
         private IEnumerable<TWrpr>? _children;
-        //public virtual IEnumerable<TWrpr> Children => 
-        //    _innerChildren ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild);
         /// <inheritdoc/>
         public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildren);
         /// <summary>Sets the collection to be exposed externally.</summary>
@@ -87,8 +85,8 @@ namespace TreeStructures {
             try {
                 cld = GenerateChild(sourceChildNode);
             } catch(NullReferenceException e) {
-                string msg = $"{nameof(GenerateChild)}メソッドで{nameof(NullReferenceException)}が発生しました。";
-                if(sourceChildNode is null) { msg += $"{nameof(sourceChildNode)}は null です。"; }
+                string msg = $"{nameof(GenerateChild)} method threw a {nameof(NullReferenceException)}.";
+                if(sourceChildNode is null) { msg += $"{nameof(sourceChildNode)} is null."; }
                 throw new NullReferenceException( msg, e);
             }
             if(cld != null) {
@@ -129,7 +127,7 @@ namespace TreeStructures {
         }
         /// <summary>Prohibits operations on an instance that has already been disposed.</summary>
         protected void ThrowExceptionIfDisposed() {
-            if (isDisposed) throw new ObjectDisposedException(this.ToString(), "既に破棄されたインスタンスが操作されました。");
+            if (isDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
         }
         void IDisposable.Dispose() {
             if (isDisposed) return;

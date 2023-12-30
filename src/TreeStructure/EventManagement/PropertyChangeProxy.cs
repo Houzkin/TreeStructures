@@ -49,17 +49,17 @@ namespace TreeStructures.EventManagement {
         /// <param name="propertyName">The name of the property.</param>
         public void Notify([CallerMemberName] string? propertyName = null) {
             if (string.IsNullOrEmpty(propertyName)) return;
-            Changed?.Invoke(sender, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(propertyName));
         }
         /// <summary>Removes all registered handlers.</summary>
         public void ClearHandler() { 
-            Changed = null;
+            PropertyChanged = null;
         }
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged {
-            add { Changed += value; }
-            remove { Changed -= value; }
+            add { PropertyChanged += value; }
+            remove { PropertyChanged -= value; }
         }
         /// <summary>Occurs when a property is changed.</summary>
-        public event PropertyChangedEventHandler? Changed;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

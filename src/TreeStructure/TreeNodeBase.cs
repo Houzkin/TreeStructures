@@ -64,12 +64,12 @@ namespace TreeStructures {
             } else if (this.ChildNodes.Any(x => object.ReferenceEquals(x, child)) ^ object.ReferenceEquals(child?.Parent, Self)) {
                 if (object.ReferenceEquals(child?.Parent, Self)) {
                     Debug.Assert(false,
-                        "再帰構造が正常に機能していない可能性があります。",
-                        $"現在のノード{Self}の{nameof(Children)}に指定されたノード{child}は含まれていませんが、指定されたノードは既に現在のノードを親ノードとして設定済みです。");
+                        "The recursive structure may not be functioning correctly.",
+                        $"The node {child}, specified in the {nameof(Children)} of the current node {Self}, is not included, but the specified node is already set with the current node as its parent node.");
                 } else {
                     Debug.Assert(false,
-                        "再帰構造が正常に機能していない可能性があります。",
-                        $"現在のノード{Self}の{nameof(Children)}に指定されたノード{child}は既に含まれていますが、指定されたノードは既に現在のノードを親ノードとして設定されていません。");
+                        "The recursive structure may not be functioning correctly.",
+                        $"The node {child} specified in the {nameof(Children)} of the current node {Self} is already included, but the specified node is not already set with the current node as its parent node.");
                 }
             }
             return true;
@@ -100,7 +100,7 @@ namespace TreeStructures {
                 if (rmv?.Parent == Self) rmv.SetParent(null);
                 action(ChildNodes, index, child);
             }catch(InvalidCastException ex) {
-                throw new NotSupportedException($"{nameof(ChildNodes)}において、指定された差替え操作ができません。プロパティ:{nameof(action)}を指定・確認してください。", ex);
+                throw new NotSupportedException($"The specified replacement operation cannot be performed on {nameof(ChildNodes)}. Please check and ensure the argument {nameof(action)} is correctly specified.", ex);
             }catch (Exception) {
                 ErrAdj(bfr);
                 throw;
@@ -128,7 +128,7 @@ namespace TreeStructures {
                 p?.RemoveChildProcess(child);
                 action(ChildNodes,index, child);
             }catch(InvalidCastException ex) {
-                throw new NotSupportedException($"{nameof(ChildNodes)}において、指定された追加操作ができません。プロパティ:{nameof(action)}を指定・確認してください。", ex);
+                throw new NotSupportedException($"The specified addition operation cannot be performed on {nameof(ChildNodes)}. Please check and ensure the argument {nameof(action)} is correctly specified.", ex);
             } catch (Exception) {
                 ErrAdj(bfr);
                 throw;
@@ -151,7 +151,7 @@ namespace TreeStructures {
                 if (child?.Parent == Self) child.SetParent(null);
                 action(ChildNodes,child);
             }catch(InvalidCastException ex) {
-                throw new NotSupportedException($"{nameof(ChildNodes)}において、指定された削除操作ができません。プロパティ:{nameof(action)}を指定・確認してください。", ex);
+                throw new NotSupportedException($"The specified removal operation cannot be performed on {nameof(ChildNodes)}. Please check and ensure the argument {nameof(action)} is correctly specified.", ex);
             } catch (Exception) {
                 ErrAdj(bfr);
                 throw;
@@ -174,7 +174,7 @@ namespace TreeStructures {
                 foreach (var item in this.ChildNodes.OfType<TNode>()) item.SetParent(null);
                 action(this.ChildNodes);
             } catch (InvalidCastException ex) {
-                throw new NotSupportedException($"{nameof(ChildNodes)}において、指定されたクリア操作ができません。プロパティ:{nameof(action)}を指定・確認してください。", ex);
+                throw new NotSupportedException($"The specified clear operation cannot be performed on {nameof(ChildNodes)}. Please check and ensure the argument {nameof(action)} is correctly specified.", ex);
             } catch (Exception) {
                 ErrAdj(bfr);
                 throw;
@@ -208,7 +208,7 @@ namespace TreeStructures {
             try {
                 action(this.ChildNodes, oldIndex, newIndex);
             } catch (InvalidCastException ex) {
-                throw new NotSupportedException($"{nameof(ChildNodes)}において、指定された移動操作ができません。プロパティ:{nameof(action)}を指定・確認してください。", ex);
+                throw new NotSupportedException($"The specified shift operation cannot be performed on {nameof(ChildNodes)}. Please check and ensure the argument {nameof(action)} is correctly specified.", ex);
             }catch (Exception) {
                 ErrAdj(bfr);
                 throw;

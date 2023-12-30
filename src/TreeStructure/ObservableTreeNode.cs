@@ -63,8 +63,8 @@ namespace TreeStructures {
         }
         /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged {
-            add { PropertyChangeProxy.Changed += value; }
-            remove { PropertyChangeProxy.Changed -= value; }
+            add { PropertyChangeProxy.PropertyChanged += value; }
+            remove { PropertyChangeProxy.PropertyChanged -= value; }
         }
         /// <summary>Occurs when the tree structure changes.</summary>
         public event EventHandler<StructureChangedEventArgs<TNode>>? StructureChanged;
