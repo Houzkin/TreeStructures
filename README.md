@@ -10,7 +10,7 @@ Features:
 1. Compatibility with other libraries
 These are the four main features of the library.
 
-## Namespaces and Their Classifications
+## Namespaces Classification
 
 ### TreeStructures;
 Abstract classes define generic tree nodes, peripheral objects, and event arguments.
@@ -60,7 +60,9 @@ Conversion: ToNodeMap, ToSerializableNodeMap, ToTreeDiagram
 Assembly Methods: Convert, AssembleTree, AssembleAsNAryTree
 
 ### Mutual References Between Parent and Child Nodes
-Mutual references between parent and child nodes are handled by base classes (TreeNodeBase or CompositeWrapper). You can customize this behavior by overriding protected methods such as RemoveChildProcess, InsertChildProcess, etc.
+Mutual references between parent and child nodes are handled by base classes (TreeNodeBase or CompositeWrapper). 
+
+In the derived types of TreeNodeBase, customization can be achieved through protected virtual methods such as RemoveChildProcess and InsertChildProcess, which are defined as ○○ChildProcess methods.
 
 ### Classes Forming a Tree Structure and Their Generality
 If you want to customize in detail, use TreeNodeBase. 
