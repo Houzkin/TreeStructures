@@ -156,7 +156,7 @@ namespace TreeStructures {
         }
         /// <summary>Prevents operations on an instance that has already been disposed.</summary>
         protected void ThrowExceptionIfDisposed() {
-            if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "既に破棄されたインスタンスが操作されました。");
+            if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
         }
         /// <summary>Disposes of all descendant nodes.</summary>
         /// <returns>The current node.</returns>
