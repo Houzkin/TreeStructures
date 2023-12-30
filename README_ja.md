@@ -58,10 +58,10 @@ wikiに書く
 TreeNodeBaseの派生型では、RemoveChildProcess、InsertChildProcessなど、protected virtualで定義された○○ChildProcessメソッドでカスタマイズできます。
 
 ### ツリー構造をなすクラス群とその汎用性
-細かくカスタマイズするならTreeNodeBase
-GeneralTreeで、データ構造またはデータのコンテナとして使用するならTreeNodeまたはObservableTreeNode
-Branchの数を固定して、空のノードをnullとするN-Ary Treeとして使用するのであればNAryTreeNode
-Compositeパターンをなすオブジェクトまたはツリー構造の、ラッパークラスとして使用するならば(Composite | TreeNode) Wrapper
+細かくカスタマイズするならTreeNodeBase。
+GeneralTreeで、データ構造またはデータのコンテナとして使用するならTreeNodeまたはObservableTreeNode、
+Branchの数を固定して、空のノードをnullとするN-Ary Treeとして使用するのであればNAryTreeNode、
+Compositeパターンをなすオブジェクトまたはツリー構造の、ラッパークラスとして使用するならば(Composite | TreeNode) Wrapper、
 ラッパーとしての機能に加え、MVVMにおけるViewModelなど、インスタンスの破棄とラップを一時的に停止・再開が可能なオブジェクトとして使用する場合は(Composite | TreeNode) Imitator
 をそれぞれ継承して使用してください。
 
