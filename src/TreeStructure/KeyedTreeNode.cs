@@ -26,6 +26,10 @@ namespace TreeStructures {
             return EqualityComparer<TKey>.Default;
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TKey"></typeparam>
     public sealed class KeyedTreeNode<TKey> : KeyedTreeNode<TKey, KeyedTreeNode<TKey>> {
         public KeyedTreeNode(TKey key): base(key) { }
         //public override TKey Key { get => base.Key; }
