@@ -24,7 +24,7 @@ Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 ![継承図_周辺オブジェクト](https://github.com/Houzkin/TreeStructure/assets/12586097/9f17c735-3e0e-40dc-b374-d4d6b380b03a)
 
 ### TreeStructures.Linq;
-　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<TNode>`
+　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
 ### TreeStructures.Utility;
 　Definition of `ResultWithValue<T>` used as a return value for Try○○ methods
 ### TreeStructures.Collections;
