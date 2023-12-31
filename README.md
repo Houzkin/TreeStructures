@@ -63,8 +63,9 @@ In the derived types of `TreeNodeBase<TNode>`, customization can be achieved thr
 If you want to customize in detail, use `TreeNodeBase<TNode>`.   
 For a GeneralTree, if you want to use it as a data structure or container for data, use `TreeNode<TNode>` or `ObservableTreeNode<TNode>`.   
 If you want to use an N-Ary Tree with a fixed number of branches and empty nodes set to null, use `NAryTreeNode<TNode>`.   
-If you want to use an object or tree structure that forms the Composite pattern, use `(Composite | TreeNode) Wrapper<TSrc,TWrpr>`.   
-If you need a Wrapper that, in addition to its wrapper functionality, can temporarily pause/resume instance disposal and wrapping, as is the case with ViewModel in MVVM, use `(Composite | TreeNode) Imitator<TSrc,TImtr>`. Inherit and use each as needed.
+If you want to use it as a wrapper for objects or tree structure that forms the Composite pattern, use `(Composite | TreeNode) Wrapper<TSrc,TWrpr>`.   
+If you need a Wrapper that, in addition to its wrapper functionality, can temporarily pause/resume instance disposal and wrapping, as is the case with ViewModel in MVVM, use `(Composite | TreeNode) Imitator<TSrc,TImtr>`.   
+Inherit and use each as needed.
 
 ### Compatibility with Other Libraries
 In `TreeNodeBase<TNode>` and its derived types, you can customize the collections used internally and those exposed externally by overriding the `Setup(Inner | Public)ChildCollection` methods.  
