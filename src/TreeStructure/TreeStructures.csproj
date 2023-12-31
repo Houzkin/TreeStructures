@@ -17,10 +17,15 @@ Provides a tree structure where each node holds parent and children references.<
     <PackageIcon>treestrucuture.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
     <Version>1.2.0</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\icon\treestrucuture.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
