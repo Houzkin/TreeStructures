@@ -11,7 +11,7 @@ using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public class ObservableSampleNode: ObservableTreeNode<ObservableSampleNode> {
+public class ObservableSampleNode: ObservableGeneralTreeNode<ObservableSampleNode> {
     public string Name { get; set; }
     public override string ToString() {
         return this.Name;

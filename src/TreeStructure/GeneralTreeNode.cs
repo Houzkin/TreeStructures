@@ -11,14 +11,14 @@ namespace TreeStructures {
     /// <summary>Represents a mutable node forming a general tree structure.</summary>
     /// <typeparam name="TNode">The common base type for each node.</typeparam>
     [Serializable]
-    public abstract class TreeNode<TNode> : TreeNodeBase<TNode>, IMutableTreeNode<TNode>, IDisposable where TNode : TreeNode<TNode> {
+    public abstract class GeneralTreeNode<TNode> : TreeNodeBase<TNode>, IMutableTreeNode<TNode>, IDisposable where TNode : GeneralTreeNode<TNode> {
         /// <summary>Initializes a new instance.</summary>
-        protected TreeNode() {
+        protected GeneralTreeNode() {
             //Children = new ReadOnlyCollection<TNode>(ChildNodes);
         }
         /// <summary>Initializes a new instance.</summary>
         /// <param name="nodes"></param>
-        protected TreeNode(IEnumerable<TNode> nodes) : this() {
+        protected GeneralTreeNode(IEnumerable<TNode> nodes) : this() {
             foreach (var node in nodes) { this.AddChild(node); }
         }
         

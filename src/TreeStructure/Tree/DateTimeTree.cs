@@ -123,9 +123,11 @@ namespace TreeStructures.Tree {
             }
         }
         /// <summary>Base node that forms the tree.</summary>
-        public class InnerNodeBase : TreeNode<InnerNodeBase> {
+        public class InnerNodeBase : GeneralTreeNode<InnerNodeBase> {
+            /// <inheritdoc/>
             protected override IEnumerable<DateTimeTree<T>.InnerNodeBase> SetupInnerChildCollection()
                 => new SortedObableList();
+            /// <inheritdoc/>
             protected override IEnumerable<DateTimeTree<T>.InnerNodeBase> SetupPublicChildCollection(IEnumerable<DateTimeTree<T>.InnerNodeBase> innerCollection)
                 => new ReadOnlyObservableCollection<DateTimeTree<T>.InnerNodeBase>((innerCollection as ObservableCollection<DateTimeTree<T>.InnerNodeBase>)!);
 

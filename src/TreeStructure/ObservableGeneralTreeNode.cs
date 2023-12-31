@@ -14,16 +14,16 @@ namespace TreeStructures {
     /// <summary>Represents a mutable node forming an observable general tree structure.</summary>
     /// <typeparam name="TNode">The common base type for each node.</typeparam>
     [Serializable]
-    public class ObservableTreeNode<TNode> : TreeNode<TNode>, IObservableTreeNode<TNode>, INotifyPropertyChanged
-        where TNode : ObservableTreeNode<TNode> {
+    public class ObservableGeneralTreeNode<TNode> : GeneralTreeNode<TNode>, IObservableTreeNode<TNode>, INotifyPropertyChanged
+        where TNode : ObservableGeneralTreeNode<TNode> {
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public ObservableTreeNode() { this.PropertyChangeProxy = new PropertyChangeProxy(this); }
+        public ObservableGeneralTreeNode() { this.PropertyChangeProxy = new PropertyChangeProxy(this); }
 
         /// <summary>Initializes a new instance.</summary>
         /// <param name="collection">The collection.</param>
-        public ObservableTreeNode(IEnumerable<TNode> collection) : this() {
+        public ObservableGeneralTreeNode(IEnumerable<TNode> collection) : this() {
             foreach (var item in collection) { this.AddChild(item); }
         }
 
@@ -36,8 +36,8 @@ namespace TreeStructures {
         IDisposable DeferParentChangedNotification() {
             return UniqueExcutor.LateEvalute(parentchangedeventkey, () => Parent);
         }
-        readonly string parentchangedeventkey = "in Library : " + nameof(ObservableTreeNode<TNode>)+ "." + nameof(Parent);
-        readonly string disposedeventkey = "in Library : " + nameof(ObservableTreeNode<TNode>) + "." + nameof(Disposed);
+        readonly string parentchangedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>)+ "." + nameof(Parent);
+        readonly string disposedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>) + "." + nameof(Disposed);
 
         StructureChangedEventExecutor<TNode>? _uniqueExcutor;
         private StructureChangedEventExecutor<TNode> UniqueExcutor {

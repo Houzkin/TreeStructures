@@ -101,7 +101,7 @@ public static　partial class SampleA {
     }
 }
 
-public class ExampleNode : TreeNode<ExampleNode> {
+public class ExampleNode : GeneralTreeNode<ExampleNode> {
     public ExampleNode() { }
     public string Name { get; set; }
     public override string ToString() {
