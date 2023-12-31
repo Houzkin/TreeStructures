@@ -45,32 +45,30 @@ wikiに書く
   
 冒頭にて示した4つの特徴について補足します。
 ### 豊富な拡張メソッド
-`ITreeNode<T>`の拡張メソッドはオーバーロードも含め60以上を定義しています。
-例を挙げると、
-列挙は`Preorder`, `Levelorder`など全ての走査法や、 `Leafs`, `Ancestors`, `DiscendArrivals`, `DescendTraces`, etc
-移動は、`Root`, `NextSibling`, `LastSibling`, etc
-編集は`TryAddChild`をはじめ、`Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc
-パラメータの取得は、`NodeIndex`, `NodePath`, `Height`, `Depth`, etc
-判定メソッドは、`IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc
-変換は、`ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`
-組み立てメソッドは、`Convert`, `AssembleTree`, `AssembleAsNAryTree`
+`ITreeNode<T>`の拡張メソッドはオーバーロードも含め60以上を定義しています。  
+例を挙げると、  
+列挙は`Preorder`, `Levelorder`など全ての走査法や、 `Leafs`, `Ancestors`, `DiscendArrivals`, `DescendTraces`, etc  
+移動は、`Root`, `NextSibling`, `LastSibling`, etc  
+編集は`TryAddChild`をはじめ、`Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc  
+パラメータの取得は、`NodeIndex`, `NodePath`, `Height`, `Depth`, etc  
+判定メソッドは、`IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc  
+変換は、`ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`  
+組み立てメソッドは、`Convert`, `AssembleTree`, `AssembleAsNAryTree`  
 
 
 ### 親ノードと子ノードの相互参照
-親ノードと子ノードの相互参照は基底クラス(TreeNodeBase or CompositeWrapper)で処理されます。
+親ノードと子ノードの相互参照は基底クラス(TreeNodeBase or CompositeWrapper)で処理されます。  
 TreeNodeBaseの派生型では、RemoveChildProcess、InsertChildProcessなど、protected virtualで定義された○○ChildProcessメソッドでカスタマイズできます。
 
 ### ツリー構造をなすクラス群とその汎用性
-細かくカスタマイズするならTreeNodeBase。
-GeneralTreeで、データ構造またはデータのコンテナとして使用するならTreeNodeまたはObservableTreeNode、
-Branchの数を固定して、空のノードをnullとするN-Ary Treeとして使用するのであればNAryTreeNode、
-Compositeパターンをなすオブジェクトまたはツリー構造の、ラッパークラスとして使用するならば(Composite | TreeNode) Wrapper、
-ラッパーとしての機能に加え、MVVMにおけるViewModelなど、インスタンスの破棄とラップを一時的に停止・再開が可能なオブジェクトとして使用する場合は(Composite | TreeNode) Imitator
+細かくカスタマイズするならTreeNodeBase。  
+GeneralTreeで、データ構造またはデータのコンテナとして使用するならGeneralTreeNodeまたはObservableTreeNode、  
+Branchの数を固定して、空のノードをnullとするN-Ary Treeとして使用するのであればNAryTreeNode、  
+Compositeパターンをなすオブジェクトまたはツリー構造の、ラッパークラスとして使用するならば(Composite | TreeNode) Wrapper、  
+ラッパーとしての機能に加え、MVVMにおけるViewModelなど、インスタンスの破棄とラップを一時的に停止・再開が可能なオブジェクトとして使用する場合は(Composite | TreeNode) Imitator  
 をそれぞれ継承して使用してください。
 
 ### 他ライブラリとの親和性
-TreeNodeBaseとその派生型ではSetup(Inner | Public)ChildCollectionメソッドをオーバーライドすることで、内部で扱うコレクションと外部に公開するコレクションをカスタマイズできます。
-
-CompositeWrapperとその派生型は外部に公開するコレクションのみカスタマイズできます。また、CompositeWrapperとCompositeImitatorは`ITreeNode<T>`を実装していないオブジェクトをラップすることで`ITreeNode<T>`の拡張メソッドを提供します。
-
+TreeNodeBaseとその派生型ではSetup(Inner | Public)ChildCollectionメソッドをオーバーライドすることで、内部で扱うコレクションと外部に公開するコレクションをカスタマイズできます。  
+CompositeWrapperとその派生型は外部に公開するコレクションのみカスタマイズできます。また、CompositeWrapperとCompositeImitatorは`ITreeNode<T>`を実装していないオブジェクトをラップすることで`ITreeNode<T>`の拡張メソッドを提供します。  
 拡張メソッドの`Convert`と`AssembleTree`は、`IMutableTreeNode`を実装していないCompositeパターンをなすオブジェクトに対しても使用できます。
