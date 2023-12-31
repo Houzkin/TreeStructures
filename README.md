@@ -10,6 +10,8 @@ Features:
 1. Compatibility with other libraries
 These are the four main features of the library.
 
+[Download Nuget Package](https://www.nuget.org/packages/TreeStructures/)  
+
 ## Namespaces Classification
 
 ### TreeStructures;
