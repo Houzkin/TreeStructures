@@ -40,6 +40,9 @@ Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 To be documented in the wiki.
 
 ## Concept
+This library does not aim to be standalone.   
+Various useful libraries are already available, so we aim to handle tree structure-related functions while coexisting with other libraries.  
+  
 Let's elaborate on the four features mentioned at the beginning.
 
 ### Rich Extension Methods
