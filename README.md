@@ -1,4 +1,4 @@
-# Overview
+# Introduction
 
 This library provides a class for creating a tree structure that can be used by inheriting from it.
 
