@@ -16,7 +16,7 @@
  
  汎用ツリーノードの継承図
  
-![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructure/assets/12586097/f92aca9b-a8c1-4f18-998c-4c10da68e8ea)
+![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructure/assets/12586097/1a83bff7-4534-41e8-915f-4879e80da2cf)
 
  NodePathとNodeIndex (周辺オブジェクト) の継承図
  
