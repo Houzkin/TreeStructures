@@ -5,11 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Xml.Serialization;
 using System.Xml.Serialization;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace TreeStructures.Linq {
     public static partial class TreeNodeExtenstions {
 
-        #region 変換
+        #region 変換(TreeNode to other)
         /// <summary>Gets a collection of pairs consisting of data generated from each node and its index.</summary>
         /// <typeparam name="U">Type of the data to generate</typeparam>
         /// <typeparam name="T">Type of each node</typeparam>
@@ -81,6 +83,23 @@ namespace TreeStructures.Linq {
 
             throw new NotImplementedException();
         }
+        #endregion
+        #region 変換(other to read-only valued TreeNode)
+
+        /// <summary>Wraps the specified object as a read-only valued tree node.</summary>
+        /// <typeparam name="T">The type forming the compoiste pattern object to be wrapped.</typeparam>
+        /// <param name="self">The object to be wrapped as the root node of the tree</param>
+        /// <param name="toChildren">Function to retrieve objects to be wrapped as child nodes. Requires implementing <see cref="INotifyCollectionChanged"/> for child nodes to be synchronized.</param>
+        /// <param name="toValue">Function to convert source to value.</param>
+        /// <returns>The root of wrapping tree</returns>
+        public static ReadOnlyValuedTreeNode<TSrc, TVal> AsValuedTreeNode<TSrc, TVal>(this TSrc self, Func<TSrc, IEnumerable<TSrc>> toChildren, Func<TSrc, TVal> toValue)
+            where TSrc : class {
+            if (self == null) throw new ArgumentNullException(nameof(self));
+            if (toChildren == null) throw new ArgumentNullException(nameof(toChildren));
+            if (toValue == null) throw new ArgumentNullException(nameof(toValue));
+            return new ReadOnlyValuedTreeNode<TSrc, TVal>(self, toChildren, toValue);
+        }
+        
         #endregion
     }
 }

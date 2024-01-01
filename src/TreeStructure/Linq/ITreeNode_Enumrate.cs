@@ -15,7 +15,7 @@ namespace TreeStructures.Linq {
     public static partial class TreeNodeExtenstions {
 
         #region 列挙
-        private static bool expand<T>(ref ISet<T> history, out T? cur, ref IEnumerable<T?> seeds, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds) where T : ITreeNode<T> {
+        private static bool expand<T>(ref ISet<T> history, out T? cur, ref IEnumerable<T?> seeds, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds){
             if (!seeds.Any()) { cur = default; return false; }
             cur = seeds.First();
             while (cur != null && history.Add(cur)) {
@@ -26,6 +26,14 @@ namespace TreeStructures.Linq {
             seeds = seeds.Skip(1);
             return true;
         }
+        //private static IEnumerable<T> _Evolve<T>(this T self, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds,IEqualityComparer<T> eqComp) where T : class {
+        //    ISet<T> exphistory = new HashSet<T>(new EqualityComparer);//展開した履歴
+        //    ISet<T> rtnhistory = new HashSet<T>(eqComp);//列挙した履歴
+        //    IEnumerable<T?> seeds = new T[1] { (T)self };
+        //    while (expand(ref exphistory, out T? cur, ref seeds, getnewseeds, updateseeds)) {
+        //        if (cur != null && rtnhistory.Add(cur)) yield return cur;
+        //    }
+        //}
         /// <summary>
         /// Expands and enumerates the tree structure starting from the current node.
         /// </summary>

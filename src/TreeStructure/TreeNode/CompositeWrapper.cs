@@ -23,7 +23,7 @@ namespace TreeStructures {
     /// </summary>
     /// <typeparam name="TSrc">Type representing the Composite pattern</typeparam>
     /// <typeparam name="TWrpr">Type of the wrapper node</typeparam>
-    public abstract class CompositeWrapper<TSrc,TWrpr> : ITreeNode<TWrpr> ,INotifyPropertyChanged, IDisposable
+    public abstract class CompositeWrapper<TSrc,TWrpr> : ITreeNode<TWrpr> ,INotifyPropertyChanged, IDisposable,IEquatable<CompositeWrapper<TSrc,TWrpr>>
         where TSrc : class
         where TWrpr:CompositeWrapper<TSrc,TWrpr> {
 
@@ -62,7 +62,7 @@ namespace TreeStructures {
             get { return _parent; }
             private protected set { SetProperty(ref _parent, value); }
         }
-        /// <summary>Specifies a reference to a child node collection that implements <see cref="INotifyCollectionChanged"/>.</summary>
+        /// <summary>Specifies a reference to the source's child node collection. Implementing <see cref="INotifyCollectionChanged"/> is not required if synchronization is not intended.</summary>
         protected abstract IEnumerable<TSrc>? SourceNodeChildren { get; }
 
         private ImitableCollection<TWrpr>? _innerChildren;
@@ -133,6 +133,25 @@ namespace TreeStructures {
             if (isDisposed) return;
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public bool Equals(CompositeWrapper<TSrc, TWrpr>? other) {
+            if (other is null || other.SourceNode is null) return false;
+            return object.ReferenceEquals(this.SourceNode, other.SourceNode);
+        }
+        public override bool Equals(object? obj) {
+            return this.Equals(obj as CompositeWrapper<TSrc, TWrpr>);
+        }
+        public override int GetHashCode() {
+            return this.SourceNode?.GetHashCode() ?? base.GetHashCode();
+        }
+        public static bool operator==(CompositeWrapper<TSrc,TWrpr> obj1,CompositeWrapper<TSrc, TWrpr> obj2) {
+            if (obj1 is null && obj2 is null) return true;
+            if(obj1 is null ||  obj2 is null) return false;
+            return obj1.Equals(obj2);
+        }
+        public static bool operator!=(CompositeWrapper<TSrc,TWrpr> obj1,CompositeWrapper<TSrc, TWrpr> obj2) {
+            return !(obj1 == obj2);
         }
     }
 

@@ -120,22 +120,20 @@ namespace TreeStructures.Collections {
             : this(collection,new Func<object,ConvertPair>(src => new ConvertPair(src, converter(src))), removedAction, isImitate) { }
 
         void SetReferenceWithStartObserveCollection() {
-            var ps = _source as INotifyPropertyChanged;
-            if(ps != null) {
+            if(_source is INotifyPropertyChanged npc) {
                 var dsp = new EventListener<PropertyChangedEventHandler>(
-                    h => ps.PropertyChanged += h,
-                    h => ps.PropertyChanged -= h,
+                    h => npc.PropertyChanged += h,
+                    h => npc.PropertyChanged -= h,
                     (s, e) => this.RaisePropertyChanged(e));
                 this.Disposables.Add(dsp);
             }
-            var col = _source as INotifyCollectionChanged;
-            if(col == null) throw new ArgumentException("INotifyCollectionChanged インターフェイスを実装していません。");
-            var listener = new EventListener<NotifyCollectionChangedEventHandler>(
-                h => col.CollectionChanged += h,
-                h => col.CollectionChanged -= h,
-                onCollectionChangedAction);
-            this.Disposables.Add(listener);
-
+            if (_source is INotifyCollectionChanged ncc) {
+                var listener = new EventListener<NotifyCollectionChangedEventHandler>(
+                    h => ncc.CollectionChanged += h,
+                    h => ncc.CollectionChanged -= h,
+                    onCollectionChangedAction);
+                this.Disposables.Add(listener);
+            }
             foreach (var item in _source) _references.Add(_toSyncSet(item));
         }
         
@@ -170,12 +168,12 @@ namespace TreeStructures.Collections {
                 NotifyCollectionChangedAction.Move => new NotifyCollectionChangedEventArgs(e.Action,getSyncObj(e.NewItems,allItem), e.NewStartingIndex,e.OldStartingIndex),
                 NotifyCollectionChangedAction.Replace => new NotifyCollectionChangedEventArgs(e.Action, getSyncObj(e.NewItems, adds), getSyncObj(e.OldItems, trash), e.NewStartingIndex),
                 NotifyCollectionChangedAction.Reset => new NotifyCollectionChangedEventArgs(e.Action),
-                _=>throw new ArgumentException(nameof(e)),
+                _=>throw new ArgumentException(null, nameof(e)),
             };
             this.RaiseCollectionChanged(arg);
             if(_removeAction != null) {
                 foreach(var th in trash.Select(x => x.After).OfType<TConv>()) {
-                    _removeAction(th);
+                    _removeAction.Invoke(th);
                 }
             }
         }
