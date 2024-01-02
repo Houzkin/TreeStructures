@@ -7,24 +7,33 @@ using TreeStructures;
 using TreeStructures.Linq;
 
 namespace SampleConsoleApp;
+
+public class NamedNode : GeneralTreeNode<NamedNode> {
+    public NamedNode() { }
+    public string Name { get; set; }
+    public override string ToString() {
+        return this.Name;
+    }
+
+}
 public static　partial class SampleA {
     public static void Method() {
-        var A = new ExampleNode { Name = "A" };
-        var B = new ExampleNode { Name = "B"};
-        var C = new ExampleNode { Name = "C"};
-        var D = new ExampleNode { Name = "D"};
-        var E = new ExampleNode { Name = "E"};
-        var F = new ExampleNode { Name = "F"};
-        var G = new ExampleNode { Name = "G" };
-        var H = new ExampleNode { Name = "H"};
-        var I = new ExampleNode { Name = "I"};
-        var J = new ExampleNode { Name = "J" };
-        var K = new ExampleNode { Name = "K" };
-        var L = new ExampleNode { Name = "L"};
-        var M = new ExampleNode { Name = "M"};
-        var N = new ExampleNode { Name = "N"};
-        var O = new ExampleNode { Name = "O"};
-        var P = new ExampleNode { Name = "P"};
+        var A = new NamedNode { Name = "A" };
+        var B = new NamedNode { Name = "B"};
+        var C = new NamedNode { Name = "C"};
+        var D = new NamedNode { Name = "D"};
+        var E = new NamedNode { Name = "E"};
+        var F = new NamedNode { Name = "F"};
+        var G = new NamedNode { Name = "G" };
+        var H = new NamedNode { Name = "H"};
+        var I = new NamedNode { Name = "I"};
+        var J = new NamedNode { Name = "J" };
+        var K = new NamedNode { Name = "K" };
+        var L = new NamedNode { Name = "L"};
+        var M = new NamedNode { Name = "M"};
+        var N = new NamedNode { Name = "N"};
+        var O = new NamedNode { Name = "O"};
+        var P = new NamedNode { Name = "P"};
 
         Console.WriteLine("AddChildメソッドで組み立てる");
         A.AddChild(B).AddChild(C).AddChild(D);
@@ -43,7 +52,7 @@ public static　partial class SampleA {
         Console.ReadLine();
 
         Console.WriteLine("インデックスを指定したDictionaryから組み立てる");
-        var dic = new Dictionary<int[], ExampleNode>() {
+        var dic = new Dictionary<int[], NamedNode>() {
             [new int[] { }] = A,
             [new int[] { 0 }] = I,
             [new int[] { 0, 0 }] = C,
@@ -70,7 +79,7 @@ public static　partial class SampleA {
 
         Console.WriteLine("コレクションをN分木として組み立てる");
         var root = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray().Select(x => x.ToString())
-            .AssembleAsNAryTree(3, x => new ExampleNode() { Name = x });
+            .AssembleAsNAryTree(3, x => new NamedNode() { Name = x });
         
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
         Console.WriteLine($"Levelorder:{string.Join(",", root.Levelorder().Select(x=>x.Name))}");
@@ -98,13 +107,5 @@ public static　partial class SampleA {
         Console.WriteLine($"Root:{nodeR.Root().Name}");
 
         Console.ReadLine();
-    }
-}
-
-public class ExampleNode : GeneralTreeNode<ExampleNode> {
-    public ExampleNode() { }
-    public string Name { get; set; }
-    public override string ToString() {
-        return this.Name;
     }
 }

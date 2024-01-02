@@ -11,7 +11,7 @@ using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public class ObservableSampleNode: ObservableGeneralTreeNode<ObservableSampleNode> {
+public class ObservableNamedNode: ObservableGeneralTreeNode<ObservableNamedNode> {
     public string Name { get; set; }
     public override string ToString() {
         return this.Name;
@@ -22,12 +22,12 @@ public static class SampleB {
     public static void Method() {
         Console.WriteLine("コレクションをN分木として組み立てる");
 
-        var nodesDic = "ABCDEFGHI".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableSampleNode() { Name = x });
+        var nodesDic = "ABCDEFGHI".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableNamedNode() { Name = x });
         var root = nodesDic.Values.AssembleAsNAryTree(2);
         //移動前のツリーを表示
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        EventHandler<StructureChangedEventArgs<ObservableSampleNode>> structreChangedHdlr = (s, e) => {
+        EventHandler<StructureChangedEventArgs<ObservableNamedNode>> structreChangedHdlr = (s, e) => {
             Console.WriteLine($"sender:{s} \nTarget:{e.Target} TreeAction:{e.TreeAction} PreviousParentOfTarget:{e.PreviousParentOfTarget} OldIndex:{e.OldIndex} AncestorWasChanged:{e.IsAncestorChanged} DescendantWasChanged:{e.IsDescendantChanged}");
             if (e.IsAncestorChanged) {
                 var info = e.AncestorInfo!;
@@ -35,7 +35,7 @@ public static class SampleB {
             } 
             if (e.IsDescendantChanged) {
                 var info = e.DescendantInfo!;
-                Console.WriteLine($"Target:{info.Target} NodeAction:{info.SubTreeAction} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget}");
+                Console.WriteLine($"Target:{info.Target} SubtreeAction:{info.SubTreeAction} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget}");
             }
             Console.Write("\n");
         };

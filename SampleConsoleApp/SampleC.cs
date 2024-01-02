@@ -9,34 +9,20 @@ using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public class SampleBinary : BinaryTreeNode<SampleBinary> {
+public class NamedBinaryNode : BinaryTreeNode<NamedBinaryNode> {
     public string Value { get; set; }
-    protected override IEnumerable<SampleBinary> SetupInnerChildCollection()
-        => new ObservableCollection<SampleBinary>();
-    protected override IEnumerable<SampleBinary> SetupPublicChildCollection(IEnumerable<SampleBinary> innerCollection) {
-        return new ReadOnlyObservableCollection<SampleBinary>(innerCollection as ObservableCollection<SampleBinary>);
-    }
-}
-public class InheritNary : NAryTreeNode<InheritNary> {
-    public InheritNary(int nary) : base(nary) { }
-
-    protected override IEnumerable<InheritNary> SetupInnerChildCollection()
-        => new ObservableCollection<InheritNary>();
-    protected override IEnumerable<InheritNary> SetupPublicChildCollection(IEnumerable<InheritNary> innerCollection) {
-        return new ReadOnlyObservableCollection<InheritNary>(innerCollection as ObservableCollection<InheritNary>);
-    }
 }
 internal class SampleC {
     public static void Method1() {
 
         Console.WriteLine("バイナリーツリーを作成");
-        var A = new SampleBinary() { Value = "A" };
-        var B = new SampleBinary() { Value = "B" };
-        var C = new SampleBinary() { Value = "C" };
-        var D = new SampleBinary() { Value = "D" };
-        var E = new SampleBinary() { Value = "E" };
-        var F = new SampleBinary() { Value = "F" };
-        var G = new SampleBinary() { Value = "G" };
+        var A = new NamedBinaryNode() { Value = "A" };
+        var B = new NamedBinaryNode() { Value = "B" };
+        var C = new NamedBinaryNode() { Value = "C" };
+        var D = new NamedBinaryNode() { Value = "D" };
+        var E = new NamedBinaryNode() { Value = "E" };
+        var F = new NamedBinaryNode() { Value = "F" };
+        var G = new NamedBinaryNode() { Value = "G" };
 
         A.Left = B;
         A.Right = C;
@@ -50,7 +36,7 @@ internal class SampleC {
 
         Console.WriteLine("\n各ノードを別のノードに変換して組み立てる");
         var convertedRoot = A.Convert(
-            x => new SampleBinary() { Value = x.Value },
+            x => new NamedBinaryNode() { Value = x.Value },
             (i, p, c) => p.SetChild(i, c));
 
         Console.WriteLine(convertedRoot.ToTreeDiagram(x => $"({x.Value})"));
@@ -61,14 +47,14 @@ internal class SampleC {
         var dic = A.ToNodeMap(x => x.Value);
         //NodeIndexを使って組み立てる
         var assembledRoot = dic.AssembleTree(
-            x => new SampleBinary() { Value = x },
+            x => new NamedBinaryNode() { Value = x },
             (i, p, c) => p.SetChild(i, c));
 
         Console.WriteLine(assembledRoot.ToTreeDiagram(x => $"[{x.Value}]"));
         Console.WriteLine($"Inorder:{string.Join(",", assembledRoot.Inorder().Select(x => x.Value))}");
 
         Console.WriteLine("\n比較のため、Branchを固定しないノードに組み替える");
-        var exroot = A.Convert(x => new ExampleNode() { Name = x.Value });
+        var exroot = A.Convert(x => new NamedNode() { Name = x.Value });
         Console.WriteLine(exroot.ToTreeDiagram(x => x.Name));
 
         Console.WriteLine($"Inorder:{string.Join(",", exroot.Inorder().Select(x => x.Name))}");

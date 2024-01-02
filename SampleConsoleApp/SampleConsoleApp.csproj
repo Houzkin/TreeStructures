@@ -11,4 +11,8 @@
     <ProjectReference Include="..\src\TreeStructure\TreeStructures.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Useage\" />
+  </ItemGroup>
+
 </Project>
