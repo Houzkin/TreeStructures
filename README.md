@@ -19,7 +19,7 @@ Abstract classes define generic tree nodes, peripheral objects, and event argume
 
 Inheritance diagram of generic tree nodes
 
-![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructure/assets/12586097/1a83bff7-4534-41e8-915f-4879e80da2cf)
+ ![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructures/assets/12586097/7ecb0437-3eb6-4569-bc97-09f2c9353820)
 
 Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 
@@ -56,7 +56,7 @@ Navigation: `Root`, `NextSibling`, `LastSibling`, etc.
 Editing: Including `TryAddChild`, Try○○Child, `Disassemble`, `RemoveAllDescendant`, etc.  
 Parameter Retrieval: `NodeIndex`, `NodePath`, `Height`, `Depth`, etc.  
 Predicate Methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
-Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`  
+Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
 Assembly Methods: `Convert`, `AssembleTree`, `AssembleAsNAryTree`
 
 ### Mutual References Between Parent and Child Nodes
@@ -74,7 +74,12 @@ Inherit and use each as needed.
 
 ### Compatibility with Other Libraries
 In `TreeNodeBase<TNode>` and its derived types, you can customize the collections used internally and those exposed externally by overriding the `Setup(Inner | Public)ChildCollection` methods.  
-`CompositeWrapper<TSrc,TWrpr>` and its derived types allow customization only of the collection exposed externally.   
-Additionally, `CompositeWrapper<TSrc,TWrpr>` and `CompositeImitator<TSrc,TImtr>` provide the extension methods of `ITreeNode<TNode>` by wrapping an object that does not implement `ITreeNode<TNode>`.  
-The extension methods `Convert` and `AssembleTree` can also be used with objects forming a Composite pattern that do not implement `ITreeNode<TNode>` or `IMutableTreeNode<TNode>`.
+`CompositeWrapper<TSrc,TWrpr>` and its derived types allow customization only of the collection exposed externally.  
+  
+Additionally, support is provided for extending `ITreeNode<TNode>` methods to objects that do not implement `ITreeNode<TNode>`.  
+This is achieved by wrapping objects in a `CompositeWrapper<TSrc,TWrpr>` or `CompositeImitator<TSrc,TImtr>`, or by calling `AsValuedTreeNode` to provide the extension methods of `ITreeNode<TNode>`.  
+  
+Furthermore, various methods for mutual conversion, such as `Convert`, `AssembleTree`, and `ToNodeMap`, are available through extension methods.  
+
+
 
