@@ -20,11 +20,11 @@ Abstract classes define generic tree nodes, peripheral objects, and event argume
 
 Inheritance diagram of generic tree nodes
 
- ![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructures/assets/12586097/7ecb0437-3eb6-4569-bc97-09f2c9353820)
+![InheritanceGenericTreeNode](https://github.com/Houzkin/TreeStructures/assets/12586097/b5c83d90-5ff8-41e4-a415-2083ed170ba4)
 
 Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 
-![継承図_周辺オブジェクト](https://github.com/Houzkin/TreeStructure/assets/12586097/9f17c735-3e0e-40dc-b374-d4d6b380b03a)
+![InheritancePeripheralObjects](https://github.com/Houzkin/TreeStructures/assets/12586097/6c81cbde-f6a1-4d82-aa28-fa45a1bcb7bf)
 
 ### TreeStructures.Linq;
 　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
