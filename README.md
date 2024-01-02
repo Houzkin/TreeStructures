@@ -1,13 +1,14 @@
 # Introduction
 
-This library provides a class for creating a tree structure that can be used by inheriting from it.
+This is a C# library designed for effectively handling tree structures.  
+Emphasizing flexibility and extensibility, the library allows easy manipulation of various tree structures.
 
 Features:
 
 1. Rich extension methods for `ITreeNode<TNode>`
 1. Achieving mutual references between parent and child nodes
 1. Classes forming a tree structure and their extensibility
-1. Compatibility with other libraries
+1. Bidirectional Conversion between Different Data Structures and Tree Structures.
 These are the four main features of the library.
 
 [Download Nuget Package](https://www.nuget.org/packages/TreeStructures/)  
@@ -72,11 +73,11 @@ If you want to use it as a wrapper for objects or tree structure that forms the 
 If you need a Wrapper that, in addition to its wrapper functionality, can temporarily pause/resume instance disposal and wrapping, as is the case with ViewModel in MVVM, use `(Composite | TreeNode) Imitator<TSrc,TImtr>`.   
 Inherit and use each as needed.
 
-### Compatibility with Other Libraries
 In `TreeNodeBase<TNode>` and its derived types, you can customize the collections used internally and those exposed externally by overriding the `Setup(Inner | Public)ChildCollection` methods.  
 `CompositeWrapper<TSrc,TWrpr>` and its derived types allow customization only of the collection exposed externally.  
   
-Additionally, support is provided for extending `ITreeNode<TNode>` methods to objects that do not implement `ITreeNode<TNode>`.  
+### Bidirectional Conversion between Different Data Structures and Tree Structures.
+Support is provided for exte `ITreeNode<TNode>` methods to objects that do not implement `ITreeNode<TNode>`.  
 This is achieved by wrapping objects in a `CompositeWrapper<TSrc,TWrpr>` or `CompositeImitator<TSrc,TImtr>`, or by calling `AsValuedTreeNode` to provide the extension methods of `ITreeNode<TNode>`.  
   
 Furthermore, various methods for mutual conversion, such as `Convert`, `AssembleTree`, and `ToNodeMap`, are available through extension methods.  
