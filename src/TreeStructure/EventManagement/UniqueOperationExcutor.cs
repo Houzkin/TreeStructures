@@ -24,7 +24,7 @@ namespace TreeStructures.EventManagement {
         /// <summary>Registers a key and its corresponding operation.</summary>
         /// <exception cref="InvalidOperationException">Thrown when an invalid operation is detected.</exception>
         public void Register(string key,Action action) {
-            Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
+            ResultWith<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => throw new InvalidOperationException("The specified key is already registered."),
                 x => Operations[key] = new CountOperationPair() { Count = 0, Operation = action });
         }
@@ -37,7 +37,7 @@ namespace TreeStructures.EventManagement {
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException">Thrown when no operation is registered for <paramref name="key"/>.</exception>
         public IDisposable LateEvalute<TProp>(string key,Func<TProp> getPropertyValue) {
-            var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
+            var ele = ResultWith<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
                 x => throw new KeyNotFoundException("The specified key is not registered."));
             var val = getPropertyValue();
@@ -53,7 +53,7 @@ namespace TreeStructures.EventManagement {
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException">Thrown when no operation is registered for <paramref name="key"/>.</exception>
         public IDisposable ExecuteUnique(string key) {
-            var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, key).When(
+            var ele = ResultWith<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
                 x => throw new KeyNotFoundException("The specified key is not registered."));
             
@@ -70,7 +70,7 @@ namespace TreeStructures.EventManagement {
         /// <returns></returns>
         public IDisposable ExecuteUnique(Action operation) {
             int id = operation.Method.MetadataToken;
-            var ele = Result<CountOperationPair>.Of(TempOperations.TryGetValue, id).When(
+            var ele = ResultWith<CountOperationPair>.Of(TempOperations.TryGetValue, id).When(
                 o => { o.Count++; return o; },
                 x => {
                     TempOperations[id] = new CountOperationPair() { Count = 0, Operation = operation };

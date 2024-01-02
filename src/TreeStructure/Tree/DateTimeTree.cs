@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.EventManagement;
 using TreeStructures.Linq;
+using TreeStructures.Utility;
 
 namespace TreeStructures.Tree {
     /// <summary>
@@ -96,20 +97,36 @@ namespace TreeStructures.Tree {
 
         internal void AddDateTime(T item) {
             var addlst = selectChargeDic.Select(x => x.Value(SelectDateTime(item))).ToArray();
-            var nd = _root;
+            Stack<InnerNodeBase> stack = new Stack<InnerNodeBase>();
+            stack.Push(_root);
+
             for(int i = 0; i < addlst.Length; i++) {
-                var ele = nd.Children.FirstOrDefault(x => x.NodeClass == addlst[i]);
-                if (ele == null) {
-                    ele = new InnerDateNode(addlst[i]);
-                    nd.AddChild(ele);
-                }
+                var ele = stack.Peek().Children.FirstOrDefault(x => x.NodeClass == addlst[i]);
+                ele ??= new InnerDateNode(addlst[i]);
+                stack.Push(ele);
                 if (i+1 == addlst.Length) {
-                    ele.AddChild(new InnerDateLeaf<T>(addlst[i], SelectDateTime(item),item));
+                    stack.Push(new InnerDateLeaf<T>(addlst[i], SelectDateTime(item), item));
                     break;
-                } else {
-                    nd = ele;
                 }
             }
+            bool next = true;
+            do {
+                ResultWith<InnerNodeBase>.Of(stack.TryPop).When(
+                    o => {
+                        ResultWith<InnerNodeBase>.Of(stack.TryPeek).When(
+                            oo => next= oo.TryAddChild(o),
+                            ox => next = false);
+                    },
+                    x => next = false);
+            } while (next);
+
+            //while (ResultWith<InnerNodeBase>.Of(stack.TryPop).When(
+            //    o => ResultWith<InnerNodeBase>.Of(stack.TryPeek).When(
+            //        oo => oo.TryAddChild(o),
+            //        ox => new ResultWithValue<InnerNodeBase>()),
+            //    x => new ResultWithValue<InnerNodeBase>())) ;
+
+
         }
         internal void DeleteDateTime(T item) {
             var dt = SelectDateTime(item);

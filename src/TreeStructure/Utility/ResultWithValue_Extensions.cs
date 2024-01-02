@@ -59,7 +59,7 @@ namespace TreeStructures.Utility {
 
     /// <summary>Provides static methods related to <see cref="ResultWithValue{TValue}"/>.</summary>
     /// <typeparam name="TValue">The type of the output value.</typeparam>
-    public static class Result<TValue> {
+    public static class ResultWith<TValue> {
         /// <summary>Supports processing using the TryParse pattern.</summary>
         /// <typeparam name="TInput">The type of the input value.</typeparam>
         /// <param name="tryMethod">The TryParse method.</param>

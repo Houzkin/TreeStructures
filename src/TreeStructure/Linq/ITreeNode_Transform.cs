@@ -84,7 +84,7 @@ namespace TreeStructures.Linq {
             throw new NotImplementedException();
         }
         #endregion
-        #region 変換(other to read-only valued TreeNode)
+        #region 変換(other as read-only valued TreeNode)
 
         /// <summary>Wraps the specified object as a read-only valued tree node.</summary>
         /// <typeparam name="T">The type forming the compoiste pattern object to be wrapped.</typeparam>
@@ -99,7 +99,18 @@ namespace TreeStructures.Linq {
             if (toValue == null) throw new ArgumentNullException(nameof(toValue));
             return new ReadOnlyValuedTreeNode<TSrc, TVal>(self, toChildren, toValue);
         }
-        
+        /// <summary>
+        /// Wraps an existing tree node and its descendants into a read-only valued tree node.
+        /// </summary>
+        /// <remarks>For proper synchronization of descendant nodes, the child node collection must implement <see cref="INotifyCollectionChanged"/>.</remarks>
+        /// <typeparam name="TNode">Type of the original tree node.</typeparam>
+        /// <typeparam name="TVal">Type of the value associated with each tree node.</typeparam>
+        /// <param name="self">The original tree node to convert.</param>
+        /// <param name="toValue">Function to retrieve the value associated with each tree node.</param>
+        /// <returns>A read-only valued tree node representing the original tree and its hierarchy.</returns>
+        public static ReadOnlyValuedTreeNode<TNode, TVal> AsValuedTreeNode<TNode, TVal>(this ITreeNode<TNode> self, Func<TNode, TVal> toValue) where TNode : class, ITreeNode<TNode> {
+            return ReadOnlyValuedTreeNode<TNode, TVal>.Create((self as TNode)!, toValue);
+        }
         #endregion
     }
 }

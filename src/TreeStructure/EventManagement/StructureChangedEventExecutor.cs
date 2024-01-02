@@ -142,7 +142,7 @@ namespace TreeStructures.EventManagement {
         /// <summary>Issues change events if there are changes in the tree structure during the first method call and at the end of the returned value's last Dispose.</summary>
         /// <returns></returns>
         public IDisposable LateEvaluateTree() {
-            var ele = Result<CountOperationPair>.Of(Operations.TryGetValue, structureeventkey).When(
+            var ele = ResultWith<CountOperationPair>.Of(Operations.TryGetValue, structureeventkey).When(
                 o => {
                     o.Count++;
                     if (o.Count == 1) { OldParent = Self.Parent; }
