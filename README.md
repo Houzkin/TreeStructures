@@ -8,7 +8,9 @@ Features:
 1. Rich extension methods for `ITreeNode<TNode>`
 1. Achieving mutual references between parent and child nodes
 1. Classes forming a tree structure and their extensibility
-1. Bidirectional Conversion between Different Data Structures and Tree Structures.  
+1. Bidirectional Conversion between Different Data Structures and Tree Structures.
+
+
 These are the four main features of the library.
 
 [Download Nuget Package](https://www.nuget.org/packages/TreeStructures/)  
