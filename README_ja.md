@@ -16,7 +16,7 @@
  
  汎用ツリーノードの継承図
  
-![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructure/assets/12586097/1a83bff7-4534-41e8-915f-4879e80da2cf)
+ ![継承図_汎用TreeNode](https://github.com/Houzkin/TreeStructures/assets/12586097/7ecb0437-3eb6-4569-bc97-09f2c9353820)
 
  NodePathとNodeIndex (周辺オブジェクト) の継承図
  
@@ -52,7 +52,7 @@ wikiに書く
 編集は`TryAddChild`をはじめ、`Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc  
 パラメータの取得は、`NodeIndex`, `NodePath`, `Height`, `Depth`, etc  
 判定メソッドは、`IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc  
-変換は、`ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`  
+変換は、`ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
 組み立てメソッドは、`Convert`, `AssembleTree`, `AssembleAsNAryTree`  
 
 
@@ -70,5 +70,8 @@ Compositeパターンをなすオブジェクトまたはツリー構造の、�
 
 ### 他ライブラリとの親和性
 TreeNodeBaseとその派生型ではSetup(Inner | Public)ChildCollectionメソッドをオーバーライドすることで、内部で扱うコレクションと外部に公開するコレクションをカスタマイズできます。  
-CompositeWrapperとその派生型は外部に公開するコレクションのみカスタマイズできます。また、CompositeWrapperとCompositeImitatorは`ITreeNode<T>`を実装していないオブジェクトをラップすることで`ITreeNode<T>`の拡張メソッドを提供します。  
-拡張メソッドの`Convert`と`AssembleTree`は、`IMutableTreeNode`を実装していないCompositeパターンをなすオブジェクトに対しても使用できます。
+CompositeWrapperとその派生型は外部に公開するコレクションのみカスタマイズできます。  
+  
+また、`ITreeNode<T>`を実装していないオブジェクトへ`ITreeNode<T>`の拡張メソッドを提供と相互変換もサポートしています。  
+ConpositeWrapperまたはCompositeImitatorでコンポジットパターンをなすオブジェクトをラップする、または、`AsValuedTreeNode`を呼び出して`ITreeNode<T>`の拡張メソッドを提供します。  
+その他にも、拡張メソッドの`Convert`や`AssembleTree`、`ToNodeMap`など、相互変換方法をいくつか用意しています。  
