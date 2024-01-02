@@ -27,7 +27,6 @@ namespace TreeStructures {
         /// If you intend to reuse the instance, please specify the <see cref="PauseImitation"/> method.
         /// </remarks>
         /// <param name="removedNode">The removed child node.</param>
-
         protected override void ManageRemovedChild(TImtr removedNode) {
             removedNode.Dispose();
         }

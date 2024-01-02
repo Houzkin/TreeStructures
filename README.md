@@ -28,7 +28,7 @@ Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 ### TreeStructures.Linq;
 　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
 ### TreeStructures.Utility;
-　Definition of `ResultWithValue<T>` used as a return value for Try○○ methods
+　Definition of `ResultWithValue<T>` used as a return value for Try●● methods
 ### TreeStructures.Collections;
 　Collections used in internal implementations and processing of extension methods
 ### TreeStructures.EventManagement;
@@ -53,7 +53,7 @@ Examples include:
 
 Enumeration: `Preorder`, `Levelorder`, all traversal methods, `Leafs`, `Ancestors`, `DiscendArrivals`, `DescendTraces`, etc.  
 Navigation: `Root`, `NextSibling`, `LastSibling`, etc.   
-Editing: Including `TryAddChild`, Try○○Child, `Disassemble`, `RemoveAllDescendant`, etc.  
+Editing: Including `TryAddChild`, Try●●Child, `Disassemble`, `RemoveAllDescendant`, etc.  
 Parameter Retrieval: `NodeIndex`, `NodePath`, `Height`, `Depth`, etc.  
 Predicate Methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
 Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  

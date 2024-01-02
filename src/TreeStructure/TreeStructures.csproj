@@ -12,11 +12,11 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>各ノードが親と子の参照を保持するツリー構造を提供します。
 Provides a tree structure where each node holds parent and children references.</Description>
-    <RepositoryUrl>https://github.com/Houzkin/TreeStructure</RepositoryUrl>
-    <PackageTags>tree;hierarchy;structure;</PackageTags>
+    <RepositoryUrl>https://github.com/Houzkin/TreeStructures</RepositoryUrl>
+    <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.2.0</Version>
+    <Version>1.3.0</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
