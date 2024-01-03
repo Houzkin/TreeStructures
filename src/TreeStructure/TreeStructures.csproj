@@ -10,8 +10,14 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Description>各ノードが親と子の参照を保持するツリー構造を提供します。
-Provides a tree structure where each node holds parent and children references.</Description>
+    <Description>This is a C# library designed for effectively handling tree structures.  
+Emphasizing flexibility and extensibility, the library allows easy manipulation of various tree structures.
+
+Features:
+ Rich extension methods for `ITreeNode&lt;TNode&gt;`
+ Achieving mutual references between parent and child nodes
+ Classes forming a tree structure and their extensibility
+ Bidirectional Conversion between Different Data Structures and Tree Structures.</Description>
     <RepositoryUrl>https://github.com/Houzkin/TreeStructures</RepositoryUrl>
     <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>

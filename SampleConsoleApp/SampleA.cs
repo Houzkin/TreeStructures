@@ -35,7 +35,7 @@ public static　partial class SampleA {
         var O = new NamedNode { Name = "O"};
         var P = new NamedNode { Name = "P"};
 
-        Console.WriteLine("AddChildメソッドで組み立てる");
+        Console.WriteLine("Assemble using the AddChild method.");
         A.AddChild(B).AddChild(C).AddChild(D);
         B.AddChild(E).AddChild(F);
         F.AddChild(G).AddChild(H);
@@ -46,12 +46,12 @@ public static　partial class SampleA {
         N.AddChild(O).AddChild(P);
 
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
-        Console.WriteLine("高さ、レベル、ノードインデックスも追加で表示");
+        Console.WriteLine("Displaying height, level, and node index as additional information.");
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},NodeIndex:{x.NodeIndex()}"));
-        A.Disassemble();//全て分解
+        A.Disassemble();
         Console.ReadLine();
 
-        Console.WriteLine("インデックスを指定したDictionaryから組み立てる");
+        Console.WriteLine("Assembling from a Dictionary with specified indices.");
         var dic = new Dictionary<int[], NamedNode>() {
             [new int[] { }] = A,
             [new int[] { 0 }] = I,
@@ -71,13 +71,14 @@ public static　partial class SampleA {
             [new int[] { 1, 3, 0 }]=P,
         };
         Console.WriteLine(dic.AssembleTree().ToTreeDiagram(x => x.Name));
-        Console.WriteLine("親ノードから振り当てられているインデックスと、パスを追加で表示");
+        Console.WriteLine("Displaying additional information such as indices assigned from parent nodes and paths.");
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},BranchIndex:{x.BranchIndex()},NodePath:{x.NodePath(y=>y.Name)}"));
 
-        A.Disassemble();//全て分解
+        A.Disassemble(); 
         Console.ReadLine();
 
-        Console.WriteLine("コレクションをN分木として組み立てる");
+
+        Console.WriteLine("Building a collection as an N-ary tree.");
         var root = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray().Select(x => x.ToString())
             .AssembleAsNAryTree(3, x => new NamedNode() { Name = x });
         

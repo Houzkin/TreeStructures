@@ -20,7 +20,7 @@ public class ObservableNamedNode: ObservableGeneralTreeNode<ObservableNamedNode>
 
 public static class SampleB {
     public static void Method() {
-        Console.WriteLine("コレクションをN分木として組み立てる");
+        Console.WriteLine("Building a collection as an N-ary tree.");
 
         var nodesDic = "ABCDEFGHI".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableNamedNode() { Name = x });
         var root = nodesDic.Values.AssembleAsNAryTree(2);
@@ -48,22 +48,19 @@ public static class SampleB {
             node.PropertyChanged += propertyChangedHdlr;
             node.Disposed += disposedHdlr;
         }
-        Console.WriteLine("node D を削除\n");
+        Console.WriteLine("Remove node D\n");
         nodesDic["B"].RemoveChild(nodesDic["D"]);
-        //削除後のツリーを表示
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine("node D を node E の子ノードに追加");
+        Console.WriteLine("Add node D as a child node to node E.");
         nodesDic["E"].AddChild(nodesDic["D"]);
-        //追加後のツリーを表示
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine("node E を node C の子ノードに移動\n");
+        Console.WriteLine("Move node E to be a child node of node C.\n");
         nodesDic["C"].AddChild(nodesDic["E"]);
-        //移動後のツリーを表示
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine("node E を Dispose\n");
+        Console.WriteLine("Dispose node E \n");
         nodesDic["E"].Dispose();
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
