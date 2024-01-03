@@ -17,6 +17,6 @@ namespace TreeStructures {
         /// <param name="sourceNode">Type of the node to be wrapped</param>
         protected TreeNodeWrapper(TSrc sourceNode) : base(sourceNode) { }
         /// <summary><inheritdoc/></summary>
-        protected override IEnumerable<TSrc>? SourceNodeChildren => SourceNode?.Children;
+        protected override IEnumerable<TSrc>? SourceChildren => Source?.Children;
     }
 }

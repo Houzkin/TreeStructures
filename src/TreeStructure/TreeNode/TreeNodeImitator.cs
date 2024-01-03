@@ -16,7 +16,7 @@ namespace TreeStructures {
         /// <param name="sourceNode">The node to be wrapped</param>
         protected TreeNodeImitator(TSrc sourceNode) : base(sourceNode) { }
         /// <summary><inheritdoc/></summary>
-        protected override IEnumerable<TSrc>? SourceNodeChildren => SourceNode?.Children;
+        protected override IEnumerable<TSrc>? SourceChildren => Source?.Children;
     }
 
 }

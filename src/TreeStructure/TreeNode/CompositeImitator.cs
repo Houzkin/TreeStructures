@@ -18,8 +18,8 @@ namespace TreeStructures {
         where TImtr : CompositeImitator<TSrc, TImtr> {
 
         /// <summary>Initializes a new instance of the class.</summary>
-        /// <param name="sourceNode">The node to be wrapped.</param>
-        protected CompositeImitator(TSrc sourceNode) : base(sourceNode) { }
+        /// <param name="source">The node to be wrapped.</param>
+        protected CompositeImitator(TSrc source) : base(source) { }
 
         /// <summary>Handles the removed child node.</summary>
         /// <remarks>
@@ -27,7 +27,7 @@ namespace TreeStructures {
         /// If you intend to reuse the instance, please specify the <see cref="PauseImitation"/> method.
         /// </remarks>
         /// <param name="removedNode">The removed child node.</param>
-        protected override void ManageRemovedChild(TImtr removedNode) {
+        protected override void HandleRemovedChild(TImtr removedNode) {
             removedNode.Dispose();
         }
         private IReadOnlyList<TImtr> StopImitateProcess() {
@@ -46,7 +46,7 @@ namespace TreeStructures {
             return lst;
         }
         /// <summary>
-        /// Disassembles descendant nodes and unsubscribes from the <see cref="CompositeWrapper{TSrc, TWrpr}.SourceNodeChildren"/> of each node, including the current node.
+        /// Disassembles descendant nodes and unsubscribes from the <see cref="CompositeWrapper{TSrc, TWrpr}.SourceChildren"/> of each node, including the current node.
         /// </summary>
         /// <returns>The disassembled descendant nodes.</returns>
         public IReadOnlyList<TImtr> PauseImitation() {
@@ -56,7 +56,7 @@ namespace TreeStructures {
             return rmc ?? Array.Empty<TImtr>();
 
         }
-        /// <summary>Resume subscription to <see cref="CompositeWrapper{TSrc, TWrpr}.SourceNodeChildren"/> and imitate descendant nodes.</summary>
+        /// <summary>Resume subscription to <see cref="CompositeWrapper{TSrc, TWrpr}.SourceChildren"/> and imitate descendant nodes.</summary>
         public void ImitateSourceSubTree() {
             ThrowExceptionIfDisposed();
             this.IsImitating = true;

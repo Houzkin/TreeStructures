@@ -28,12 +28,12 @@ namespace TreeStructures {
         where TWrpr:CompositeWrapper<TSrc,TWrpr> {
 
         /// <summary>The wrapped node</summary>
-        protected TSrc SourceNode { get; }
+        protected TSrc Source { get; }
 
         /// <summary>Initializes a new instance</summary>
-        /// <param name="sourceNode">The node to be wrapped</param>
-        protected CompositeWrapper(TSrc sourceNode) { 
-            SourceNode = sourceNode;
+        /// <param name="source">The node to be wrapped</param>
+        protected CompositeWrapper(TSrc source) { 
+            Source = source;
         }
         #region NotifyPropertyChanged
         PropertyChangeProxy? _propChangeProxy;
@@ -63,17 +63,17 @@ namespace TreeStructures {
             private protected set { SetProperty(ref _parent, value); }
         }
         /// <summary>Specifies a reference to the source's child node collection. Implementing <see cref="INotifyCollectionChanged"/> is not required if synchronization is not intended.</summary>
-        protected abstract IEnumerable<TSrc>? SourceNodeChildren { get; }
+        protected abstract IEnumerable<TSrc>? SourceChildren { get; }
 
         private ImitableCollection<TWrpr>? _innerChildren;
         private protected ImitableCollection<TWrpr> InnerChildren => 
-            _innerChildren ??= ImitableCollection.Create(this.SourceNodeChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, ManageRemovedChild,IsImitating);
+            _innerChildren ??= ImitableCollection.Create(this.SourceChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, HandleRemovedChild,IsImitating);
 
         private IEnumerable<TWrpr>? _children;
         /// <inheritdoc/>
         public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildren);
         /// <summary>Sets the collection to be exposed externally.</summary>
-        /// <remarks>From the base class, it returns a wrapped <see cref="ImitableCollection{TSrc, TConv}"/> of <see cref="SourceNodeChildren"/>.</remarks>
+        /// <remarks>From the base class, it returns a wrapped <see cref="ImitableCollection{TSrc, TConv}"/> of <see cref="SourceChildren"/>.</remarks>
         protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(ImitableCollection<TWrpr> children) => children;
         /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
         /// <param name="sourceChildNode">Child node to be wrapped</param>
@@ -99,7 +99,7 @@ namespace TreeStructures {
         /// <summary>Processing for removed child nodes.</summary>
         /// <remarks>Invoked by the <see cref="Dispose"/> method in the base class.</remarks>
         /// <param name="removedNode">Removed child node</param>
-        protected virtual void ManageRemovedChild(TWrpr removedNode) {
+        protected virtual void HandleRemovedChild(TWrpr removedNode) {
             (removedNode as IDisposable)?.Dispose();
         }
         bool _isImitating = true;
@@ -135,17 +135,20 @@ namespace TreeStructures {
             GC.SuppressFinalize(this);
         }
 
+        /// <inheritdoc/>
         public bool Equals(CompositeWrapper<TSrc, TWrpr>? other) {
-            if (other is null || other.SourceNode is null) return false;
-            return object.ReferenceEquals(this.SourceNode, other.SourceNode);
-        }
-        public override bool Equals(object? obj) {
+            if (other is null || other.Source is null) return false;
+            return object.ReferenceEquals(this.Source, other.Source);
+		}
+		/// <inheritdoc/>
+		public override bool Equals(object? obj) {
             return this.Equals(obj as CompositeWrapper<TSrc, TWrpr>);
-        }
-        public override int GetHashCode() {
-            return this.SourceNode?.GetHashCode() ?? base.GetHashCode();
-        }
-        public static bool operator==(CompositeWrapper<TSrc,TWrpr> obj1,CompositeWrapper<TSrc, TWrpr> obj2) {
+		}
+		/// <inheritdoc/>
+		public override int GetHashCode() {
+            return this.Source?.GetHashCode() ?? base.GetHashCode();
+		}
+		public static bool operator==(CompositeWrapper<TSrc,TWrpr> obj1,CompositeWrapper<TSrc, TWrpr> obj2) {
             if (obj1 is null && obj2 is null) return true;
             if(obj1 is null ||  obj2 is null) return false;
             return obj1.Equals(obj2);

@@ -2,7 +2,7 @@
 using SampleConsoleApp;
 
 //Console.WriteLine("Hello, World!");
-SampleConsoleApp.Useage.Class1.Sample();
+SampleD.Method();
 SampleC.Method1();
 SampleA.Method();
 SampleB.Method();

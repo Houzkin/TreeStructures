@@ -202,17 +202,17 @@ namespace TreeStructures.Tree {
                 return new Node(sourceChildNode);
             }
             /// <summary>The number assigned for the class at the corresponding level.</summary>
-            public int NodeClass => this.SourceNode.NodeClass;
-            public bool HasValue  => (this.SourceNode is InnerDateLeaf<T>);
+            public int NodeClass => this.Source.NodeClass;
+            public bool HasValue  => (this.Source is InnerDateLeaf<T>);
             /// <summary>This property is not null when <see cref="HasValue"/> is true.</summary>
-            public DateTime? DateTimeValue => (this.SourceNode is InnerDateLeaf<T> leaf) ? leaf.DateTimeValue : null;
+            public DateTime? DateTimeValue => (this.Source is InnerDateLeaf<T> leaf) ? leaf.DateTimeValue : null;
             /// <summary>
             /// Returns the value of the element if <see cref="HasValue"/> is true; otherwise, returns the default value.
             /// </summary>
-            public T Value => (this.SourceNode is InnerDateLeaf<T> leaf) ? leaf.Item : default;
+            public T Value => (this.Source is InnerDateLeaf<T> leaf) ? leaf.Item : default;
             /// <inheritdoc/>
             public override string ToString() {
-                return this.SourceNode.ToString();
+                return this.Source.ToString();
             }
         }
 

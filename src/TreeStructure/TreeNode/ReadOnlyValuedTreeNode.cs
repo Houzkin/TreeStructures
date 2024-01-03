@@ -18,19 +18,21 @@ namespace TreeStructures {
         internal ReadOnlyValuedTreeNode(TSrc sourceNode, Func<TSrc, IEnumerable<TSrc>> getChildren, Func<TSrc, TVal> toValue) : base(sourceNode) {
             _toChildren = getChildren;
             _toValue = toValue;
-            this.Value = _toValue(this.SourceNode);
+            //this.Value = _toValue(this.SourceNode);
         }
         internal static ReadOnlyValuedTreeNode<TNode,TVal> Create<TNode>(ITreeNode<TNode> node,Func<TNode,TVal> toValue) where TNode:class,ITreeNode<TNode> {
             return new ReadOnlyValuedTreeNode<TNode, TVal>((node as TNode)!, x => x.Children, toValue);
         }
+        /// <inheritdoc/>
         protected override ReadOnlyValuedTreeNode<TSrc, TVal> GenerateChild(TSrc sourceChildNode) {
             if (sourceChildNode is null) return null;
             return new ReadOnlyValuedTreeNode<TSrc, TVal>(sourceChildNode, _toChildren, _toValue);
         }
-        protected override IEnumerable<TSrc>? SourceNodeChildren => _toChildren(this.SourceNode);
+        /// <inheritdoc/>
+        protected override IEnumerable<TSrc>? SourceChildren => _toChildren(this.Source);
 
         /// <summary>Gets the value associated with the tree node.</summary>
-        public TVal Value { get; }
+        public TVal Value => _toValue(this.Source);
     }
     
 
