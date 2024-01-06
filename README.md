@@ -21,10 +21,10 @@ These are the four main features of the library.
 　Abstract classes define generic tree nodes, peripheral objects, and event arguments.
 
 Inheritance diagram of generic tree nodes
-![InheritanceGenericTreeNode](https://github.com/Houzkin/TreeStructures/releases/download/1.3.1/InheritanceGenericTreeNode1-4.png)
+![InheritanceGenericTreeNode](images/InheritanceGenericTreeNode.png)
 
 Inheritance diagram of NodePath and NodeIndex (peripheral objects)  
-![InheritancePeripheralObjects](https://github.com/Houzkin/TreeStructures/releases/download/1.3.1/InheritancePeripheralObjects1-4.png)
+![InheritancePeripheralObjects](images/InheritancePeripheralObjects.png)
 
 ### TreeStructures.Linq;
 　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
