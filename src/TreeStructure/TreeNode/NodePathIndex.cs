@@ -9,7 +9,7 @@ namespace TreeStructures {
 
     /// <summary>Represents a path traversing nodes.</summary>
     /// <typeparam name="T">The type represented by each node.</typeparam>
-    public interface INodePath<T> : IEnumerable<T> {
+    public interface INodePath<T> : IEnumerable<T>{
         /// <summary>Gets the path at the specified level.</summary>
         /// <param name="level">The level.</param>
         T this[int level] { get; }
@@ -18,7 +18,7 @@ namespace TreeStructures {
     }
     /// <summary>Represents a path traversing nodes.</summary>
     /// <typeparam name="T">The data type representing each node.</typeparam>
-    public class NodePath<T> : INodePath<T> {
+    public class NodePath<T> : INodePath<T> ,IEquatable<NodePath<T>> {
         readonly IReadOnlyList<T> _path;
         /// <summary>Initializes a new instance of the class.</summary>
         public NodePath(params T[] path) : this(path ?? Array.Empty<T>().AsEnumerable()) { }
@@ -61,14 +61,15 @@ namespace TreeStructures {
         }
         /// <summary>Determines whether the current object is equal to another object.</summary>
         public override bool Equals(object? obj) {
-            if (obj is NodePath<T> np) {
+            if (obj is INodePath<T> np) {
                 if (this.SequenceEqual(np)) return true;
             }
             return false;
         }
         /// <summary>Returns the hash code representing the current object.</summary>
         public override int GetHashCode() {
-            return this.ToArray().GetHashCode();
+            return this.Aggregate(0,(total,next)=>HashCode.Combine(total,next));
+            //return this.ToArray().GetHashCode();
         }
         IEnumerator<T> IEnumerable<T>.GetEnumerator() {
             return _path.GetEnumerator();
@@ -77,10 +78,25 @@ namespace TreeStructures {
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
             return _path.GetEnumerator();
         }
-    }
+        ///<inheritdoc/>
+		public bool Equals(NodePath<T>? other) {
+            if (other is null) return false;
+            return this.SequenceEqual(other);
+		}
+        /// <inheritdoc/>
+		public static bool operator ==(NodePath<T> left, NodePath<T> right) {
+            if (left is null && right is null) return true;
+            if(left is not null) return left.Equals(right);
+            else return right.Equals(left);
+        }
+        /// <inheritdoc/>
+        public static bool operator !=(NodePath<T> left , NodePath<T> right) {
+            return !(left == right);
+        }
+	}
 
     /// <summary>Represents an index indicating the position of a node in a tree structure.</summary>
-    public struct NodeIndex : INodePath<int> {
+    public readonly struct NodeIndex : INodePath<int>,IEquatable<NodeIndex> {
         readonly IReadOnlyList<int> _nodePath;
         /// <summary>Initializes a new instance.</summary>
         /// <param name="nodePath">Branch indices at each level, excluding the root.</param>
@@ -129,15 +145,20 @@ namespace TreeStructures {
         }
         /// <summary>Determines whether the current object is equal to another object.</summary>
         public override bool Equals(object? obj) {
-            if (obj is NodeIndex) {
-                var ob = (NodeIndex)obj;
+            if (obj is NodeIndex ob) {
+                //var ob = (NodeIndex)obj;
                 if (this.SequenceEqual(ob)) return true;
             }
             return false;
         }
+		public bool Equals(NodeIndex other) {
+            //if(other is null) return false;
+            return this.SequenceEqual(other);
+		}
         /// <summary>Returns the hash code representing the current object.</summary>
         public override int GetHashCode() {
-            return this.ToArray().GetHashCode();
+            return this.Aggregate(0, (total, next) => HashCode.Combine(total, next));
+            //return this.ToArray().GetHashCode();
         }
         IEnumerator<int> IEnumerable<int>.GetEnumerator() {
             if (_nodePath == null) return Array.Empty<int>().GetEnumerator() as IEnumerator<int>;
@@ -182,5 +203,14 @@ namespace TreeStructures {
             });
             return Comparer<NodeIndex>.Create(cpn);
         }
-    }
+
+        /// <inheritdoc/>
+		public static bool operator ==(NodeIndex left, NodeIndex right) {
+			return left.Equals(right);
+		}
+        /// <inheritdoc/>
+		public static bool operator !=(NodeIndex left, NodeIndex right) {
+			return !(left == right);
+		}
+	}
 }

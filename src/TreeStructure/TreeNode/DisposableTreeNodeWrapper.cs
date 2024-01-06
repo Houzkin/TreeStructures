@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace TreeStructures {
-    /// <summary>An object that wraps a <see cref="ITreeNode{TNode}"/> with the ability to pause/resume synchronization and dispose the instance.</summary>
+    /// <summary>An object that wraps a <see cref="ITreeNode{TNode}"/>,providing the ability to dispose of the instance.</summary>
     /// <remarks><inheritdoc/></remarks>
     /// <typeparam name="TSrc">Type of the wrapped node</typeparam>
-    /// <typeparam name="TImtr">Type of the wrapping node</typeparam>
-    public abstract class TreeNodeImitator<TSrc, TImtr> : CompositeImitator<TSrc, TImtr>
+    /// <typeparam name="TWrpr">Type of the wrapping node</typeparam>
+    public abstract class DisposableTreeNodeWrapper<TSrc, TWrpr> : DisposableHierarchyWrapper<TSrc, TWrpr>
     where TSrc : class, ITreeNode<TSrc>
-    where TImtr : TreeNodeImitator<TSrc, TImtr> {
+    where TWrpr : DisposableTreeNodeWrapper<TSrc, TWrpr> {
         /// <summary>Initializes a new instance.</summary>
         /// <param name="sourceNode">The node to be wrapped</param>
-        protected TreeNodeImitator(TSrc sourceNode) : base(sourceNode) { }
+        protected DisposableTreeNodeWrapper(TSrc sourceNode) : base(sourceNode) { }
         /// <summary><inheritdoc/></summary>
         protected override IEnumerable<TSrc>? SourceChildren => Source?.Children;
     }

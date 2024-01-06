@@ -7,7 +7,7 @@ Features:
 
 1. Rich extension methods for `ITreeNode<TNode>`
 1. Achieving mutual references between parent and child nodes
-1. Classes forming a tree structure and their extensibility
+1. Classes forming a tree structure and their Generality
 1. Bidirectional Conversion between Different Data Structures and Tree Structures.
 
 
@@ -18,15 +18,13 @@ These are the four main features of the library.
 ## Namespaces Classification
 
 ### TreeStructures;
-Abstract classes define generic tree nodes, peripheral objects, and event arguments.
+　Abstract classes define generic tree nodes, peripheral objects, and event arguments.
 
 Inheritance diagram of generic tree nodes
+![InheritanceGenericTreeNode](https://github.com/Houzkin/TreeStructures/releases/download/1.3.1/InheritanceGenericTreeNode1-4.png)
 
-![InheritanceGenericTreeNode](https://github.com/Houzkin/TreeStructures/assets/12586097/b5c83d90-5ff8-41e4-a415-2083ed170ba4)
-
-Inheritance diagram of NodePath and NodeIndex (peripheral objects)
-
-![InheritancePeripheralObjects](https://github.com/Houzkin/TreeStructures/assets/12586097/6c81cbde-f6a1-4d82-aa28-fa45a1bcb7bf)
+Inheritance diagram of NodePath and NodeIndex (peripheral objects)  
+![InheritancePeripheralObjects](https://github.com/Houzkin/TreeStructures/releases/download/1.3.1/InheritancePeripheralObjects1-4.png)
 
 ### TreeStructures.Linq;
 　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
@@ -42,7 +40,7 @@ Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 　Purpose-specific trees
  
 ## Usage
-To be documented in the wiki.
+To be documented in the [wiki.](https://github.com/Houzkin/TreeStructures/wiki)
 
 ## Concept
 This library does not aim to be standalone.   
@@ -63,24 +61,23 @@ Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTree
 Assembly Methods: `Convert`, `AssembleTree`, `AssembleAsNAryTree`
 
 ### Mutual References Between Parent and Child Nodes
-Mutual references between parent and child nodes are handled by base classes (`TreeNodeBase<TNode>` or `CompositeWrapper<TSrc,TWrpr>`). 
+Mutual references between parent and child nodes are handled by base classes (`TreeNodeBase<TNode>` or `HierarchyWrapper<TSrc,TWrpr>`). 
 
-In the derived types of `TreeNodeBase<TNode>`, customization can be achieved through protected virtual methods such as `RemoveChildProcess` and `InsertChildProcess`, which are defined as `○○ChildProcess` methods.
+In the derived types of `TreeNodeBase<TNode>`, customization can be achieved through protected virtual methods such as `RemoveChildProcess` and `InsertChildProcess`, which are defined as `●●ChildProcess` methods.
 
 ### Classes Forming a Tree Structure and Their Generality
 If you want to customize in detail, use `TreeNodeBase<TNode>`.   
 For a GeneralTree, if you want to use it as a data structure or container for data, use `GeneralTreeNode<TNode>` or `ObservableTreeNode<TNode>`.   
 If you want to use an N-Ary Tree with a fixed number of branches and empty nodes set to null, use `NAryTreeNode<TNode>`.   
-If you want to use it as a wrapper for objects or tree structure that forms the Composite pattern, use `(Composite | TreeNode) Wrapper<TSrc,TWrpr>`.   
-If you need a Wrapper that, in addition to its wrapper functionality, can temporarily pause/resume instance disposal and wrapping, as is the case with ViewModel in MVVM, use `(Composite | TreeNode) Imitator<TSrc,TImtr>`.   
-Inherit and use each as needed.
+If you want to use it as a wrapper for objects or tree structure that forms the hierarchy, use `(Hierarchy | TreeNode) Wrapper<TSrc,TWrpr>`.   
+If you need to describe resource disposal in addition to its role as a wrapper, inherit and use `Disposable(Hierarchy | TreeNode)Wrapper<TSrc,TWrpr>`.
 
 In `TreeNodeBase<TNode>` and its derived types, you can customize the collections used internally and those exposed externally by overriding the `Setup(Inner | Public)ChildCollection` methods.  
-`CompositeWrapper<TSrc,TWrpr>` and its derived types allow customization only of the collection exposed externally.  
+`HierarchyWrapper<TSrc,TWrpr>` and its derived types allow customization only of the collection exposed externally.  
   
 ### Bidirectional Conversion between Different Data Structures and Tree Structures.
 Support is provided for exte `ITreeNode<TNode>` methods to objects that do not implement `ITreeNode<TNode>`.  
-This is achieved by wrapping objects in a `CompositeWrapper<TSrc,TWrpr>` or `CompositeImitator<TSrc,TImtr>`, or by calling `AsValuedTreeNode` to provide the extension methods of `ITreeNode<TNode>`.  
+This is achieved by wrapping objects in a `HierarchyWrapper<TSrc,TWrpr>` or `DisposableHierarchyWrapper<TSrc,TWrpr>`, or by calling `AsValuedTreeNode` to provide the extension methods of `ITreeNode<TNode>`.  
   
 Furthermore, various methods for mutual conversion, such as `Convert`, `AssembleTree`, and `ToNodeMap`, are available through extension methods.  
 

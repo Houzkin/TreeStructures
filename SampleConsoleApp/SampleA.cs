@@ -48,7 +48,22 @@ public static　partial class SampleA {
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
         Console.WriteLine("Displaying height, level, and node index as additional information.");
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},NodeIndex:{x.NodeIndex()}"));
-        A.Disassemble();
+
+
+        Console.WriteLine("nodeN を nodeE の子ノードへ移動");
+        E.AddChild(N);
+        Console.WriteLine(A.ToTreeDiagram(x => x.Name));
+
+		Console.WriteLine("nodeB を nodeF の子ノードへ移動(失敗：循環するため追加できない)");
+		F.AddChild(B);
+		Console.WriteLine(A.ToTreeDiagram(x => x.Name));
+
+        Console.WriteLine("nodeA に nodeD を追加(失敗：重複する子ノードは追加できない)");
+        A.AddChild(D);
+        Console.WriteLine(A.ToTreeDiagram(x => x.Name));
+
+
+		A.Disassemble();
         Console.ReadLine();
 
         Console.WriteLine("Assembling from a Dictionary with specified indices.");

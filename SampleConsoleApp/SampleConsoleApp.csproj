@@ -15,4 +15,8 @@
     <Folder Include="Useage\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Interactive" Version="6.0.1" />
+  </ItemGroup>
+
 </Project>

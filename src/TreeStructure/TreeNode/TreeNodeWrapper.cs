@@ -9,7 +9,7 @@ namespace TreeStructures {
     /// <remarks>Intended for exposing a mutable tree structure as a read-only or restricted data structure.</remarks>
     /// <typeparam name="TSrc">Type of the node to be wrapped</typeparam>
     /// <typeparam name="TWrpr">Type of the wrapper node</typeparam>
-    public abstract class TreeNodeWrapper<TSrc,TWrpr> : CompositeWrapper<TSrc,TWrpr>
+    public abstract class TreeNodeWrapper<TSrc,TWrpr> : HierarchyWrapper<TSrc,TWrpr>
         where TSrc : class, ITreeNode<TSrc>
         where TWrpr : TreeNodeWrapper<TSrc,TWrpr> {
 

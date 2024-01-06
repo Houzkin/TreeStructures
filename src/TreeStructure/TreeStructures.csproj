@@ -8,7 +8,7 @@
     <Authors>houzkin</Authors>
     <Copyright>houzkin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>This is a C# library designed for effectively handling tree structures.  
 Emphasizing flexibility and extensibility, the library allows easy manipulation of various tree structures.
