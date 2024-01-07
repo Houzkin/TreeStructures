@@ -1,11 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
+// See https://aka.ms/new-console-template for more information
 using SampleConsoleApp;
+using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!");
-SampleD.Method2();
-SampleE.Method();
-SampleA.Method();
-SampleD.Method();
-SampleC.Method1();
-SampleA.Method();
-SampleB.Method();
+MethodA();
+MethodB();
+MethodC();
+MethodD();
+MethodDD();
+MethodE();

@@ -16,8 +16,8 @@ public class NamedNode : GeneralTreeNode<NamedNode> {
     }
 
 }
-public static　partial class SampleA {
-    public static void Method() {
+public static　partial class UseageSample {
+    public static void MethodA() {
         var A = new NamedNode { Name = "A" };
         var B = new NamedNode { Name = "B"};
         var C = new NamedNode { Name = "C"};
@@ -50,21 +50,21 @@ public static　partial class SampleA {
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},NodeIndex:{x.NodeIndex()}"));
 
 
-        Console.WriteLine("nodeN を nodeE の子ノードへ移動");
+        Console.WriteLine("Move nodeN to be a child node of nodeE");
         E.AddChild(N);
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
 
-		Console.WriteLine("nodeB を nodeF の子ノードへ移動(失敗：循環するため追加できない)");
+		Console.WriteLine("Move nodeB to be a child node of nodeF (Failure: Cannot add due to cyclic relationship)");
 		F.AddChild(B);
 		Console.WriteLine(A.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine("nodeA に nodeD を追加(失敗：重複する子ノードは追加できない)");
+        Console.WriteLine("Add nodeD to nodeA (Failure: Cannot add duplicate child nodes)");
         A.AddChild(D);
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
 
 
 		A.Disassemble();
-        Console.ReadLine();
+        //Console.ReadLine();
 
         Console.WriteLine("Assembling from a Dictionary with specified indices.");
         var dic = new Dictionary<int[], NamedNode>() {
@@ -90,7 +90,7 @@ public static　partial class SampleA {
         Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},BranchIndex:{x.BranchIndex()},NodePath:{x.NodePath(y=>y.Name)}"));
 
         A.Disassemble(); 
-        Console.ReadLine();
+        //Console.ReadLine();
 
 
         Console.WriteLine("Building a collection as an N-ary tree.");
@@ -122,6 +122,6 @@ public static　partial class SampleA {
         Console.WriteLine($"Width:{nodeR.Width()}");
         Console.WriteLine($"Root:{nodeR.Root().Name}");
 
-        Console.ReadLine();
+        //Console.ReadLine();
     }
 }

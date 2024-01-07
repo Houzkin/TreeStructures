@@ -12,8 +12,8 @@ namespace SampleConsoleApp;
 public class NamedBinaryNode : BinaryTreeNode<NamedBinaryNode> {
     public string Name { get; set; }
 }
-internal class SampleC {
-    public static void Method1() {
+public static partial class UseageSample {
+    public static void MethodC() {
 
         Console.WriteLine("Create a binary tree.");
         var A = new NamedBinaryNode() { Name = "A" };

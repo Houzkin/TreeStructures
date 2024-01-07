@@ -37,8 +37,8 @@ public class OtherHierarchyWrapper : HierarchyWrapper<OtherHierarchy, OtherHiera
 	}
 	public string SourceName => Source.Name;
 }
-internal class SampleD {
-	public static void Method(){
+public static partial class UseageSample {
+	public static void MethodD(){
 
 		var dic = new Dictionary<int[], string>() {
 			[new int[] { }] = "A",
@@ -76,7 +76,7 @@ internal class SampleD {
 		Console.WriteLine(valuedNode.ToTreeDiagram(x => x.Value));
 
 	}
-	public static void Method2(){
+	public static void MethodDD(){
 		var root = "ABCDEFG".ToCharArray().Select(x=>x.ToString()).AssembleAsNAryTree(2,x=>new NamedNode(){ Name = x });
 		var wrpRt = root.AsValuedTreeNode(x=>x.Name);
 		root.Preorder().First(x => x.Name == "B").TryRemoveOwn();

@@ -18,8 +18,8 @@ public class ObservableNamedNode: ObservableGeneralTreeNode<ObservableNamedNode>
     }
 }
 
-public static class SampleB {
-    public static void Method() {
+public static partial class UseageSample {
+    public static void MethodB() {
         Console.WriteLine("Building a collection as an N-ary tree.");
 
         var nodesDic = "ABCDEFGHI".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableNamedNode() { Name = x });
@@ -28,10 +28,10 @@ public static class SampleB {
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
         EventHandler<StructureChangedEventArgs<ObservableNamedNode>> structreChangedHdlr = (s, e) => {
-            Console.WriteLine($"sender:{s} \nTarget:{e.Target} TreeAction:{e.TreeAction} PreviousParentOfTarget:{e.PreviousParentOfTarget} OldIndex:{e.OldIndex} AncestorWasChanged:{e.IsAncestorChanged} DescendantWasChanged:{e.IsDescendantChanged}");
+            Console.WriteLine($"sender:{s} \nTarget:{e.Target} TreeAction:{e.TreeAction} PreviousParentOfTarget:{e.PreviousParentOfTarget} OldIndex:{e.OldIndex} IsAncestorChanged:{e.IsAncestorChanged} IsDescendantChanged:{e.IsDescendantChanged}");
             if (e.IsAncestorChanged) {
                 var info = e.AncestorInfo!;
-                Console.WriteLine($"MovedTarget:{info.MovedTarget} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget} RootWasChanged:{info.IsRootChanged}");
+                Console.WriteLine($"MovedTarget:{info.MovedTarget} OldIndex:{info.OldIndex} PreviousParentOfTarget:{info.PreviousParentOfTarget} IsRootChanged:{info.IsRootChanged}");
             } 
             if (e.IsDescendantChanged) {
                 var info = e.DescendantInfo!;

@@ -180,7 +180,7 @@ namespace TreeStructures.Collections {
         /// <summary><inheritdoc/></summary>
         /// <param name="disposing"></param>
         protected override void Dispose(bool disposing) {
-            if(disposing) { this.PauseImitationAndClear(); }
+            if(disposing) { this.PauseImitateAndClear(); }
             base.Dispose(disposing);
         }
         /// <summary>Indicates whether the current state is in synchronization.</summary>
@@ -202,7 +202,7 @@ namespace TreeStructures.Collections {
             }
         }
         /// <summary>Stops synchronization and clears the imitable collection.</summary>
-        public void PauseImitationAndClear() {
+        public void PauseImitateAndClear() {
             if(!SwitchConnection(false)) return;
             this.Disposables.Dispose();
             _references.Clear();

@@ -34,7 +34,7 @@ namespace TreeStructures {
             => new ReadOnlyObservableCollection<TNode>((innerCollection as ObservableCollection<TNode>)!);
         
         IDisposable DeferParentChangedNotification() {
-            return UniqueExcutor.LateEvalute(parentchangedeventkey, () => Parent);
+            return UniqueExcutor.LateEvaluate(parentchangedeventkey, () => Parent);
         }
         readonly string parentchangedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>)+ "." + nameof(Parent);
         readonly string disposedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>) + "." + nameof(Disposed);

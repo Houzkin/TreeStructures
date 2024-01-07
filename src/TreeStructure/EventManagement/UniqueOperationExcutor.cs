@@ -36,7 +36,7 @@ namespace TreeStructures.EventManagement {
         /// <param name="getPropertyValue">Specifies the value to evaluate.</param>
         /// <returns></returns>
         /// <exception cref="KeyNotFoundException">Thrown when no operation is registered for <paramref name="key"/>.</exception>
-        public IDisposable LateEvalute<TProp>(string key,Func<TProp> getPropertyValue) {
+        public IDisposable LateEvaluate<TProp>(string key,Func<TProp> getPropertyValue) {
             var ele = ResultWith<CountOperationPair>.Of(Operations.TryGetValue, key).When(
                 o => { o.Count++; return o; },
                 x => throw new KeyNotFoundException("The specified key is not registered."));

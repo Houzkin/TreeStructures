@@ -6,89 +6,96 @@ using System.Threading.Tasks;
 using TreeStructures;
 using TreeStructures.Linq;
 
-namespace SampleConsoleApp {
+namespace SampleConsoleApp;
 
-	public interface IMemberNode {
-		string MemberName { get; }
-		int Followers { get; }
+public interface IMemberNode {
+	string MemberName { get; }
+	int Followers { get; }
+}
+public class MemberNode : GeneralTreeNode<MemberNode>,IMemberNode{
+	public MemberNode(string name) { MemberName = name; }
+
+	public string MemberName { get; }
+	public int Followers => this.Preorder().Count() - 1;
+}
+public class ObservableMemberNode : ObservableGeneralTreeNode<ObservableMemberNode>, IMemberNode {
+	public ObservableMemberNode(string name){
+		MemberName = name;
+		this.StructureChanged += Member_StructureChanged;
 	}
-	public class MemberNode : GeneralTreeNode<MemberNode>,IMemberNode{
-		public MemberNode(string name) { MemberName = name; }
 
-		public string MemberName { get; }
-		public int Followers => this.Preorder().Count() - 1;
+	private void Member_StructureChanged(object? sender, StructureChangedEventArgs<ObservableMemberNode> e) {
+		if(e.IsDescendantChanged && e.DescendantInfo!.SubTreeAction != TreeNodeChangedAction.Move){
+			this.RaisePropertyChanged(nameof(Followers));
+		}
 	}
-	public class ObservableMemberNode : ObservableGeneralTreeNode<ObservableMemberNode>, IMemberNode {
-		public ObservableMemberNode(string name){
-			MemberName = name;
-			this.StructureChanged += Member_StructureChanged;
-		}
 
-		private void Member_StructureChanged(object? sender, StructureChangedEventArgs<ObservableMemberNode> e) {
-			if(e.IsDescendantChanged && e.DescendantInfo!.SubTreeAction != TreeNodeChangedAction.Move){
-				this.RaisePropertyChanged(nameof(Followers));
-				//if(e.Target.TotalScore >0) this.Upstream().ForEach(x=>x.RaisePropertyChanged(nameof(TotalScore)));
-			}
-		}
+	public string MemberName { get; }
+	public int Followers => this.Preorder().Count() - 1;
+}
+public class MemberWrapper<TSrc> : TreeNodeWrapper<TSrc,MemberWrapper<TSrc>> where TSrc:class,ITreeNode<TSrc>,IMemberNode{
+	public MemberWrapper(TSrc member) : base(member) { }
 
-		public string MemberName { get; }
-		public int Followers => this.Preorder().Count() - 1;
-		//int _score;
-		//public int Score {
-		//	get { return this._score; }
-		//	set {
-		//		if(this.SetProperty(ref _score, value)){
-		//			this.Ancestors().ForEach(x => x.RaisePropertyChanged(nameof(TotalScore)));
-		//		} 
-		//	}
-		//}
-		//public void AddScore(int point){
-		//	Score += point;
-		//}
-		//public int TotalScore => this.Preorder().Sum(x => x.Score);
-
+	protected override MemberWrapper<TSrc> GenerateChild(TSrc sourceChildNode) {
+		return new MemberWrapper<TSrc>(sourceChildNode);
 	}
-	public class MemberImitator<TSrc>:DisposableTreeNodeWrapper<TSrc,MemberImitator<TSrc>>
-	where TSrc:class, ITreeNode<TSrc>,IMemberNode{ 
-		public MemberImitator(TSrc member):base(member){ 
-		}
-		//protected override MemberImitator GenerateChild(ObservableMemberNode sourceChildNode) {
-		//	return new MemberImitator(sourceChildNode);
-		//}
-
-		protected override MemberImitator<TSrc> GenerateChild(TSrc sourceChildNode) {
-			return new MemberImitator<TSrc>(sourceChildNode);
-		}
-
-		public string MemberName => Source.MemberName;
-		public int Followers => Source.Followers;
-		public int ImitatingFollowers => this.Preorder().Count() - 1;
-		public int Point { get; set; }
+	public string MemberName=>Source.MemberName;
+	public int Followers => Source.Followers;
+	public int WrappingFollowers => this.Preorder().Count() - 1;
+}
+public class DisposableMemberWrapper<TSrc>:DisposableTreeNodeWrapper<TSrc,DisposableMemberWrapper<TSrc>>
+where TSrc:class, ITreeNode<TSrc>,IMemberNode{ 
+	public DisposableMemberWrapper(TSrc member):base(member){ 
 	}
-	internal class SampleE {
-		public static void Method(){
-			var members = "ABCDEFGHIJ".ToCharArray().Select(x=>x.ToString()).ToDictionary(x => x, x => new MemberNode(x));
+	protected override DisposableMemberWrapper<TSrc> GenerateChild(TSrc sourceChildNode) {
+		return new DisposableMemberWrapper<TSrc>(sourceChildNode);
+	}
 
-			var memberRoot = members.AssembleAsNAryTree(2, x =>x.Value);
+	public string MemberName => Source.MemberName;
+	public int Followers => Source.Followers;
+	public int WrappingFollowers => this.Preorder().Count() - 1;
+}
+public static partial class UseageSample {
+	public static void MethodE(){
+		var members = "ABCDEFGHIJ".ToCharArray().Select(x=>x.ToString()).ToDictionary(x => x, x => new ObservableMemberNode(x));
 
-			var wrpMemberRoot = new MemberImitator<MemberNode>(memberRoot);
-			wrpMemberRoot.Preorder().ForEach(x => x.Point = x.Height());
+		var memberRoot = members.Values.AssembleAsNAryTree(2);
 
-			//Console.WriteLine(memberRoot.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}" ));
-			Console.WriteLine("initial state.");
-			Console.WriteLine(wrpMemberRoot.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, Point:{x.Point}"));
+		var wrpMemberRt = new MemberWrapper<ObservableMemberNode>(memberRoot);
 
-			Console.WriteLine("remove node B");
-			var memberB = memberRoot.Levelorder().First(x => x.MemberName == "B").TryRemoveOwn().Value;
-			Console.WriteLine(wrpMemberRoot.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, Point:{x.Point}"));
+		var dispoWrpMemberRt = new DisposableMemberWrapper<ObservableMemberNode>(memberRoot);
+
+		Console.WriteLine("initial state of Wrapper");
+		Console.WriteLine(wrpMemberRt.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}"));
+
+		Console.WriteLine("initial state of DisposableWrapper.");
+		Console.WriteLine(dispoWrpMemberRt.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, IsDisposed:{x.IsDisposed}"));
+
+		var wrpB = wrpMemberRt.Preorder().First(x => x.MemberName == "B");
+		var dspWrpB = dispoWrpMemberRt.Preorder().First(x=> x.MemberName == "B");
+
+		Console.WriteLine("remove node B\n");
+		memberRoot.Levelorder().First(x => x.MemberName == "B").TryRemoveOwn();
+
+		Console.WriteLine("each root wrappers");
+		Console.WriteLine(wrpMemberRt.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}"));
+		Console.WriteLine(dispoWrpMemberRt.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, IsDisposed:{x.IsDisposed}"));
 
 
-			//wrpMemberRoot.Levelorder().First(x => x.MemberName == "A").PauseImitation();
-			//wrpMemberRoot.Levelorder().First(x => x.MemberName == "A").ImitateSourceSubTree();
-			memberRoot.AddChild(memberB);
-			//wrpMemberRoot.RefreshHierarchy();
-			Console.WriteLine(wrpMemberRoot.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, Point:{x.Point}"));
+		Console.WriteLine("each nodeB wrappers");
+		Console.WriteLine(wrpB.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}"));
+		Console.WriteLine(dspWrpB.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, IsDisposed:{x.IsDisposed}"));
 
-		}
+
+		Console.WriteLine("Dispose node C wrapper");
+		dispoWrpMemberRt.Preorder().First(x => x.MemberName == "C").Dispose();
+		Console.WriteLine(dispoWrpMemberRt.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}, IsDisposed:{x.IsDisposed}"));
+		//wrpMemberRoot.Levelorder().First(x => x.MemberName == "A").PauseImitation();
+		//wrpMemberRoot.Levelorder().First(x => x.MemberName == "A").ImitateSourceSubTree();
+		//memberRoot.AddChild(memberB);
+		//wrpMemberRoot.RefreshHierarchy();
+		//Console.WriteLine(dispoWrpMemberRt.ToTreeDiagram(x => $"name:{x.MemberName}, Followers:{x.Followers}"));
+
 	}
 }
+

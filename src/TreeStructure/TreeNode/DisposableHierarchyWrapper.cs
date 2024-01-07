@@ -89,7 +89,7 @@ namespace TreeStructures {
                     .Skip(1).Reverse().OfType<IDisposable>().ToArray();
                 foreach (var n in nd) n.Dispose();
                 InnerChildren.Dispose();
-                this.Parent = null;
+                //this.Parent = null;
             }
             isDisposed = true;
         }
