@@ -8,7 +8,7 @@
     <Authors>houzkin</Authors>
     <Copyright>houzkin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>This is a C# library designed for effectively handling tree structures.  
 Emphasizing flexibility and extensibility, the library allows easy manipulation of various tree structures.
@@ -22,7 +22,7 @@ Features:
     <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

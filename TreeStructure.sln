@@ -9,6 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProgram", "TestProgram\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleConsoleApp", "SampleConsoleApp\SampleConsoleApp.csproj", "{02F2FBD0-682B-489D-929A-22D05E1F8A03}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{9192F4EC-5665-4BA3-AED3-11DCADE1B5AE}"
+	ProjectSection(SolutionItems) = preProject
+		images\InheritanceGenericTreeNode.png = images\InheritanceGenericTreeNode.png
+		images\InheritancePeripheralObjects.png = images\InheritancePeripheralObjects.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
