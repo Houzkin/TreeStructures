@@ -23,7 +23,7 @@ namespace TreeStructures {
     /// </summary>
     /// <typeparam name="TSrc">Type representing the hierarchy object</typeparam>
     /// <typeparam name="TWrpr">Type of the wrapper node</typeparam>
-    public abstract class HierarchyWrapper<TSrc,TWrpr> : ITreeNode<TWrpr> ,INotifyPropertyChanged, /*IDisposable,*/IEquatable<HierarchyWrapper<TSrc,TWrpr>>
+    public abstract class HierarchyWrapper<TSrc,TWrpr> : ITreeNode<TWrpr> , IEquatable<HierarchyWrapper<TSrc,TWrpr>>
         where TSrc : class
         where TWrpr:HierarchyWrapper<TSrc,TWrpr> {
 
@@ -35,34 +35,21 @@ namespace TreeStructures {
         protected HierarchyWrapper(TSrc source) { 
             Source = source;
         }
-        #region NotifyPropertyChanged
-        PropertyChangeProxy? _propChangeProxy;
-        PropertyChangeProxy PropChangeProxy => _propChangeProxy ??= new PropertyChangeProxy(this);
-        /// <summary><inheritdoc/></summary>
-        public event PropertyChangedEventHandler? PropertyChanged {
-            add { this.PropChangeProxy.PropertyChanged += value; }
-            remove { this.PropChangeProxy.PropertyChanged -= value; }
-        }
-        /// <summary>
-        /// Performs the change of value and issues a change notification.
-        /// </summary>
-        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
-            PropChangeProxy.SetWithNotify(ref storage, value, propertyName);
-        /// <summary>
-        ///  Issues a property change notification.
-        /// </summary>
-        /// <param name="propertyName"></param>
-        protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null) =>
-            PropChangeProxy.Notify(propertyName);
-        #endregion
-
+        
         TWrpr? _parent;
         /// <summary><inheritdoc/></summary>
         public TWrpr? Parent { 
             get { return _parent; }
-            private protected set {
-                SetProperty(ref _parent, value);
-            }
+            //private protected set {
+            //    //SetProperty(ref _parent, value);
+            //    if (_parent == value) return;
+            //    _parent = value;
+            //}
+        }
+        private protected virtual bool SetParent(TWrpr? parent){
+            if (object.ReferenceEquals(_parent,parent)) return false;
+            _parent = parent;
+            return true;
         }
         /// <summary>Specifies a reference to the source's child node collection. Implementing <see cref="INotifyCollectionChanged"/> is not required if synchronization is not intended.</summary>
         protected abstract IEnumerable<TSrc>? SourceChildren { get; }
@@ -92,99 +79,31 @@ namespace TreeStructures {
                 throw new NullReferenceException( msg, e);
             }
             if(cld != null) {
-                cld.Parent = this as TWrpr;
+                //cld.Parent = this as TWrpr;
+                cld.SetParent(this as TWrpr);
                 cld.IsImitating = true;
                 cld._innerChildren?.Imitate();
             }
             return cld;
         }
         void _HandleRemovedChild(TWrpr removeNode){
-            removeNode.Parent = null;
+            //removeNode.Parent = null;
+            removeNode.SetParent(null);
             //removeNode.PauseImitation();
             HandleRemovedChild(removeNode);
         }
-		/// <summary>Handles processing of a decomposed child node.</summary>
-		/// <remarks>This method is intended to be overridden in derived classes to add specific processing for an already decomposed child node.</remarks>
-		/// <param name="removedNode">Removed child node</param>
-		protected virtual void HandleRemovedChild(TWrpr removedNode) {
-            //(removedNode as IDisposable)?.Dispose();
-            //removedNode.PauseImitation();
-        }
+        /// <summary>Handles processing of a decomposed child node.</summary>
+        /// <remarks>This method is intended to be overridden in derived classes to add specific processing for an already decomposed child node.</remarks>
+        /// <param name="removedNode">Removed child node</param>
+        protected virtual void HandleRemovedChild(TWrpr removedNode) { }
+
+        
         bool _isImitating = true;
         /// <summary>Parameter indicating the state of whether the child node collection is in the imitating state when generating an instance.</summary>
         private protected bool IsImitating {
             get { return _isImitating; }
             set { if (_isImitating != value) _isImitating = value; }
         }
-        //private bool isDisposed;
-        ///// <summary></summary>
-        ///// <param name="disposing"></param>
-        //protected virtual void Dispose(bool disposing) {
-        //    if (disposing) {
-        //        this.Parent = null;
-        //        var nd = this
-        //            .Evolve(a => {
-        //                a.IsImitating = false;
-        //                return a.InnerChildren;
-        //            }, (a, b, c) => b.Prepend(a).Concat(c))
-        //            .Skip(1).Reverse().OfType<IDisposable>().ToArray();
-        //        InnerChildren.Dispose();
-        //        foreach (var n in nd) n.Dispose();
-        //    }
-        //    isDisposed = true;
-        //}
-        ///// <summary>Prohibits operations on an instance that has already been disposed.</summary>
-        //protected void ThrowExceptionIfDisposed() {
-        //    if (isDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
-        //}
-        //void IDisposable.Dispose() {
-        //    if (isDisposed) return;
-        //    Dispose(disposing: true);
-        //    GC.SuppressFinalize(this);
-        //}
-
-      
-
-
-
-		//private IReadOnlyList<TWrpr> StopImitateProcess() {
-		//	var lst = this
-		//		.Evolve(a => {
-		//			a.IsImitating = false;
-		//			return a.InnerChildren;
-		//		}, (a, b, c) => b.Prepend(a).Concat(c))
-		//		.Skip(1).Reverse().ToList();
-		//	foreach (var item in lst) {
-		//		item.StopImitateProcess();
-		//	}
-		//	InnerChildren.PauseImitationAndClear();
-		//	this.Parent = null;
-		//	lst.Add((this as TWrpr)!);
-		//	return lst;
-		//}
-		///// <summary>
-		///// Disassembles descendant nodes and unsubscribes from the <see cref="HierarchyWrapper{TSrc, TWrpr}.SourceChildren"/> of each node, including the current node.
-		///// </summary>
-		///// <returns>The disassembled descendant nodes.</returns>
-		//private void PauseImitation() {
-		//	this.IsImitating = false;
-		//	var rmc = InnerChildren.Select(x => x.StopImitateProcess()).SelectMany(x => x).ToArray();
-		//	InnerChildren.PauseImitationAndClear();
-		//	//return rmc ?? Array.Empty<TWrpr>();
-
-		//}
-  //      /// <summary>Resume subscription to <see cref="CompositeWrapper{TSrc, TWrpr}.SourceChildren"/> and imitate descendant nodes.</summary>
-  //      private protected void ImitateSourceSubTree() {
-  //          //ThrowExceptionIfDisposed();
-  //          this.IsImitating = true;
-  //          InnerChildren.Imitate();
-  //      }
-
-
-
-
-
-
 
 
         /// <inheritdoc/>

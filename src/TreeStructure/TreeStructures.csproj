@@ -22,16 +22,13 @@ Features:
     <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.4.1</Version>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>1.4.2</Version>
+    <PackageReadmeFile></PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/Houzkin/TreeStructures</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\icon\treestrucuture.jpg">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

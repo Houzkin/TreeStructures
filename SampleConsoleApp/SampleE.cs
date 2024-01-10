@@ -43,7 +43,7 @@ public class MemberWrapper<TSrc> : TreeNodeWrapper<TSrc,MemberWrapper<TSrc>> whe
 	public int Followers => Source.Followers;
 	public int WrappingFollowers => this.Preorder().Count() - 1;
 }
-public class DisposableMemberWrapper<TSrc>:DisposableTreeNodeWrapper<TSrc,DisposableMemberWrapper<TSrc>>
+public class DisposableMemberWrapper<TSrc>:BindableTreeNodeWrapper<TSrc,DisposableMemberWrapper<TSrc>>
 where TSrc:class, ITreeNode<TSrc>,IMemberNode{ 
 	public DisposableMemberWrapper(TSrc member):base(member){ 
 	}

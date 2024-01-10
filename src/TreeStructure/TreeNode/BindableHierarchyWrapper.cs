@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using TreeStructures.EventManagement;
 using TreeStructures.Linq;
 
 namespace TreeStructures {
-	/// <summary>An object that encapsulates a hierarchy, providing the ability to dispose of the instance.</summary>
-	/// <remarks>If resource disposal is necessary, please inherit and use this class.</remarks>
+	/// <summary>Represents an object that wraps a hierarchal structure and is bindable to data.</summary>
 	/// <typeparam name="TSrc">Type of the object forming the hierarchical structure</typeparam>
 	/// <typeparam name="TWrpr">Type of the wrapper node</typeparam>
-	public abstract class DisposableHierarchyWrapper<TSrc, TWrpr> : HierarchyWrapper<TSrc, TWrpr>,IDisposable
+	public abstract class BindableHierarchyWrapper<TSrc, TWrpr> : HierarchyWrapper<TSrc, TWrpr>,INotifyPropertyChanged,IDisposable
         where TSrc : class
-        where TWrpr : DisposableHierarchyWrapper<TSrc, TWrpr> {
+        where TWrpr : BindableHierarchyWrapper<TSrc, TWrpr> {
 
         /// <summary>Initializes a new instance of the class.</summary>
         /// <param name="source">The node to be wrapped.</param>
-        protected DisposableHierarchyWrapper(TSrc source) : base(source) { }
+        protected BindableHierarchyWrapper(TSrc source) : base(source) { }
 
         /// <summary>Handles the removed child node.</summary>
         /// <remarks>
@@ -30,6 +32,34 @@ namespace TreeStructures {
             this.ThrowExceptionIfDisposed();
 			return base.GenerateAndSetupChild(sourceChildNode);
 		}
+		private protected override bool SetParent(TWrpr? parent) {
+			if(base.SetParent(parent)){
+				this.RaisePropertyChanged(nameof(Parent));
+				return true;
+			}
+			return false;
+		}
+		#region NotifyPropertyChanged
+		PropertyChangeProxy? _propChangeProxy;
+        PropertyChangeProxy PropChangeProxy => _propChangeProxy ??= new PropertyChangeProxy(this);
+        /// <summary><inheritdoc/></summary>
+        public event PropertyChangedEventHandler? PropertyChanged {
+            add { this.PropChangeProxy.PropertyChanged += value; }
+            remove { this.PropChangeProxy.PropertyChanged -= value; }
+        }
+        /// <summary>
+        /// Performs the change of value and issues a change notification.
+        /// </summary>
+        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
+            PropChangeProxy.SetWithNotify(ref storage, value, propertyName);
+        /// <summary>
+        ///  Issues a property change notification.
+        /// </summary>
+        /// <param name="propertyName"></param>
+        protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null) =>
+            PropChangeProxy.Notify(propertyName);
+        #endregion
+
 		//private IReadOnlyList<TImtr> StopImitateProcess() {
 		//    this.Parent = null;
 		//    var lst = this
