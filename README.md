@@ -78,7 +78,7 @@ In `TreeNodeBase<TNode>` and its derived types, you can customize the collection
   
 ### Bidirectional Conversion between Different Data Structures and Tree Structures.
 Support is provided for exte `ITreeNode<TNode>` methods to objects that do not implement `ITreeNode<TNode>`.  
-This is achieved by wrapping objects in a `HierarchyWrapper<TSrc,TWrpr>` or `DisposableHierarchyWrapper<TSrc,TWrpr>`, or by calling `AsValuedTreeNode` to provide the extension methods of `ITreeNode<TNode>`.  
+This is achieved by wrapping objects in a `HierarchyWrapper<TSrc,TWrpr>` or `BindableHierarchyWrapper<TSrc,TWrpr>`, or by calling `AsValuedTreeNode` to provide the extension methods of `ITreeNode<TNode>`.  
   
 Furthermore, various methods for mutual conversion, such as `Convert`, `AssembleTree`, and `ToNodeMap`, are available through extension methods.  
 
