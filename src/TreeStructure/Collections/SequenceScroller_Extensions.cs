@@ -113,7 +113,8 @@ namespace TreeStructures.Collections {
         /// <param name="count">移動距離を表す、0以上の値</param>
         public static ISequenceScroller<T> Previous<T>(this ISequenceScroller<T> scroller, int count) {
             if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
-            return scroller.Move(count);
+            var cnt = count * -1;
+            return scroller.Move(cnt);
         }
         /// <summary>現在位置より前方の、条件を満たす位置へ移動する。</summary>
         /// <typeparam name="T">要素の型</typeparam>
@@ -211,6 +212,7 @@ namespace TreeStructures.Collections {
                 return new ResultWithValue<ISequenceScroller<T>>(false, scroller);
         }
         #endregion first last
+
         /// <summary>シーケンス内に指定した要素が存在する場合、その位置へ移動する。</summary>
         /// <typeparam name="T">要素の型</typeparam>
         /// <param name="scroller">対象インスタンス</param>

@@ -20,15 +20,22 @@ namespace TreeStructures.Linq {
         where T : ITreeNode<T> {
             if (generator == null) throw new ArgumentNullException(nameof(generator));
             if (addAction == null) throw new ArgumentNullException(nameof(addAction));
-            var vst = self.Postorder()
-                .Select(x => Tuple.Create(x, generator(x)))
-                .ToSequenceScroller();//new ElementScroller<Tuple<T, U>>(t);
-            foreach (var tr in vst.GetSequence()) {
-                vst.MoveTo(tr)
-                    .TryNext(x => x.Item1.Children.Contains(tr.Item1))
+            var v = self.Levelorder().Select(x => Tuple.Create(x, generator(x))).ToSequenceScroller();
+            foreach(var tr in v.GetSequence()){
+                v.MoveTo(tr)
+                    .TryPrevious(x => x.Item1.Children.Contains(tr.Item1))
                     .When(r => addAction(tr.Item1.BranchIndex(), r.Current.Item2, tr.Item2));
             }
-            return vst.Current.Item2;
+            return v.First().Current.Item2;
+            //var vst = self.Postorder()
+            //    .Select(x => Tuple.Create(x, generator(x)))
+            //    .ToSequenceScroller();
+            //foreach (var tr in vst.GetSequence()) {
+            //    vst.MoveTo(tr)
+            //        .TryNext(x => x.Item1.Children.Contains(tr.Item1))
+            //        .When(r => addAction(tr.Item1.BranchIndex(), r.Current.Item2, tr.Item2));
+            //}
+            //return vst.Current.Item2;
         }
         /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
         /// <typeparam name="T">Type before conversion.</typeparam>

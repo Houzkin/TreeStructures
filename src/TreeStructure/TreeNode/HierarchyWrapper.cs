@@ -108,7 +108,9 @@ namespace TreeStructures {
 
         /// <inheritdoc/>
         public bool Equals(HierarchyWrapper<TSrc, TWrpr>? other) {
-            if (other is null || other.Source is null) return false;
+            if (other is null) return false;
+            if (other.Source is null && this.Source is null) return object.ReferenceEquals(this, other);
+            //if (other is null || other.Source is null) return false;
             return object.ReferenceEquals(this.Source, other.Source);
 		}
 		/// <inheritdoc/>
