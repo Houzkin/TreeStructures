@@ -66,7 +66,7 @@ TreeNodeBaseの派生型では、RemoveChildProcess、InsertChildProcessなど�
 GeneralTreeで、データ構造またはデータのコンテナとして使用するならGeneralTreeNodeまたはObservableTreeNode、  
 Branchの数を固定して、空のノードをnullとするN-Ary Treeとして使用するのであればNAryTreeNode、  
 Compositeパターンをなすオブジェクトまたはツリー構造の、ラッパークラスとして使用するならば(Composite | TreeNode) Wrapper、  
-ラッパーとしての機能に加え、MVVMにおけるViewModelなど、インスタンスの破棄とラップを一時的に停止・再開が可能なオブジェクトとして使用する場合は(Composite | TreeNode) Imitator  
+ラッパーとしての機能に加え、MVVMにおけるViewModelなど、観測可能且つインスタンスの破棄が必要な場合はBindable(Hierarchy | TreeNode) Wrapper  
 をそれぞれ継承して使用してください。
 
 TreeNodeBaseとその派生型ではSetup(Inner | Public)ChildCollectionメソッドをオーバーライドすることで、内部で扱うコレクションと外部に公開するコレクションをカスタマイズできます。  
