@@ -70,7 +70,8 @@ If you want to customize in detail, use `TreeNodeBase<TNode>`.
 For a GeneralTree, if you want to use it as a data structure or container for data, use `GeneralTreeNode<TNode>` or `ObservableTreeNode<TNode>`.   
 If you want to use an N-Ary Tree with a fixed number of branches and empty nodes set to null, use `NAryTreeNode<TNode>`.   
 If you want to use it as a wrapper for objects or tree structure that forms the hierarchy, use `(Hierarchy | TreeNode) Wrapper<TSrc,TWrpr>`.   
-If you need to describe resource disposal in addition to its role as a wrapper, inherit and use `Disposable(Hierarchy | TreeNode)Wrapper<TSrc,TWrpr>`.
+If you need to handle resource disposal and observation, along with its role as a wrapper (e.g., ViewModel in MVVM), inherit and use `Bindable(Hierarchy | TreeNode)Wrapper<TSrc,TWrpr>`.
+
 
 In `TreeNodeBase<TNode>` and its derived types, you can customize the collections used internally and those exposed externally by overriding the `Setup(Inner | Public)ChildCollection` methods.  
 `HierarchyWrapper<TSrc,TWrpr>` and its derived types allow customization only of the collection exposed externally.  
