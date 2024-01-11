@@ -38,7 +38,7 @@
 
 
 ## Useage
-wikiに書く
+[wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja) に書く
 
 ## Concept
 このライブラリで完結することは目指していません。  
