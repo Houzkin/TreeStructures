@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using TreeStructures;
 using TreeStructures.Collections;
 using TreeStructures.Linq;
+using Reactive;
+using Reactive.Bindings;
+using Reactive.Bindings.Helpers;
+using Reactive.Bindings.Extensions;
 
 namespace SampleConsoleApp;
 public class BinaryWrpr : TreeNodeWrapper<NamedBinaryNode, BinaryWrpr> {
@@ -23,6 +27,8 @@ public class InfiniteLoopEmptyBinaryWrpr : BinaryWrpr{
 	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(ImitableCollection<BinaryWrpr> children) {
 		var dumy = new ObservableCollection<BinaryWrpr>();
 		dumy.Add(new InfiniteLoopEmptyBinaryWrpr());
+		//var x = children.ToFilteredReadOnlyObservableCollection(x => x.Name == "");
+		//var x = dumy.ToFilteredReadOnlyObservableCollection(x => x.Name == "");
 		return dumy;
 	}
 	public override string Name => "Empty";

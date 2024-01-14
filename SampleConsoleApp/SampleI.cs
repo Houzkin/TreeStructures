@@ -17,15 +17,13 @@ public static partial class UseageSample{
 		var tree = "ABCDEFG".ToCharArray().Select(x => new NamedNode() { Name = x.ToString() }).AssembleAsNAryTree(2);
 		var seri = tree.ToSerializableNodeMap(x=>x.Name);
 
-		//var xs = new XmlSerializer(seri.GetType());
-		//using (StreamWriter sw = new StreamWriter("C:\\Users\\Owner\\Desktop.Test.xml",false,Encoding.UTF8)){
-		//	xs.Serialize(sw, seri);
-		//}
+		//Serialize
 		var serializer = new XmlSerializer(typeof(SerializableNodeMap<string>));
 		using (StreamWriter fs = new StreamWriter(path)){
 			serializer.Serialize(fs, seri);
 		}
 
+		//Deserialize
 		SerializableNodeMap<string> nd;
 		using (StreamReader sr = new StreamReader(path)){
 			nd = (SerializableNodeMap<string>)serializer.Deserialize(sr);

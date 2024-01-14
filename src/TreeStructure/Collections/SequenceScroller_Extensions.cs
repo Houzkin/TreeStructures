@@ -295,7 +295,8 @@ namespace TreeStructures.Collections {
         /// <typeparam name="T">要素の型</typeparam>
         /// <param name="scroller">対象インスタンス</param>
         public static bool IsFirst<T>(this ISequenceScroller<T> scroller) {
-            return scroller.IsFirst(x => true);
+            return scroller.CurrentIndex == 0;
+            //return scroller.IsFirst(x => true);
         }
         /// <summary>現在の位置が巡回シーケンスの先頭かどうかを示す値を取得する。</summary>
         /// <typeparam name="T">要素の型</typeparam>
