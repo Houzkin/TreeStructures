@@ -8,6 +8,7 @@ using TreeStructures.Linq;
 
 namespace SampleConsoleApp;
 
+[Serializable]
 public class NamedNode : GeneralTreeNode<NamedNode> {
     public NamedNode() { }
     public string Name { get; set; }

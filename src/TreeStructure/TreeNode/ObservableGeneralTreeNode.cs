@@ -36,9 +36,12 @@ namespace TreeStructures {
         IDisposable DeferParentChangedNotification() {
             return UniqueExcutor.LateEvaluate(parentchangedeventkey, () => Parent);
         }
+        [NonSerialized]
         readonly string parentchangedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>)+ "." + nameof(Parent);
+        [NonSerialized]
         readonly string disposedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>) + "." + nameof(Disposed);
 
+        [NonSerialized]
         StructureChangedEventExecutor<TNode>? _uniqueExcutor;
         private StructureChangedEventExecutor<TNode> UniqueExcutor {
             get {
@@ -50,6 +53,7 @@ namespace TreeStructures {
                 return _uniqueExcutor;
             }
         }
+        [NonSerialized]
         PropertyChangeProxy PropertyChangeProxy;
         /// <summary>Raises the property changed notification.</summary>
         /// <param name="propName">The property name.</param>
@@ -67,6 +71,7 @@ namespace TreeStructures {
             remove { PropertyChangeProxy.PropertyChanged -= value; }
         }
         /// <summary>Occurs when the tree structure changes.</summary>
+        [field: NonSerialized]
         public event EventHandler<StructureChangedEventArgs<TNode>>? StructureChanged;
 
         void IObservableTreeNode<TNode>.OnStructureChanged(StructureChangedEventArgs<TNode> e) {
@@ -74,6 +79,7 @@ namespace TreeStructures {
         }
 
         /// <summary>Occurs when the instance is disposed.</summary>
+        [field: NonSerialized]
         public event EventHandler? Disposed;
         /// <inheritdoc/>
         protected override void Dispose(bool disposing) {

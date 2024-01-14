@@ -4,6 +4,7 @@ using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!");
+MethodI();
 MethodH();
 MethodG();
 MethodF3();

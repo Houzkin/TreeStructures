@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using TreeStructures.Collections;
 using TreeStructures.Linq;
 
@@ -26,9 +27,12 @@ namespace TreeStructures {
         /// <summary>Gets or sets the parent node. <inheritdoc/></summary>
         public TNode? Parent { get; private set; }
 
+        [NonSerialized]
         IEnumerable<TNode>? _readonlycollection;
         /// <summary>Gets the read-only collection of child nodes. </summary>
         public IEnumerable<TNode> Children => _readonlycollection ??= SetupPublicChildCollection(ChildNodes);
+
+        [NonSerialized]
         IEnumerable<TNode>? _childNodes;
         /// <summary>Manages child nodes, an internal property for processing.</summary>
         protected IEnumerable<TNode> ChildNodes => _childNodes ??= SetupInnerChildCollection();

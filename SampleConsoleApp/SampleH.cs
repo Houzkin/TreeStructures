@@ -56,7 +56,7 @@ public static partial class UseageSample{
 
 		Console.WriteLine("Set info");
 		nodeList.Values.ForEach(x => x.AdditionalInfo = new AdditionalObj() { Title = x.Name.ToLower() });
-		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
+		//Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
 
 		Console.WriteLine("\nSet title");
 		nodeList['B'].AdditionalInfo.Title = "bB" ;
@@ -74,17 +74,17 @@ public static partial class UseageSample{
 			.ToNotifyObject(x => x.Parent.AdditionalInfo.Title)
 			.ObserveProperty(x => x.Value)
 			.ToReactiveProperty().AddTo(disposables);
-		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
+		//Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
 
 		nodeList['B'].AddChild(nodeList['H']);
 		Console.WriteLine($"ReactivePropertyValue:{rp.Value}");
 		//rp.Dispose();
 		//listener.Dispose();
-		observingTree.Dispose();
+		//observingTree.Dispose();
 
 		Console.WriteLine("sample tree");
 		Console.WriteLine(tree.ToTreeDiagram(x => x.Name));
-		Console.WriteLine("observed property tree");
+		Console.WriteLine("nodeH observed property tree");
 		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
 	}
 

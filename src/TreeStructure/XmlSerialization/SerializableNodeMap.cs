@@ -42,11 +42,11 @@ namespace TreeStructures.Xml.Serialization {
                 .Write(this.Dictionary.ToDictionary(x => new NodeIndexCode(x.Key), x => x.Value), writer);
         }
 
-        /// <summary>Represents <see cref="NodeIndex"/> as a string.</summary>
-        public class NodeIndexCode {
+		/// <summary>Represents <see cref="TreeStructures.NodeIndex"/> as a string.</summary>
+		public class NodeIndexCode {
             string _code = "[]";
-            /// <summary>Gets or sets the <see cref="NodeIndex"/> represented by the current instance as a string.</summary>
-            public string IndexCode {
+			/// <summary>Gets or sets the <see cref="TreeStructures.NodeIndex"/> represented by the current instance as a string.</summary>
+			public string NodeIndex {
                 get { return _code; }
                 set {
                     _code = new NodeIndex(CodeToArray(value)).ToString();
@@ -57,8 +57,8 @@ namespace TreeStructures.Xml.Serialization {
             /// <summary>Initializes a new Instance</summary>
             /// <param name="ni">The NodeIndex represented by this instance.</param>
             public NodeIndexCode(NodeIndex ni) { _code = ni.ToString(); }
-            /// <summary>Gets or sets the <see cref="NodeIndex"/> represented by the current instance.</summary>
-            public NodeIndex ToNodeIndex() {
+			/// <summary>Gets or sets the <see cref="TreeStructures.NodeIndex"/> represented by the current instance.</summary>
+			public NodeIndex ToNodeIndex() {
                 return new NodeIndex(CodeToArray(_code));
             }
             static int[] CodeToArray(string code) {
@@ -71,15 +71,15 @@ namespace TreeStructures.Xml.Serialization {
             public override bool Equals(object? obj) {
                 var o = obj as NodeIndexCode;
                 if (o == null) return false;
-                return o.IndexCode == this.IndexCode;
+                return o.NodeIndex == this.NodeIndex;
             }
             /// <summary>ハッシュ関数として機能する。</summary>
             public override int GetHashCode() {
-                return IndexCode.GetHashCode();
+                return NodeIndex.GetHashCode();
             }
             /// <summary>現在のオブジェクトを表す文字列を返す。</summary>
             public override string ToString() {
-                return IndexCode;
+                return NodeIndex;
             }
         }
     }

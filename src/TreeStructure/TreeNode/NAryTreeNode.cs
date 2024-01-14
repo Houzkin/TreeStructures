@@ -11,6 +11,7 @@ namespace TreeStructures {
 
     /// <summary>Represents an N-ary tree.</summary>
     /// <typeparam name="TNode">The common type for nodes.</typeparam>
+    [Serializable]
     public abstract class NAryTreeNode<TNode> : TreeNodeBase<TNode> ,IMutableTreeNode<TNode> where TNode : NAryTreeNode<TNode> {
         /// <summary>Initializes a node that manages child nodes with a default array.</summary>
         /// <param name="nary">The N-ary parameter.</param>
@@ -26,6 +27,7 @@ namespace TreeStructures {
                 }
             }
         }
+        [NonSerialized]
         TNode[]? array;
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupInnerChildCollection() => array;
