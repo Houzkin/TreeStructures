@@ -22,7 +22,7 @@ Features:
     <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
     <PackageIcon>treestrucuture.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
-    <Version>1.4.4</Version>
+    <Version>1.4.5</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/Houzkin/TreeStructures</PackageProjectUrl>
   </PropertyGroup>

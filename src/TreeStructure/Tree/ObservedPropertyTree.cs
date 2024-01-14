@@ -37,7 +37,7 @@ namespace TreeStructures.Tree {
     }
     /// <summary>Provides method chain specification and subscription for observable properties in <typeparamref name="TSrc"/>.</summary>
     /// <typeparam name="TSrc">Type of the instance to be observed.</typeparam>
-    public class ObservedPropertyTree<TSrc> {
+    public class ObservedPropertyTree<TSrc> : IDisposable{
         PropertyChainRoot _root;
         /// <summary>Represents the tree of properties currently registered with handlers.</summary>
         public PropertyChainNode Root => _root;
@@ -54,13 +54,26 @@ namespace TreeStructures.Tree {
         /// <summary>Resets the source of observation.</summary>
         /// <param name="target">The new target instance to observe.</param>
         public void ChangeTarget(TSrc target) {
+            ThrowExceptionIfDisposed();
             _root.ChangeTarget(target);
+        }
+        bool _isDisposed = false;
+        ///<inheritdoc/>
+        public void Dispose(){
+            if(_isDisposed) return;
+            foreach(var nd in _root?.Postorder() ?? Enumerable.Empty<PropertyChainNode>()){ nd.Dispose(); }
+            _isDisposed = true;
+        }
+        void ThrowExceptionIfDisposed(){
+            if (_isDisposed) throw new ObjectDisposedException(this.ToString(),
+                "The instance has already been disposed and cannot be operated on.");
         }
         /// <summary>Creates an observable object for the specified property.</summary>
         /// <typeparam name="TValue">The type of the property.</typeparam>
         /// <param name="expression">Specifies the property described in the method chain.</param>
         /// <returns>Returns an object implementing <see cref="INotifyPropertyChanged"/> with a read-only property <see cref="NotifyObject{T}.Value"/> representing the value of the specified property.</returns>
         public NotifyObject<TValue> ToNotifyObject<TValue>(Expression<Func<TSrc, TValue>> expression) {
+            ThrowExceptionIfDisposed();
             return _root.ToNotifyObject(expression);
         }
         /// <summary>Subscribes to the property change notification for the specified property.</summary>
@@ -68,6 +81,7 @@ namespace TreeStructures.Tree {
         /// <param name="changedAction">The action to be executed when the property changes.</param>
         /// <returns>An instance for unsubscribing from the subscription.</returns>
         public IDisposable Subscribe(Expression<Func<TSrc, object>> expression, Action changedAction) {
+            ThrowExceptionIfDisposed();
             return Subscribe<object>(expression, (s, e) => changedAction());
         }
         /// <summary>Subscribes to the property change notification for the specified property.</summary>
@@ -75,7 +89,8 @@ namespace TreeStructures.Tree {
         /// <param name="expression">Expression indicating the property.</param>
         /// <param name="changedAction">The action to be executed when the property changes.</param>
         /// <returns>An instance for unsubscribing from the subscription.</returns>
-        public IDisposable Subscribe<TValue>(Expression<Func<TSrc, object>> expression, Action<TValue> changedAction) {
+        public IDisposable Subscribe<TValue>(Expression<Func<TSrc, TValue>> expression, Action<TValue> changedAction) {
+            ThrowExceptionIfDisposed();
             return Subscribe<TValue>(expression, (s, e) => changedAction(e.PropertyValue));
         }
         /// <summary>Subscribes to the property change notification for the specified property.</summary>
@@ -83,7 +98,8 @@ namespace TreeStructures.Tree {
         /// <param name="expression">Expression indicating the property.</param>
         /// <param name="changedAction">The action to be executed when the property changes.</param>
         /// <returns>An instance for unsubscribing from the subscription.</returns>
-        public IDisposable Subscribe<TValue>(Expression<Func<TSrc, object>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
+        public IDisposable Subscribe<TValue>(Expression<Func<TSrc, TValue>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
+            ThrowExceptionIfDisposed();
             return _root.Subscribe(expression, changedAction);
         }
         /// <summary>
@@ -212,7 +228,7 @@ namespace TreeStructures.Tree {
                 }
             }
             
-            public IDisposable Subscribe<TValue>(Expression<Func<TSrc, object>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
+            public IDisposable Subscribe<TValue>(Expression<Func<TSrc, TValue>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
                 var propChain = PropertyUtils.GetPropertyPath(expression).Prepend(string.Empty);
                 var status = addChainStatus<TValue, object>(propChain);
                 return getListener(status, changedAction);
@@ -222,7 +238,12 @@ namespace TreeStructures.Tree {
                 return new NotifyObject<TValue>(propChain, addChainStatus<TValue,TValue>, getListener);
             }
             ChainStatus<TValue> addChainStatus<TValue, TProp>(IEnumerable<string> propChain) {
-                this.AddSubscribeProperty(propChain.Except(new string[] { string.Empty }));
+                //this.AddSubscribeProperty(propChain.Except(new string[] { string.Empty }));
+                //propChain = propChain.Where(x => x != string.Empty);
+                this.AddSubscribeProperty(propChain.Where(x => x != string.Empty));
+                //if(propChain.Any() && propChain.ElementAt(0) == string.Empty){
+                //    propChain = propChain.Prepend(string.Empty).ToList();
+                //}
                 Func<TValue> getvalue = () => {
                     try {
                         if (this.Target != null) {
@@ -231,7 +252,8 @@ namespace TreeStructures.Tree {
                         }
                         return default;
                     } catch (InvalidOperationException e) {
-                        throw new InvalidOperationException("There is a duplicate or unregistered property value specified in the PropertyChain.", e);
+                        return default;
+                        //throw new InvalidOperationException("There is a duplicate or unregistered property value specified in the PropertyChain.", e);
                     }
                 };
                 var propValue = getvalue();
@@ -254,7 +276,7 @@ namespace TreeStructures.Tree {
                     listener.Dispose();
                     if (status.ChainedPropertyChanged.GetLength() == 0) {
                         chainStatuses.Remove(status);
-                        TryRemoveNode(status.Key);
+                        TryRemoveNode(status.Key.ToList());
                     }
                 });
                 return dsp;
@@ -276,10 +298,14 @@ namespace TreeStructures.Tree {
                 }
             }
             void TryRemoveNode(IEnumerable<string> seq) {
-                var des = this.DescendTraces(a => a.NamedProperty, seq.Prepend(string.Empty)).FirstOrDefault()?.Skip(1)
+                //Console.WriteLine("debug:\n"+this.ToTreeDiagram(x => x.NamedProperty));
+                var lst = seq.SkipLast(1).ToList();
+                //var dess = this.DescendTraces(a => a.NamedProperty, lst.SkipLast(1));
+                var des = this.DescendTraces(a => a.NamedProperty, lst).FirstOrDefault()?.Skip(1)
                     ?? Enumerable.Empty<PropertyChainNode>();
                 foreach (var sts in chainStatuses) {
-                    var ext = this.DescendTraces(a => a.NamedProperty, sts.Key.Prepend(string.Empty)).FirstOrDefault()?.Skip(1)
+                    var llst = sts.Key.ToList();
+                    var ext = this.DescendTraces(a => a.NamedProperty, sts.Key).FirstOrDefault()?.Skip(1)
                         ?? Enumerable.Empty<PropertyChainNode>();
                     des = des.Except(ext);
                 }
@@ -304,7 +330,7 @@ namespace TreeStructures.Tree {
                 }
             }
             internal NotifyObject(IEnumerable<string> propchain,Func<IEnumerable<string>,ChainStatus<T>> func ,Func<ChainStatus<T>,EventHandler<ChainedPropertyChangedEventArgs<T>>,IDisposable> toListener){
-                propChain = propchain;
+                propChain = propchain.ToList();
                 setFunc = func;
                 getListener = toListener;
                 //初期値を設定するためにChainStatusを設定しDispose
@@ -325,7 +351,8 @@ namespace TreeStructures.Tree {
                         //各イベント発行前に値を比較する
                         if(!object.Equals(this.Value,e.PropertyValue)) this.Value = e.PropertyValue;
                         //比較結果に関わらず実行。変更が発生したのは確実であり、比較は各リスナーに付随して行っている
-                        value.Invoke(this, e);
+                        //value.Invoke(this, e);
+                        value.Invoke(this, new PropertyChangedEventArgs("Value"));
                     }));
                 }
                 remove { Remove(value); }
