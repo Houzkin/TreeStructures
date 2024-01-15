@@ -97,10 +97,10 @@ namespace TreeStructures.Collections {
         LumpedDisopsables Disposables = new LumpedDisopsables();
         internal IList<ConvertPair> _references = new List<ConvertPair>();
         internal readonly Func<object, ConvertPair> _toSyncSet;
-        //IDisposable _listListener;
         internal Action<TConv> _removeAction;
-        //readonly Func<object, IDisposable> _getSrcObjListener;
-        //ObservableCollection<TConv> _convedlist = new();
+        private ObservableCollection<TConv>? _obsList;
+        private ReadOnlyObservableCollection<TConv>? _roObsList;
+
         internal ImitableCollection(IEnumerable<object> collection,Func<object,ConvertPair> toSetConverter,Action<TConv> removedAction,bool isImitate = true): base(collection) {
 
             _toSyncSet = toSetConverter;
@@ -176,6 +176,19 @@ namespace TreeStructures.Collections {
                     _removeAction.Invoke(th);
                 }
             }
+            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),ReferenceEqualityComparer<TConv>.Default);
+        }
+        /// <summary></summary>
+        /// <returns></returns>
+        public ReadOnlyObservableCollection<TConv> ToReadOnlyObservableCollection(){
+            if(_roObsList is null || _obsList is null){
+                if(_obsList is null){
+                    _obsList = new ObservableCollection<TConv>();
+                    _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),ReferenceEqualityComparer<TConv>.Default);
+                }
+                _roObsList ??= new ReadOnlyObservableCollection<TConv>(_obsList!);
+            }
+            return _roObsList;
         }
         /// <summary><inheritdoc/></summary>
         /// <param name="disposing"></param>
@@ -200,6 +213,7 @@ namespace TreeStructures.Collections {
                     this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, ary[i], i));
                 }
             }
+            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),ReferenceEqualityComparer<TConv>.Default);
         }
         /// <summary>Stops synchronization and clears the imitable collection.</summary>
         public void PauseImitateAndClear() {
@@ -207,6 +221,7 @@ namespace TreeStructures.Collections {
             this.Disposables.Dispose();
             _references.Clear();
             this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(), ReferenceEqualityComparer<TConv>.Default);
         }
         
         #region IReadOnlyList Members

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 //using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -72,4 +74,22 @@ namespace TreeStructures.Collections {
             return comparer.GetHashCode(selector(obj));
         }
     }
+    /// <summary>
+    /// A generic object comparer that would only use object's reference,
+    /// ingnoring any <see cref="IEquatable{T}"/> or <see cref="object.Equals(object?)"/>
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public sealed class ReferenceEqualityComparer<T> : IEqualityComparer<T> where T :class{
+        /// <summary>
+        /// Returns a reference equality comparer for the type specified by generic argument.
+        /// </summary>
+        public static IEqualityComparer<T> Default { get; } = new ReferenceEqualityComparer<T>(); 
+        
+		public bool Equals(T? x, T? y) {
+            return ReferenceEquals(x, y);
+		}
+		public int GetHashCode(T obj) {
+            return RuntimeHelpers.GetHashCode(obj);
+		}
+	}
 }

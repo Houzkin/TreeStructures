@@ -8,7 +8,8 @@ namespace TreeStructures.Collections {
 
     /// <summary>シーケンスの巡回をサポートする。</summary>
     /// <typeparam name="T">要素の型</typeparam>
-    public interface ISequenceScroller<T> {
+    /// <typeparam name="TList"></typeparam>
+    public interface ISequenceScroller<T,TList> where TList:ISequenceScroller<T,TList> {
         /// <summary>現在の位置にある要素を取得する。</summary>
         T Current { get; }
         /// <summary>現在の位置を取得する。</summary>
@@ -18,11 +19,11 @@ namespace TreeStructures.Collections {
 
         /// <summary>指定した要素の位置へ移動する。</summary>
         /// <param name="element">移動先の位置にある要素</param>
-        ISequenceScroller<T> MoveTo(T element);
+        TList MoveTo(T element);
 
         /// <summary>現在の位置を0とし、前方をマイナス、後方をプラスの整数で示した値だけ移動する。</summary>
         /// <param name="moveCount">移動方向と距離を示す値</param>
-        ISequenceScroller<T> Move(int moveCount);
+        TList Move(int moveCount);
 
         /// <summary>現在の位置から指定された方向と距離だけ移動可能かどうかを示す値を取得する。</summary>
         /// <param name="moveCount">移動方向と距離を示す値</param>
@@ -31,7 +32,7 @@ namespace TreeStructures.Collections {
 
     /// <summary>指定されたシーケンスを巡回する列挙子を表す。</summary>
     /// <typeparam name="T">要素の型</typeparam>
-    public class SequenceScroller<T> : ISequenceScroller<T> {
+    public class SequenceScroller<T> : ISequenceScroller<T,SequenceScroller<T>> {
         /// <summary>指定されたシーケンスをコピーして、新規インスタンスを初期化する。</summary>
         /// <param name="sequence">巡回するシーケンス</param>
         public SequenceScroller(IEnumerable<T> sequence) {
@@ -58,7 +59,7 @@ namespace TreeStructures.Collections {
 
         /// <summary>現在の位置を０とし、前方をマイナス、後方をプラスの整数で示した値だけ移動する。</summary>
         /// <param name="moveCount">移動方向と距離を示す値</param>
-        public ISequenceScroller<T> Move(int moveCount) {
+        public SequenceScroller<T> Move(int moveCount) {
             var cnt = CurrentIndex + moveCount;
             if (cnt < 0 || seq.Count <= cnt) throw new ArgumentOutOfRangeException(nameof(moveCount));
             curIdx = cnt;
@@ -73,7 +74,7 @@ namespace TreeStructures.Collections {
         }
         /// <summary>指定した要素の位置へ移動する。</summary>
         /// <param name="element">移動先の位置にある要素</param>
-        public ISequenceScroller<T> MoveTo(T element) {
+        public SequenceScroller<T> MoveTo(T element) {
             var idx = seq.IndexOf(element);
             if (idx < 0) throw new ArgumentException("指定された要素はシーケンスに存在しません。", nameof(element));
             curIdx = idx;
