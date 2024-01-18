@@ -28,9 +28,18 @@ namespace TreeStructures {
         protected override void HandleRemovedChild(TWrpr removedNode) {
             removedNode.Dispose();
         }
-		private protected override TWrpr GenerateAndSetupChild(TSrc sourceChildNode) {
-            this.ThrowExceptionIfDisposed();
-			return base.GenerateAndSetupChild(sourceChildNode);
+		//private protected override TWrpr GenerateAndSetupChild(TSrc sourceChildNode) {
+		//          this.ThrowExceptionIfDisposed();
+		//	return base.GenerateAndSetupChild(sourceChildNode);
+		//}
+		private protected override void _HandleRemovedChild(TWrpr removeNode) {
+			if(removeNode != null && !removeNode.isDisposed){
+				base._HandleRemovedChild(removeNode);
+			}
+		}
+		private protected override void SetupChild(TWrpr child) {
+			this.ThrowExceptionIfDisposed();
+			base.SetupChild(child);
 		}
 		private protected override bool SetParent(TWrpr? parent) {
 			if(base.SetParent(parent)){
@@ -114,12 +123,14 @@ namespace TreeStructures {
                 var nd = this
                     .Evolve(a => {
                         a.IsImitating = false;
-                        return a.InnerChildren;
+						//return a.InnerChildren;
+						return a.InnerChildNodes;
                     }, (a, b, c) => b.Prepend(a).Concat(c))
                     .Skip(1).Reverse().OfType<IDisposable>().ToArray();
                 foreach (var n in nd) n.Dispose();
-                InnerChildren.Dispose();
-                //this.Parent = null;
+                //InnerChildren.Dispose();
+				InnerChildNodes.ClearCollection();
+				
             }
             isDisposed = true;
         }

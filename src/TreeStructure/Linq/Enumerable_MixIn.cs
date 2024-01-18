@@ -82,7 +82,9 @@ namespace TreeStructures.Linq {
 		/// <param name="equality">An optional equality comparer for element comparison.</param>
 		/// <returns>A new <see cref="CombinableObservableCollection{T}"/> instance containing elements from the specified enumerable.</returns>
 		public static CombinableObservableCollection<T> ToCombinable<T>(this IEnumerable<T> self, IEqualityComparer<T>? equality = null){
-			return new CombinableObservableCollection<T>(equality).AppendCollection(self);
+			var coc = new CombinableObservableCollection<T>(equality);
+			coc.AppendCollection(self);
+			return coc;
 		}
 
 	}

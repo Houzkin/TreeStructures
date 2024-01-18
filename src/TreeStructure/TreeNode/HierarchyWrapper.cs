@@ -54,43 +54,68 @@ namespace TreeStructures {
         /// <summary>Specifies a reference to the source's child node collection. Implementing <see cref="INotifyCollectionChanged"/> is not required if synchronization is not intended.</summary>
         protected abstract IEnumerable<TSrc>? SourceChildren { get; }
 
-        private ImitableCollection<TWrpr>? _innerChildren;
-        private protected ImitableCollection<TWrpr> InnerChildren => 
-            _innerChildren ??= ImitableCollection.Create(this.SourceChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, _HandleRemovedChild,IsImitating);
+        //private ImitableCollection<TWrpr>? _innerChildren;
+        //private protected ImitableCollection<TWrpr> InnerChildren => 
+        //    _innerChildren ??= ImitableCollection.Create(this.SourceChildren ?? new ObservableCollection<TSrc>(), GenerateAndSetupChild, _HandleRemovedChild,IsImitating);
+
+
+
+        private CombinableChildWrapperCollection<TWrpr>? _wrappers;
+        private protected CombinableChildWrapperCollection<TWrpr> InnerChildNodes{
+            get{
+                _wrappers ??= new CombinableChildWrapperCollection<TWrpr>(
+                    new ImitableCollection<TSrc, TWrpr>(SourceChildren ?? new ObservableCollection<TSrc>(), GenerateChild, null, IsImitating),
+                    Insert, Replace, Remove, Move, Clear);
+                return _wrappers;
+            }
+        }
+        void Insert(ObservableCollection<TWrpr> wrprs, int index, TWrpr wrpr) {
+            SetupChild(wrpr);
+            wrprs.Insert(index, wrpr);
+        }
+        void Replace(ObservableCollection<TWrpr> wrprs, int index, TWrpr wrpr) {
+            _HandleRemovedChild(wrprs[index]);
+            SetupChild(wrpr);
+            wrprs[index] = wrpr;
+        }
+        void Remove(ObservableCollection<TWrpr> wrprs, int idx) {
+            _HandleRemovedChild(wrprs[idx]);
+            wrprs.RemoveAt(idx);
+        }
+        void Move(ObservableCollection<TWrpr> wrprs, int tgtIdx, int toIdx) { 
+            wrprs.Move(tgtIdx, toIdx);
+        }
+        void Clear(ObservableCollection<TWrpr> wrprs) {
+            var lst = wrprs.ToArray();
+            wrprs.Clear();
+            foreach (var wrpr in lst) { _HandleRemovedChild(wrpr); }
+        }
+
+        private protected virtual void SetupChild(TWrpr child) {
+            if(child != null){
+                child.SetParent(this as TWrpr);
+                child.IsImitating = true;
+                child._wrappers?.Imitate();
+            }
+        }
 
         private IEnumerable<TWrpr>? _children;
         /// <inheritdoc/>
-        public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildren);
-        /// <summary>Sets the collection to be exposed externally.</summary>
-        /// <remarks>From the base class, it returns a wrapped <see cref="ImitableCollection{TSrc, TConv}"/> of <see cref="SourceChildren"/>.</remarks>
-        protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(ImitableCollection<TWrpr> children) => children;
+        public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildNodes);
+		/// <summary>Sets the collection to be exposed externally.</summary>
+		/// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
+		protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildWrapperCollection<TWrpr> children)
+            => children.AsReadOnlyObservableCollection();
+
         /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
         /// <param name="sourceChildNode">Child node to be wrapped</param>
         /// <returns>Wrapped child node</returns>
         protected abstract TWrpr GenerateChild(TSrc sourceChildNode);
-        private protected virtual TWrpr GenerateAndSetupChild(TSrc sourceChildNode) {
-            //ThrowExceptionIfDisposed();
-            TWrpr? cld = null;
-            try {
-                cld = GenerateChild(sourceChildNode);
-            } catch(NullReferenceException e) {
-                string msg = $"{nameof(GenerateChild)} method threw a {nameof(NullReferenceException)}.";
-                if(sourceChildNode is null) { msg += $"{nameof(sourceChildNode)} is null."; }
-                throw new NullReferenceException( msg, e);
+        private protected virtual void _HandleRemovedChild(TWrpr removeNode){
+            if (removeNode != null) {
+                removeNode.SetParent(null);
+                HandleRemovedChild(removeNode);
             }
-            if(cld != null) {
-                //cld.Parent = this as TWrpr;
-                cld.SetParent(this as TWrpr);
-                cld.IsImitating = true;
-                cld._innerChildren?.Imitate();
-            }
-            return cld;
-        }
-        void _HandleRemovedChild(TWrpr removeNode){
-            //removeNode.Parent = null;
-            removeNode.SetParent(null);
-            //removeNode.PauseImitation();
-            HandleRemovedChild(removeNode);
         }
         /// <summary>Handles processing of a decomposed child node.</summary>
         /// <remarks>This method is intended to be overridden in derived classes to add specific processing for an already decomposed child node.</remarks>
@@ -121,14 +146,39 @@ namespace TreeStructures {
 		public override int GetHashCode() {
             return this.Source?.GetHashCode() ?? base.GetHashCode();
 		}
-		public static bool operator==(HierarchyWrapper<TSrc,TWrpr> obj1,HierarchyWrapper<TSrc, TWrpr> obj2) {
+		public static bool operator ==(HierarchyWrapper<TSrc, TWrpr> obj1, HierarchyWrapper<TSrc, TWrpr> obj2) {
             if (obj1 is null && obj2 is null) return true;
             if(obj1 is null ||  obj2 is null) return false;
             return obj1.Equals(obj2);
         }
-        public static bool operator!=(HierarchyWrapper<TSrc,TWrpr> obj1,HierarchyWrapper<TSrc, TWrpr> obj2) {
+		public static bool operator !=(HierarchyWrapper<TSrc, TWrpr> obj1, HierarchyWrapper<TSrc, TWrpr> obj2) {
             return !(obj1 == obj2);
         }
+
+		/// <summary>
+		/// Provides a collection of wrappers for each child node in a state combinable with other collections.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		public sealed class CombinableChildWrapperCollection<T> : CombinableObservableCollection<T> where T : class {
+		    ImitableCollection<T> _childNodes;
+		    internal CombinableChildWrapperCollection(ImitableCollection<T> childNodes,
+			    Action<ObservableCollection<T>,int,T> insertAction,
+			    Action<ObservableCollection<T>,int,T> replaceAction,
+			    Action<ObservableCollection<T>,int> removeAction,
+			    Action<ObservableCollection<T>,int,int> moveAction,
+			    Action<ObservableCollection<T>> clearAction)
+		    : base(ReferenceEqualityComparer<T>.Default){
+			    _childNodes = childNodes;
+			    this.ListAligner = new ListAligner<T, ObservableCollection<T>>((this.Items as ObservableCollection<T>)!,insertAction,replaceAction,removeAction,moveAction,clearAction);
+			    this.AppendCollection(childNodes);
+		    }
+		    internal void Imitate(){ _childNodes.Imitate(); }
+		    protected override ListAligner<T, ObservableCollection<T>> ListAligner { get; }
+	    }
+
+
+
+
     }
 
 }

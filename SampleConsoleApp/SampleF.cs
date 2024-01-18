@@ -24,12 +24,11 @@ public class BinaryWrpr : TreeNodeWrapper<NamedBinaryNode, BinaryWrpr> {
 }
 public class InfiniteLoopEmptyBinaryWrpr : BinaryWrpr{
 	public InfiniteLoopEmptyBinaryWrpr() { }
-	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(ImitableCollection<BinaryWrpr> children) {
-		var dumy = new ObservableCollection<BinaryWrpr>();
-		dumy.Add(new InfiniteLoopEmptyBinaryWrpr());
-		//var x = children.ToFilteredReadOnlyObservableCollection(x => x.Name == "");
-		//var x = dumy.ToFilteredReadOnlyObservableCollection(x => x.Name == "");
-		return dumy;
+	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(CombinableChildWrapperCollection<BinaryWrpr> children) {
+		var appendlist = new ObservableCollection<BinaryWrpr>();
+		appendlist.Add(new InfiniteLoopEmptyBinaryWrpr());
+		children.AppendCollection(appendlist);
+		return children.AsReadOnlyObservableCollection();
 	}
 	public override string Name => "Empty";
 }

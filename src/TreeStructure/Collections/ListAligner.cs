@@ -77,7 +77,8 @@ namespace TreeStructures.Collections {
 			curIdx = idx;
 			return this;
 		}
-		public ListAligner<T,TList> Reset(){
+		/// <summary></summary>
+		public ListAligner<T,TList> ResetIndex(){
 			if (lst.Any()) curIdx = 0;
 			else curIdx = -1;
 			return this;
@@ -89,7 +90,7 @@ namespace TreeStructures.Collections {
 		/// <param name="equality"></param>
 		public void AlignBy(IEnumerable<T> org,IEqualityComparer<T>? equality = null){
 			int orgCount = org.Count();
-			this.Reset();
+			this.ResetIndex();
 			if (CurrentIndex == -1) {
 				for (int i = 0; i < orgCount; i++) { _insert(lst, i, org.ElementAt(i)); }
 				return;
@@ -102,17 +103,17 @@ namespace TreeStructures.Collections {
 			for(int i = 0; i < orgCount; i++) {
 				this.TryMoveTo(i).When(
 				o => {
-					if(!equality.Equals(this.Current,org.ElementAt(i))){
-						if(this.TryNext(x=>equality.Equals(x,org.ElementAt(i)))){
+					if (!equality.Equals(this.Current, org.ElementAt(i))) {
+						if (this.TryNext(x => equality.Equals(x, org.ElementAt(i)))) {
 							_move(lst, this.CurrentIndex, i);
-						}else if(org.Skip(i).Any(x=>equality.Equals(x,this.Current))){
-							_insert(lst,i,org.ElementAt(i));
-						}else{ 
-							_replace(lst,i, org.ElementAt(i));	
+						} else if (org.Skip(i).Any(x => equality.Equals(x, this.Current))) {
+							_insert(lst, i, org.ElementAt(i));
+						} else {
+							_replace(lst, i, org.ElementAt(i));
 						}
 					}
 				},
-				x => { _insert(lst,i,org.ElementAt(i)); });
+				x => _insert(lst, i, org.ElementAt(i)));
 			}
 			for(int i = lst.Count - 1; orgCount <= i; i--) { _remove(lst, i); }
         }
