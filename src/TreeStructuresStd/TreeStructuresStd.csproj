@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+	  <LangVersion>10</LangVersion>
+	  <Nullable>enable</Nullable>
+	  <Version>1.6.2</Version>
+	  <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
+	  <PackageIcon>icon.jpg</PackageIcon>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
+	  <RepositoryUrl>https://github.com/Houzkin/TreeStructures</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/Houzkin/TreeStructures</PackageProjectUrl>
+	  <Authors>Houzkin</Authors>
+	  <AssemblyName>TreeStructures</AssemblyName>
+	  <RootNamespace>TreeStructures</RootNamespace>
+	  <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	  <Description>This is a C# library designed for effectively handling tree structures.  
+Emphasizing flexibility and extensibility, the library allows easy manipulation of various tree structures.
+
+Features:
+ Rich extension methods for `ITreeNode&lt;TNode&gt;`
+ Achieving mutual references between parent and child nodes
+ Classes forming a tree structure and their Generality
+ Bidirectional Conversion between Different Data Structures and Tree Structures.</Description>
+	  <Copyright>Houzkin</Copyright>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icon\icon.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

@@ -20,7 +20,7 @@ Features:
  Bidirectional Conversion between Different Data Structures and Tree Structures.</Description>
     <RepositoryUrl>https://github.com/Houzkin/TreeStructures</RepositoryUrl>
     <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
-    <PackageIcon>treestrucuture.jpg</PackageIcon>
+    <PackageIcon>icon.jpg</PackageIcon>
     <AssemblyVersion></AssemblyVersion>
     <Version>1.5.0</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -28,7 +28,7 @@ Features:
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\icon\treestrucuture.jpg">
+    <None Include="..\..\icon\icon.jpg">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

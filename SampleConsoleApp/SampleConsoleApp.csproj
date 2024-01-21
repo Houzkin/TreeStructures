@@ -8,16 +8,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\TreeStructure\TreeStructures.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Useage\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ReactiveProperty" Version="9.3.4" />
     <PackageReference Include="System.Interactive" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\TreeStructuresStd\TreeStructuresStd.csproj" />
   </ItemGroup>
 
 </Project>

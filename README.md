@@ -14,30 +14,6 @@ Features:
 These are the four main features of the library.
 
 [Download Nuget Package](https://www.nuget.org/packages/TreeStructures/)  
-
-## Namespaces Classification
-
-### TreeStructures;
-　Abstract classes define generic tree nodes, peripheral objects, and event arguments.
-
-Inheritance diagram of generic tree nodes
-![InheritanceGenericTreeNode](images/InheritanceGenericTreeNode.png)
-
-Inheritance diagram of NodePath and NodeIndex (peripheral objects)  
-![InheritancePeripheralObjects](images/InheritancePeripheralObjects.png)
-
-### TreeStructures.Linq;
-　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
-### TreeStructures.Utility;
-　Definition of `ResultWithValue<T>` used as a return value for Try●● methods
-### TreeStructures.Collections;
-　Collections used in internal implementations and processing of extension methods
-### TreeStructures.EventManagement;
-　Objects used in event handling, implementing Observable tree nodes
-### TreeStructures.Xml.Serialization;
-　Dictionary and others used in serialization and deserialization
-### TreeStrucutures.Tree;
-　Purpose-specific trees
  
 ## Usage
 To be documented in the [wiki.](https://github.com/Houzkin/TreeStructures/wiki)
@@ -83,4 +59,28 @@ This is achieved by wrapping objects in a `HierarchyWrapper<TSrc,TWrpr>` or `Bin
 Furthermore, various methods for mutual conversion, such as `Convert`, `AssembleTree`, and `ToNodeMap`, are available through extension methods.  
 
 
+
+## Namespaces Classification
+
+### TreeStructures;
+　Abstract classes define generic tree nodes, peripheral objects, and event arguments.
+
+Inheritance diagram of generic tree nodes  
+![InheritanceGenericTreeNode](./images/InheritanceGenericTreeNode.png)
+
+Inheritance diagram of NodePath and NodeIndex (peripheral objects)  
+![InheritancePeripheralObjects](./images/InheritancePeripheralObjects.png)
+
+### TreeStructures.Linq;
+　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`
+### TreeStructures.Utility;
+　Definition of `ResultWithValue<T>` used as a return value for Try●● methods
+### TreeStructures.Collections;
+　Collections used in internal implementations and processing of extension methods
+### TreeStructures.EventManagement;
+　Objects used in event handling, implementing Observable tree nodes
+### TreeStructures.Xml.Serialization;
+　Dictionary and others used in serialization and deserialization
+### TreeStrucutures.Tree;
+　Purpose-specific trees
 

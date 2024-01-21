@@ -4,6 +4,7 @@ using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!");
+ExtensionSample.EnumerableSample();
 MethodI();
 MethodH();
 MethodG();
