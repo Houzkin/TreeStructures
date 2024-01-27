@@ -34,6 +34,11 @@ internal class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
         else if (disposable != null)
             _disposings.Add(disposable);
     }
+    public void Remove(IEnumerable<IDisposable> disp){
+        foreach(var dis in disp){
+            _disposings.Remove(dis);
+        }
+    }
     public IEnumerator<IDisposable> GetEnumerator() {
         return _disposings.GetEnumerator();
     }

@@ -15,11 +15,11 @@ using TreeStructures.Linq;
 namespace TreeStructures.Collections {
     /// <summary>Provides an imitable collection with synchronization.</summary>
     public abstract class ImitableCollection : INotifyPropertyChanged, INotifyCollectionChanged, IDisposable {
-        private protected readonly IEnumerable<object> _source;
+        private protected readonly IEnumerable _source;
         private bool disposedValue;
         /// <summary>Initializes an instance.</summary>
         /// <param name="source">The source collection for synchronization.</param>
-        protected ImitableCollection(IEnumerable<object> source) { _source = source; }
+        protected ImitableCollection(IEnumerable source) { _source = source; }
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -44,9 +44,9 @@ namespace TreeStructures.Collections {
         /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
         /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
         /// <returns></returns>
-        public static ImitableCollection<TSrc,TConv> Create<TSrc,TConv>(IEnumerable<TSrc> collection,Func<TSrc,TConv> converter,Action<TConv>? removedAction = null, bool isImitate = true) where TConv : class  where TSrc : class{
-            Func<object, ConvertPair<TSrc, TConv>> generator = x => {
-                var m = x as TSrc;
+        public static ImitableCollection<TSrc,TConv> Create<TSrc,TConv>(IEnumerable<TSrc> collection,Func<TSrc,TConv> converter,Action<TConv>? removedAction = null, bool isImitate = true) where TConv : class {
+            Func<TSrc, ConvertPair<TSrc, TConv>> generator = x => {
+                var m = x;
                 return new ConvertPair<TSrc, TConv>(m, converter(m));
             };
             return new ImitableCollection<TSrc,TConv>(collection, generator, removedAction,isImitate);
@@ -85,9 +85,9 @@ namespace TreeStructures.Collections {
             public object Before { get; private set; }
             public object After { get; private set; }
         }
-        internal class ConvertPair<TSrc, TConv> : ConvertPair where TSrc : class where TConv : class {
+        internal class ConvertPair<TSrc, TConv> : ConvertPair where TConv : class {
             public ConvertPair(TSrc element, TConv syncObj) : base(element, syncObj) { }
-            public new TSrc Before { get { return base.Before as TSrc; } }
+            public new TSrc Before { get { return base.Before is null ? default: (TSrc)base.Before; } }
             public new TConv After { get { return base.After as TConv; } }
         }
     }
@@ -101,7 +101,7 @@ namespace TreeStructures.Collections {
         private ObservableCollection<TConv>? _obsList;
         private ReadOnlyObservableCollection<TConv>? _roObsList;
 
-        internal ImitableCollection(IEnumerable<object> collection,Func<object,ConvertPair> toSetConverter,Action<TConv>? removedAction = null,bool isImitate = true): base(collection) {
+        internal ImitableCollection(IEnumerable collection,Func<object,ConvertPair> toSetConverter,Action<TConv>? removedAction = null,bool isImitate = true): base(collection) {
 
             _toSyncSet = toSetConverter;
             _removeAction = removedAction;
@@ -116,7 +116,7 @@ namespace TreeStructures.Collections {
         /// <param name="converter">A function to convert elements from <see cref="object"/> to corresponding <typeparamref name="TConv"/>.</param>
         /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
         /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
-        public ImitableCollection(IEnumerable<object> collection,Func<object,TConv> converter,Action<TConv>? removedAction = null,bool isImitate = true) 
+        public ImitableCollection(IEnumerable collection,Func<object,TConv> converter,Action<TConv>? removedAction = null,bool isImitate = true) 
             : this(collection,new Func<object,ConvertPair>(src => new ConvertPair(src, converter(src))), removedAction, isImitate) { }
 
         void SetReferenceWithStartObserveCollection() {
@@ -176,7 +176,7 @@ namespace TreeStructures.Collections {
                     _removeAction.Invoke(th);
                 }
             }
-            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),ReferenceEqualityComparer<TConv>.Default);
+            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),Equality<TConv>.ReferenceComparer);
         }
         /// <summary></summary>
         /// <returns></returns>
@@ -184,7 +184,7 @@ namespace TreeStructures.Collections {
             if(_roObsList is null || _obsList is null){
                 if(_obsList is null){
                     _obsList = new ObservableCollection<TConv>();
-                    _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),ReferenceEqualityComparer<TConv>.Default);
+                    _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),Equality<TConv>.ReferenceComparer);
                 }
                 _roObsList ??= new ReadOnlyObservableCollection<TConv>(_obsList!);
             }
@@ -213,7 +213,7 @@ namespace TreeStructures.Collections {
                     this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, ary[i], i));
                 }
             }
-            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),ReferenceEqualityComparer<TConv>.Default);
+            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(),Equality<TConv>.ReferenceComparer);
         }
         /// <summary>Stops synchronization and clears the imitable collection.</summary>
         public void PauseImitateAndClear() {
@@ -221,7 +221,7 @@ namespace TreeStructures.Collections {
             this.Disposables.Dispose();
             _references.Clear();
             this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(), ReferenceEqualityComparer<TConv>.Default);
+            _obsList?.AlignBy(_references.Select(x => x.After).OfType<TConv>(), Equality<TConv>.ReferenceComparer);
         }
         
         #region IReadOnlyList Members
@@ -242,9 +242,9 @@ namespace TreeStructures.Collections {
     /// <inheritdoc/>
     /// <typeparam name="TSrc">The type of elements in the source collection for synchronization.</typeparam>
     /// <typeparam name="TConv">The type of elements in the target imitable collection.</typeparam>
-    public class ImitableCollection<TSrc,TConv> : ImitableCollection<TConv> where TSrc :class where TConv : class {
+    public class ImitableCollection<TSrc,TConv> : ImitableCollection<TConv>  where TConv : class {
         internal ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, ConvertPair<TSrc, TConv>> toSetConverter, Action<TConv>? removedAction = null, bool isImitate = true)
-            : base(collection: collection, toSetConverter: src => toSetConverter(src as TSrc), removedAction: removedAction,isImitate: isImitate) {
+            : base(collection: collection, toSetConverter: src => toSetConverter((TSrc)src), removedAction: removedAction,isImitate: isImitate) {
 
 
         }

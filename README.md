@@ -66,10 +66,10 @@ Furthermore, various methods for mutual conversion, such as `Convert`, `Assemble
 　Abstract classes define generic tree nodes, peripheral objects, and event arguments.
 
 Inheritance diagram of generic tree nodes  
-![InheritanceGenericTreeNode](./images/InheritanceGenericTreeNode.png)
+![InheritanceGenericTreeNode](https://raw.githubusercontent.com/Houzkin/TreeStructures/master/images/InheritanceGenericTreeNode.png)
 
 Inheritance diagram of NodePath and NodeIndex (peripheral objects)  
-![InheritancePeripheralObjects](./images/InheritancePeripheralObjects.png)
+![InheritancePeripheralObjects](https://raw.githubusercontent.com/Houzkin/TreeStructures/master/images/InheritancePeripheralObjects.png)
 
 ### TreeStructures.Linq;
 　Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`

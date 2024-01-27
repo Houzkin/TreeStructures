@@ -83,7 +83,10 @@ namespace TreeStructures {
             wrprs.RemoveAt(idx);
         }
         void Move(ObservableCollection<TWrpr> wrprs, int tgtIdx, int toIdx) { 
-            wrprs.Move(tgtIdx, toIdx);
+            try{
+                wrprs.Move(tgtIdx, toIdx);
+            }catch(Exception e){
+            }
         }
         void Clear(ObservableCollection<TWrpr> wrprs) {
             var lst = wrprs.ToArray();
@@ -167,7 +170,7 @@ namespace TreeStructures {
 			    Action<ObservableCollection<T>,int> removeAction,
 			    Action<ObservableCollection<T>,int,int> moveAction,
 			    Action<ObservableCollection<T>> clearAction)
-		    : base(ReferenceEqualityComparer<T>.Default){
+		    : base(Equality<T>.ReferenceComparer){
 			    _childNodes = childNodes;
 			    this.ListAligner = new ListAligner<T, ObservableCollection<T>>((this.Items as ObservableCollection<T>)!,insertAction,replaceAction,removeAction,moveAction,clearAction);
 			    this.AppendCollection(childNodes);

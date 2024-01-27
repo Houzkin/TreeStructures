@@ -120,13 +120,13 @@ namespace TreeStructures {
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
-                var nd = this
-                    .Evolve(a => {
-                        a.IsImitating = false;
+				var nd = this
+					.Evolve(a => {
+						a.IsImitating = false;
 						//return a.InnerChildren;
 						return a.InnerChildNodes;
-                    }, (a, b, c) => b.Prepend(a).Concat(c))
-                    .Skip(1).Reverse().OfType<IDisposable>().ToArray();
+					}, (a, b, c) => c.Prepend(a).Concat(b))// b.Prepend(a).Concat(c))
+                    .Skip(1).Reverse().OfType<IDisposable>();
                 foreach (var n in nd) n.Dispose();
                 //InnerChildren.Dispose();
 				InnerChildNodes.ClearCollection();

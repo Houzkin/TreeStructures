@@ -106,7 +106,7 @@ namespace TreeStructures.Tree {
         /// </summary>
         public class PropertyChainNode : TreeNodeBase<PropertyChainNode> {
             #region Fields
-            readonly HashSet<IEnumerable<string>> ChainToLeafs = new(EqualityCompared<IEnumerable<string>>.By(a => string.Join(".", a)));
+            readonly HashSet<IEnumerable<string>> ChainToLeafs = new(Equality<IEnumerable<string>>.ComparerBy(a => string.Join(".", a)));
             IDisposable? targetListener;
             #endregion
 
@@ -215,7 +215,7 @@ namespace TreeStructures.Tree {
             }
         }
         private class PropertyChainRoot : PropertyChainNode {
-            HashSet<ChainStatus> chainStatuses = new(EqualityCompared<ChainStatus>.By(a => string.Join(".", a.Key.Prepend(a.PropertyValueType))));
+            HashSet<ChainStatus> chainStatuses = new(Equality<ChainStatus>.ComparerBy(a => string.Join(".", a.Key.Prepend(a.PropertyValueType))));
             public PropertyChainRoot(TSrc target) : base(target) { }
             public bool IsEvaluateTargetChanged { get; set; } = true;
             public void ChangeTarget(TSrc target) {
