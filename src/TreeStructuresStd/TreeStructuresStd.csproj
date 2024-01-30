@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
 	  <LangVersion>10</LangVersion>
 	  <Nullable>enable</Nullable>
-	  <Version>1.6.3</Version>
+	  <Version>1.7.0</Version>
 	  <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
 	  <PackageIcon>icon.jpg</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -25,6 +25,7 @@ Features:
  Bidirectional Conversion between Different Data Structures and Tree Structures.</Description>
 	  <Copyright>Houzkin</Copyright>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

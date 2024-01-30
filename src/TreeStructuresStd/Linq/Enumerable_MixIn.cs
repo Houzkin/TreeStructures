@@ -91,15 +91,24 @@ namespace TreeStructures.Linq {
 		/// Generates a new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
-		/// <typeparam name="TList">The type of the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
 		/// <returns>A new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T,TList>(this TList self,IEqualityComparer<T>? equality = null)
-			where TList : IEnumerable<T> ,INotifyCollectionChanged{
+		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null)
+			/*where TList : IEnumerable<T> ,INotifyCollectionChanged*/{
 
 			var sfo = new ReadOnlySortFilterObservableCollection<T>(self,equality);
 			return sfo;
+		}
+		/// <summary>
+		/// Generates a new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// </summary>
+		/// <typeparam name="T">The type of elements in the collection.</typeparam>
+		/// <param name="self">The current observable collection.</param>
+		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
+		/// <returns>A new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with the specified options.</returns>
+		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
+			return new ReadOnlySortFilterObservableCollection<T>(self, equality);
 		}
 
 #if NETSTANDARD2_0

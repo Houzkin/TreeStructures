@@ -20,7 +20,6 @@ namespace TreeStructures.Collections {
 		/// <summary>Initializes a new instance.</summary>
 		/// <param name="list">The collection to synchronize with.</param>
 		/// <param name="equality"></param>
-
 		public ReadOnlySortFilterObservableCollection(IEnumerable<T> list, IEqualityComparer<T>? equality = null) : base(new ObservableCollection<T>()) {
 			ListAligner = new ListAligner<T, ObservableCollection<T>>(_Items, move: (list, ord, to) => { list.Move(ord, to); });
 			this.equality = equality ??= EqualityComparer<T>.Default;
@@ -102,6 +101,13 @@ namespace TreeStructures.Collections {
             }
 			Align();
 		}
+		/// <summary>Clear filter.</summary>
+		public void ClearFilter(){
+			_filterExpression.Clear();
+			filterTrigger.Dispose();
+			_filter = null;
+			Align();
+		}
 		/// <summary>
 		/// Sorts the collection by the specified property value.
 		/// </summary>
@@ -141,6 +147,12 @@ namespace TreeStructures.Collections {
 		/// <param name="triggerProperties">The properties to trigger re-evaluation when the element's properties change.(Nesting is allowed)</param>
 		public void CompareBy<TKey>(Func<T,TKey> getCompareKey,params Expression<Func<T,object>>[] triggerProperties)where TKey: IComparable<TKey>{
 			this.CompareBy(getCompareKey,  null, triggerProperties);
+		}
+		/// <summary>Unsorts the collection.</summary>
+		public void Unsorts(){
+			_comparerExpression.Clear();
+			comparerTrigger.Dispose();
+			_comparer = null;
 		}
 		bool isDisposed = false;
 		/// <summary>Dispose instance.</summary>

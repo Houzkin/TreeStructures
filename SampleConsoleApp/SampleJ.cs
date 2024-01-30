@@ -8,13 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
 using TreeStructures.Linq;
+using TreeStructures.Collections;
 
 namespace SampleConsoleApp;
 
 public static partial class UseageSample{
     public class DisposingObservableNamedNode : ObservableNamedNode{
 		protected override IEnumerable<ObservableNamedNode> SetupPublicChildCollection(IEnumerable<ObservableNamedNode> innerCollection) {
-            return (innerCollection as ObservableCollection<ObservableNamedNode>).ToFilteredReadOnlyObservableCollection(x => x.Name != "H");
+            var flitered = (innerCollection as ObservableCollection<ObservableNamedNode>).ToSortFilterObservable();
+            flitered.FilterBy(x => x.Name != "H", x => x.Name);
+            return flitered;
 			return base.SetupPublicChildCollection(innerCollection);
 		}
 		protected override void Dispose(bool disposing) {
@@ -23,15 +26,9 @@ public static partial class UseageSample{
 		}
 	}
     public class NamedNodeWrapper : BindableTreeNodeWrapper<ObservableNamedNode,NamedNodeWrapper>{
-        ObservableCollection<NamedNodeWrapper> artificals = new();
-        IFilteredReadOnlyObservableCollection<NamedNodeWrapper> filted;
+        
         public NamedNodeWrapper(ObservableNamedNode node) : base(node) { }
 
-		protected override IEnumerable<NamedNodeWrapper> SetupPublicChildCollection(CombinableChildWrapperCollection<NamedNodeWrapper> children) {
-            children.AppendCollection(artificals);
-            filted = children.AsReadOnlyObservableCollection().ToFilteredReadOnlyObservableCollection(x => x.Name != "N");
-            return filted;
-		}
 		protected override NamedNodeWrapper GenerateChild(ObservableNamedNode sourceChildNode) {
             return new NamedNodeWrapper(sourceChildNode);
 		}
@@ -44,6 +41,16 @@ public static partial class UseageSample{
             Console.WriteLine($"{this.Name} : Disposing");
 			base.Dispose(disposing);
 		}
+        ObservableCollection<NamedNodeWrapper> artificals = new();
+        ReadOnlySortFilterObservableCollection<NamedNodeWrapper> filterable;
+		protected override IEnumerable<NamedNodeWrapper> SetupPublicChildCollection(CombinableChildWrapperCollection<NamedNodeWrapper> children) {
+            children.AppendCollection(artificals);
+            filterable = children.ToSortFilterObservable();
+            return filterable;
+		}
+        public void Hide(string name){
+            filterable.FilterBy(x => x.Name != name, x => x.Name);
+        }
 		public void AddArtificalChild(string name){
             this.artificals.Add(new AnnonymousNamedWrapper(name));
         }
@@ -120,8 +127,29 @@ public static partial class UseageSample{
         //add dummy wrapper child.
         var nodeG = WrprRoot.Preorder().First(x => x.Name == "G");
         nodeG.AddArtificalChild("V");
-        nodeG.AddArtificalChild("W");
 
         Console.WriteLine(WrprRoot.ToTreeDiagram(x=> x.Name));
+
+        //dispose node G
+        nodeG.Dispose();
+
+        Console.WriteLine(WrprRoot.ToTreeDiagram(x => x.Name));
+    }
+    public static void MethodJJJ(){
+        var sources = "ABCDEFGHIJKL".ToCharArray().Select(x => x.ToString()).ToDictionary(x => x, x => new ObservableNamedNode() { Name = x });
+        //assemble source tree.
+        var SrcRoot = sources.Values.AssembleAsNAryTree(2);
+        
+        //wrapping source tree.
+        var WrprRoot = new NamedNodeWrapper(SrcRoot);
+        Console.WriteLine(WrprRoot.ToTreeDiagram(x => $"{x.Name}, IsDisposed : {x.IsDisposed}"));
+
+        //hide nodeB and add dummy wrapper child.
+        WrprRoot.Hide("B");
+        WrprRoot.AddArtificalChild("Dmy");
+        Console.WriteLine(WrprRoot.ToTreeDiagram(x => $"{x.Name}, IsDisposed : {x.IsDisposed}"));
+
+        WrprRoot.Dispose();
+
     }
 }
