@@ -76,7 +76,11 @@ Inheritance diagram of NodePath and NodeIndex (peripheral objects)
 ### TreeStructures.Utility;
 　Definition of `ResultWithValue<T>` used as a return value for Try●● methods
 ### TreeStructures.Collections;
-　Collections used in internal implementations and processing of extension methods
+　It defines collections used in internal implementations or processing steps of extension methods.  
+　These include the synchronizable `ImitableCollection<TSrc,TConv>`,  
+　the combinable observable collection `CombinableObservableCollection<T>`,  
+　and the `ReadOnlySortFilterObservableCollection<T>` that applies sorting and filtering while synchronizing with an observable collection.
+
 ### TreeStructures.EventManagement;
 　Objects used in event handling, implementing Observable tree nodes
 ### TreeStructures.Xml.Serialization;
