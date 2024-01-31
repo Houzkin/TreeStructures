@@ -149,7 +149,7 @@ namespace TreeStructures.Collections {
 			this.SortBy(getCompareKey,  null, triggerProperties);
 		}
 		/// <summary>Unsorts the collection.</summary>
-		public void Unsorts(){
+		public void ClearSorts(){
 			_comparerExpression.Clear();
 			comparerTrigger.Dispose();
 			_comparer = null;
