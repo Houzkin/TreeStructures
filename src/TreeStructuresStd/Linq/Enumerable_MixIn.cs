@@ -42,15 +42,6 @@ namespace TreeStructures.Linq {
         public static SequenceScroller<T> ToSequenceScroller<T> (this IEnumerable<T> sequence) {
             return new SequenceScroller<T>(sequence);
         }
-		//public static int FirstIndex<T>(this IEnumerable<T> ie, Predicate<T> match) {
-		//    var t = ie.Select((tData, index) => new { tData, index }).FirstOrDefault(arg => match(arg.tData));
-		//    if (t == null) return -1;
-		//    else return t.index;
-		//}
-
-		//public static int? FirstIndexOrNull<T>(this IEnumerable<T> ie, Predicate<T> match) {
-		//    return ie.Select((tData, index) => new { tData, index }).FirstOrDefault(arg => match(arg.tData))?.index;
-		//}
 		/// <summary>
 		/// Aligns the elements of the current <see cref="IList{T}"/> with the specified original sequence.
 		/// </summary>
@@ -94,9 +85,7 @@ namespace TreeStructures.Linq {
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
 		/// <returns>A new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null)
-			/*where TList : IEnumerable<T> ,INotifyCollectionChanged*/{
-
+		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null){
 			var sfo = new ReadOnlySortFilterObservableCollection<T>(self,equality);
 			return sfo;
 		}

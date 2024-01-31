@@ -52,6 +52,7 @@ public class Anniversary {
 	public override string ToString() {
 		return $"{Name} : {Date}";
 	}
+	public bool IsHoliday { get; set; }
 }
 public class AnnivWrapper : BindableTreeNodeWrapper<DateTimeTree<Anniversary>.Node, AnnivWrapper> {
 	public AnnivWrapper(DateTimeTree<Anniversary>.Node node) : base(node) { }

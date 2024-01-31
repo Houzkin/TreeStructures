@@ -75,7 +75,7 @@ namespace TreeStructures.Collections {
 		/// Filters the collection by the specified property. (Nesting is allowed)
 		/// </summary>
 		/// <param name="filterProperty">The property to filter the collection by, returning only elements that return true.</param>
-		public void FilterProperty(Expression<Func<T, bool>> filterProperty){
+		public void FilterOf(Expression<Func<T, bool>> filterProperty){
 			var func = filterProperty.Compile();
 			ParameterExpression param = Expression.Parameter(typeof(T), "x");
 			UnaryExpression body = Expression.Convert(filterProperty.Body, typeof(object));
@@ -114,11 +114,11 @@ namespace TreeStructures.Collections {
 		/// <typeparam name="TKey">The type of the property value to be used as the key.</typeparam>
 		/// <param name="keyProperty">The property to be used as the key. (Nesting is allowed)</param>
 		/// <param name="keyComparer">The comparer used for sorting.</param>
-		public void CompareOf<TKey>(Expression<Func<T,TKey>> keyProperty,IComparer<TKey>? keyComparer = null){
+		public void SortProperty<TKey>(Expression<Func<T,TKey>> keyProperty,IComparer<TKey>? keyComparer = null){
 			var func = keyProperty.Compile();
 			ParameterExpression param = Expression.Parameter(typeof(T), "x");
 			UnaryExpression body = Expression.Convert(keyProperty.Body, typeof(object));
-			this.CompareBy(func,keyComparer,Expression.Lambda<Func<T,object>>(body, param));
+			this.SortBy(func,keyComparer,Expression.Lambda<Func<T,object>>(body, param));
 		}
 		/// <summary>
 		/// Sorts the collection using the specified key.
@@ -127,7 +127,7 @@ namespace TreeStructures.Collections {
 		/// <param name="getCompareKey">The function to get the key.</param>
 		/// <param name="keyComparer">The comparer used for sorting.</param>
 		/// <param name="triggerProperties">The properties to trigger re-evaluation when the element's properties change. (Nesting is allowed)</param>
-		public void CompareBy<TKey>(Func<T,TKey> getCompareKey,IComparer<TKey>? keyComparer=null,params Expression<Func<T,object>>[] triggerProperties){
+		public void SortBy<TKey>(Func<T,TKey> getCompareKey,IComparer<TKey>? keyComparer=null,params Expression<Func<T,object>>[] triggerProperties){
 			_comparerExpression.Clear();
 			comparerTrigger.Dispose();
 			_comparer = new AnonyComparer<T,TKey>(getCompareKey, keyComparer);
@@ -145,8 +145,8 @@ namespace TreeStructures.Collections {
 		/// <typeparam name="TKey">The type of the key.</typeparam>
 		/// <param name="getCompareKey">the function to get the key.</param>
 		/// <param name="triggerProperties">The properties to trigger re-evaluation when the element's properties change.(Nesting is allowed)</param>
-		public void CompareBy<TKey>(Func<T,TKey> getCompareKey,params Expression<Func<T,object>>[] triggerProperties)where TKey: IComparable<TKey>{
-			this.CompareBy(getCompareKey,  null, triggerProperties);
+		public void SortBy<TKey>(Func<T,TKey> getCompareKey,params Expression<Func<T,object>>[] triggerProperties)where TKey: IComparable<TKey>{
+			this.SortBy(getCompareKey,  null, triggerProperties);
 		}
 		/// <summary>Unsorts the collection.</summary>
 		public void Unsorts(){
