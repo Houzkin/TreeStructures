@@ -10,31 +10,6 @@
 
 以上4つが挙げられます。
 
-## 名前空間とその分類
-
-### TreeStructures;  
-　abstractで定義された汎用ツリーノード、周辺オブジェクト、イベント引数
- 
- 汎用ツリーノードの継承図
- 
- ![InheritanceGenericTreeNode](images/InheritanceGenericTreeNode.png)
-
- NodePathとNodeIndex (周辺オブジェクト) の継承図
- 
-![InheritancePeripheralObjects](images/InheritancePeripheralObjects.png)
-
-### TreeStructures.Linq;
-　`ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`に対する拡張メソッド
-### TreeStructures.Utility;
-　Try○○メソッドの戻り値として使用する`ResultWithValue<T>`の定義など
-### TreeStructures.Collections;
-　内部実装や拡張メソッドの処理過程などで使用されるコレクション　
-### TreeStructures.EventManagement;
-　Event関連、ObservableなTreeNodeを実装するときに使用するオブジェクトなど
-### TreeStructures.Xml.Serialization;
-　シリアライズ・デシリアライズ時に使用するDictionaryなど
-### TreeStrucutures.Tree;
-　目的・用途を特定したツリー
 
 
 ## Useage
@@ -76,3 +51,32 @@ HierarchyWrapperとその派生型は外部に公開するコレクションの�
 `ITreeNode<TNode>`を実装していないオブジェクトへ`ITreeNode<TNode>`の拡張メソッドを提供と相互変換もサポートしています。  
 `HierarchyWrapper<TSrc,TWrpr>`または`BindableHierarchyWrapper<TSrc,TWrpr>`で階層構造をなすオブジェクトをラップする、または、`AsValuedTreeNode`を呼び出して`ITreeNode<TNode>`の拡張メソッドを提供します。  
 その他にも、拡張メソッドの`Convert`や`AssembleTree`、`ToNodeMap`など、相互変換方法をいくつか用意しています。  
+
+## 名前空間とその分類
+
+### TreeStructures;  
+　abstractで定義された汎用ツリーノード、周辺オブジェクト、イベント引数
+ 
+ 汎用ツリーノードの継承図
+ 
+ ![InheritanceGenericTreeNode](images/InheritanceGenericTreeNode.png)
+
+ NodePathとNodeIndex (周辺オブジェクト) の継承図
+ 
+![InheritancePeripheralObjects](images/InheritancePeripheralObjects.png)
+
+### TreeStructures.Linq;
+　`ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, `IEnumerable<T>`に対する拡張メソッド
+### TreeStructures.Utility;
+　Try○○メソッドの戻り値として使用する`ResultWithValue<T>`の定義など
+### TreeStructures.Collections;
+ 内部実装や拡張メソッドの処理過程などで使用されるコレクション。  
+ 同期可能な`ImitableCollection<TSrc,TConv>`,  
+ Observableなコレクションを結合可能な`CombinableObservableCollection<T>`,  
+ Observableなコレクションに同期したうえで、ソート・フィルターをかける`ReadOnlySortFilterObservableCollection<T>`などを定義しています。
+### TreeStructures.EventManagement;
+　Event関連、ObservableなTreeNodeを実装するときに使用するオブジェクトなど
+### TreeStructures.Xml.Serialization;
+　シリアライズ・デシリアライズ時に使用するDictionaryなど
+### TreeStrucutures.Tree;
+　目的・用途を特定したツリー
