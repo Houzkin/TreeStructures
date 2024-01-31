@@ -88,7 +88,8 @@ namespace TreeStructures.Linq {
         #region 変換(other as read-only valued TreeNode)
 
         /// <summary>Wraps the specified object as a read-only valued tree node.</summary>
-        /// <typeparam name="T">The type forming the compoiste pattern object to be wrapped.</typeparam>
+        /// <typeparam name="TSrc">The type forming the compoiste pattern object to be wrapped.</typeparam>
+        /// <typeparam name="TVal">Type of the value associated with each tree node.</typeparam>
         /// <param name="self">The object to be wrapped as the root node of the tree</param>
         /// <param name="toChildren">Function to retrieve objects to be wrapped as child nodes. Requires implementing <see cref="INotifyCollectionChanged"/> for child nodes to be synchronized.</param>
         /// <param name="toValue">Function to convert source to value.</param>

@@ -284,15 +284,20 @@ namespace TreeStructures.Linq {
                 if(matchs.TryMoveTo(curlv)) {
                     var cld = comparer.Equals(matchs.Current,selector(cur)) ? cur.Children : Array.Empty<T>();
                     if(matchs.TryNext()) {
-                        return cld.Where(x => comparer.Equals(matchs.Current, selector(x)));
+                        return cld.Where(x => comparer.Equals(matchs.Current, selector(x))).ToArray();
                     }
                 }
                 return Array.Empty<T>();
             }, (cur, clds, seeds) => {
                 int curlv = cur.Depth() - startdpth;
-                return matchs.TryMoveTo(curlv + 1).When(
-                    o => clds.Concat(seeds),
-                    x => seeds.Prepend(cur));
+                if(matchs.TryMoveTo(curlv+1)){
+                    return clds.Concat(seeds);
+                }else{
+                    return seeds.Prepend(cur);
+                }
+                //return matchs.TryMoveTo(curlv + 1).When(
+                //    o => clds.Concat(seeds),
+                //    x => seeds.Prepend(cur));
             });
         }
         /// <summary>

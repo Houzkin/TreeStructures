@@ -75,7 +75,7 @@ namespace TreeStructures.Collections {
 		/// Filters the collection by the specified property. (Nesting is allowed)
 		/// </summary>
 		/// <param name="filterProperty">The property to filter the collection by, returning only elements that return true.</param>
-		public void FilterOf(Expression<Func<T, bool>> filterProperty){
+		public void FilterProperty(Expression<Func<T, bool>> filterProperty){
 			var func = filterProperty.Compile();
 			ParameterExpression param = Expression.Parameter(typeof(T), "x");
 			UnaryExpression body = Expression.Convert(filterProperty.Body, typeof(object));

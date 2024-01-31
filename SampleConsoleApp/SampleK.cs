@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using TreeStructures.Linq;
 using TreeStructures.EventManagement;
 using System.Runtime.CompilerServices;
+using TreeStructures.Collections;
 
 namespace SampleConsoleApp;
 public abstract class NotificationObject : INotifyPropertyChanged {
@@ -92,7 +93,7 @@ public static partial class UseageSample{
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nonly republic");
-		sfoheads.FilterOf(x => x.IsRepublic);
+		sfoheads.FilterProperty(x => x.IsRepublic);
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 
@@ -101,7 +102,7 @@ public static partial class UseageSample{
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nsort state");
-		sfoheads.SortBy(x => x.State.Length, x => x.State);
+		sfoheads.SortBy(x => x.State.Length,Comparer<int>.Default.Invert(), x => x.State);
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nClear filter");
