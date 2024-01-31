@@ -260,9 +260,31 @@ namespace TreeStructures.Linq {
             return (T)self;
         }
 
-        #endregion
+		#endregion
 
-        #region 探索メソッド
+		#region 探索メソッド
+		/// <summary>
+		/// Searches from the current node towards descendants and returns the terminal node that continues to meet the condition.
+		/// </summary>
+		/// <typeparam name="T">Type of the node.</typeparam>
+		/// <param name="self">The current node.</param>
+		/// <param name="predicate">The condition for the nodes in the descendant direction, including the current node.</param>
+		/// <returns></returns>
+		public static IEnumerable<T> DescendArrivals<T>(this ITreeNode<T> self,Func<T,bool> predicate)where T:ITreeNode<T>{
+            return self.Evolve(cur => {
+                if (predicate(cur))
+                    return cur.Children.Where(predicate);
+                else
+                    return Array.Empty<T>();
+            }, (cur, clds, seeds) => {
+                if (predicate(cur) && clds.Any(predicate))
+                    return seeds.Concat(clds);
+                else if (predicate(cur))
+                    return seeds.Append(cur);
+                else
+                    return seeds;
+            });
+        }
 
         /// <summary>
         /// Searches for nodes in descendant direction from the current node, where each key matches in sequence.
@@ -290,15 +312,25 @@ namespace TreeStructures.Linq {
                 return Array.Empty<T>();
             }, (cur, clds, seeds) => {
                 int curlv = cur.Depth() - startdpth;
-                if(matchs.TryMoveTo(curlv+1)){
-                    return clds.Concat(seeds);
-                }else{
-                    return seeds.Prepend(cur);
-                }
-                //return matchs.TryMoveTo(curlv + 1).When(
-                //    o => clds.Concat(seeds),
-                //    x => seeds.Prepend(cur));
+                return matchs.TryMoveTo(curlv + 1).When(
+                    o => clds.Concat(seeds),
+                    x => seeds.Prepend(cur));
             });
+        }
+		/// <summary>
+        /// Searches from the current node towards descendants and returns the path to the terminal node that continues to meet the condition.
+		/// </summary>
+		/// <typeparam name="T">Type of the node.</typeparam>
+		/// <param name="self">The current node.</param>
+		/// <param name="predicate">The condition for the nodes in the descendant direction, including the current node.</param>
+		/// <returns></returns>
+		public static IReadOnlyList<IEnumerable<T>> DescendTraces<T>(this ITreeNode<T> self, Func<T, bool> predicate)where T:ITreeNode<T>{
+            var tmls = self.DescendArrivals(predicate);
+            var lst = new List<IEnumerable<T>>();
+            foreach(var tml in tmls){
+                lst.Add(tml.Upstream().TakeWhile(a => !object.ReferenceEquals(a, self)).Append((T)self).Reverse().ToArray());
+            }
+            return lst.AsReadOnly();
         }
         /// <summary>
         /// Searches for nodes in descendant direction from the current node, where each key matches in sequence, and returns the path to the matching node.
