@@ -56,15 +56,15 @@ namespace TreeStructures.Linq {
 
         /// <summary>Generates a sequence in preorder starting from the current node.</summary>
         public static IEnumerable<T> Preorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));
+            return self.Evolve(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//b a c
         }
         /// <summary>Generates a sequence in postorder starting from the current node.</summary>
         public static IEnumerable<T> Postorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => b.Append(a).Concat(c));
+            return self.Evolve(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//a b c
         }
         /// <summary>Generates a sequence in level order starting from the current node.</summary>
         public static IEnumerable<T> Levelorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b));
+            return self.Evolve(a => a.Children, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b));//a c b
         }
         /// <summary>Generates a sequence in inorder starting from the current node.</summary>
         public static IEnumerable<T> Inorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
@@ -350,6 +350,32 @@ namespace TreeStructures.Linq {
                 lst.Add(pk.Upstream().TakeWhile(a=>!object.ReferenceEquals(a, self)).Append((T)self).Reverse().ToArray());
             }
             return lst.AsReadOnly();
+        }
+		/// <summary>
+		/// Enumerates the first nodes that match the specified condition in a descendant direction.
+		/// Descendant nodes of a matching node are excluded from further exploration.
+		/// </summary>
+		/// <typeparam name="T">
+		/// The type of the nodes. <typeparamref name="T"/> must implement <see cref="ITreeNode{T}"/>.
+		/// </typeparam>
+		/// <param name="self">
+		/// The node of the tree structure to start the search from.
+		/// </param>
+		/// <param name="predicate">
+		/// A delegate to determine whether a node matches the specified condition.
+		/// </param>
+		/// <returns>
+		/// An <see cref="IEnumerable{T}"/> of nodes that match the specified condition.
+		/// Descendant nodes of a matching node are excluded from further exploration.
+		/// </returns>
+		/// <remarks>
+		/// This method performs a depth-first search of the tree structure and enumerates the first nodes that match the specified condition.
+		/// For example, if a node matches the condition, its descendants are not explored further.
+		/// </remarks>
+		public static IEnumerable<T> DescendFirstMatches<T>(this ITreeNode<T> self, Func<T, bool> predicate) where T : ITreeNode<T> {
+            return self.Evolve(
+                cur => !predicate(cur) ? cur.Children : Array.Empty<T>(), 
+                (cur, clds, seeds) => predicate(cur) ? seeds.Prepend(cur) : seeds.Concat(clds));
         }
         #endregion
     }
