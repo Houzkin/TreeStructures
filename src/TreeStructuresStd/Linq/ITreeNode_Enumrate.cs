@@ -355,15 +355,9 @@ namespace TreeStructures.Linq {
 		/// Enumerates the first nodes that match the specified condition in a descendant direction.
 		/// Descendant nodes of a matching node are excluded from further exploration.
 		/// </summary>
-		/// <typeparam name="T">
-		/// The type of the nodes. <typeparamref name="T"/> must implement <see cref="ITreeNode{T}"/>.
-		/// </typeparam>
-		/// <param name="self">
-		/// The node of the tree structure to start the search from.
-		/// </param>
-		/// <param name="predicate">
-		/// A delegate to determine whether a node matches the specified condition.
-		/// </param>
+		/// <typeparam name="T">The type of the nodes. <typeparamref name="T"/> must implement <see cref="ITreeNode{T}"/>.</typeparam>
+        /// <param name="self">The node of the tree structure to start the search from.</param>
+		/// <param name="predicate">A delegate to determine whether a node matches the specified condition.</param>
 		/// <returns>
 		/// An <see cref="IEnumerable{T}"/> of nodes that match the specified condition.
 		/// Descendant nodes of a matching node are excluded from further exploration.

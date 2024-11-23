@@ -74,12 +74,78 @@ namespace TreeStructures.Linq {
             where T : ITreeNode<T> {
             return convert(self, generator, (i, p, c) => addAction(p, c));
         }
-        
-        
-        #endregion
 
-        #region NodeIndexから組み立て
-        private static T _assemble<T>(IEnumerable<Tuple<NodeIndex, T>> dic, Action<int, T, T> addAction) {
+		#endregion
+
+		#region NodePathから組立
+
+		/// <summary>
+		/// Assembles a tree structure from a dictionary where the keys represent paths in the hierarchy.
+		/// </summary>
+		/// <typeparam name="U">The type of the data to convert.</typeparam>
+		/// <typeparam name="UPath">The type of the elements in the path.</typeparam>
+		/// <typeparam name="T">The type of the resulting tree node.</typeparam>
+		/// <param name="dic">The dictionary containing paths as keys and data as values.</param>
+		/// <param name="conv">A function to convert the data into the tree node type.</param>
+		/// <param name="addaction">An action that defines how to establish a parent-child relationship between tree nodes.</param>
+		/// <returns>The root node of the assembled tree.</returns>
+		public static T AssembleTreeByPath<U, UPath, T>(this IDictionary<NodePath<UPath>, U> dic,Func<U,T> conv,Action<T,T> addaction) { 
+            var ps = dic.Where(x=> 0 <= x.Key.Depth).Select(x => Tuple.Create(x.Key, conv(x.Value))).OrderBy(x => x.Item1.Depth).ToSequenceScroller();
+            foreach(var k in ps.GetSequence().Skip(1)){
+                ps.MoveTo(k)
+                    .TryPrevious(x => x.Item1.SequenceEqual(k.Item1.SkipLast(1)))
+                    .When(o => addaction(o.Current.Item2, k.Item2));
+            }
+            return ps.First().Current.Item2;
+        }
+		/// <summary>
+		/// Assembles a tree structure from a dictionary where the keys represent paths in the hierarchy.
+		/// </summary>
+		/// <typeparam name="TPath">The type of the elements in the path.</typeparam>
+		/// <typeparam name="T">The type of the tree node.</typeparam>
+		/// <param name="dic">The dictionary containing paths as keys and tree nodes as values.</param>
+		/// <param name="addaction">An action that defines how to establish a parent-child relationship between tree nodes.</param>
+		/// <returns>The root node of the assembled tree.</returns>
+		public static T AssembleTreeByPath<TPath,T>(this IDictionary<NodePath<TPath>,T> dic,Action<T,T> addaction){
+            return AssembleTreeByPath(dic, x => x, addaction);
+        }
+		/// <summary>
+		/// Assembles a tree structure from a dictionary where the keys represent paths in the hierarchy.
+		/// </summary>
+		/// <typeparam name="TPath">The type of the elements in the path.</typeparam>
+		/// <typeparam name="T">The type of the tree node. Must implement <see cref="IMutableTreeNode{T}"/>.</typeparam>
+		/// <param name="dic">The dictionary containing paths as keys and tree nodes as values.</param>
+		/// <returns>The root node of the assembled tree.</returns>
+		public static T AssembleTreeByPath<TPath,T>(this IDictionary<NodePath<TPath>,T> dic) where T : IMutableTreeNode<T>{
+            return AssembleTreeByPath(dic,x=>x,(p,c)=>p.AddChild(c));
+        }
+		/// <summary>
+		/// Assembles a tree structure from an enumerable of paths, with a conversion function for creating tree nodes.
+		/// </summary>
+		/// <typeparam name="TPath">The type of the elements in the path.</typeparam>
+		/// <typeparam name="T">The type of the resulting tree node.</typeparam>
+		/// <param name="self">The enumerable of paths representing the hierarchy.</param>
+		/// <param name="conv">A function to convert each path into a tree node.</param>
+		/// <param name="addaction">An action that defines how to establish a parent-child relationship between tree nodes.</param>
+		/// <returns>The root node of the assembled tree.</returns>
+		public static T AssembleTreeByPath<TPath,T>(this IEnumerable<NodePath<TPath>> self, Func<NodePath<TPath>,T> conv,Action<T,T> addaction){
+            return AssembleTreeByPath(self.ToDictionary(x => x, y => conv(y)),x=>x,addaction);
+        }
+		/// <summary>
+		/// Assembles a tree structure from an enumerable of paths, assuming the tree node type supports mutable relationships.
+		/// </summary>
+		/// <typeparam name="TPath">The type of the elements in the path.</typeparam>
+		/// <typeparam name="T">The type of the tree node. Must implement <see cref="IMutableTreeNode{T}"/>.</typeparam>
+		/// <param name="self">The enumerable of paths representing the hierarchy.</param>
+		/// <param name="conv">A function to convert each path into a tree node.</param>
+		/// <returns>The root node of the assembled tree.</returns>
+		public static T AssembleTreeByPath<TPath,T>(this IEnumerable<NodePath<TPath>> self,Func<NodePath<TPath>,T> conv) where T : IMutableTreeNode<T>{
+            return AssembleTreeByPath(self.ToDictionary(x => x, y => conv(y)), x => x, (p, c) => p.AddChild(c));
+        }
+		#endregion
+
+		#region NodeIndexから組み立て
+		private static T _assemble<T>(IEnumerable<Tuple<NodeIndex, T>> dic, Action<int, T, T> addAction) {
             //var seq = dic.OrderBy(x => x.Item1, TreeStructure.NodeIndex.GetPostorderComparer());
             var vst = dic.OrderBy(x => x.Item1, TreeStructures.NodeIndex.GetPostorderComparer())
                 .ToSequenceScroller();// new ElementScroller<Tuple<NodeIndex, T>>(seq);

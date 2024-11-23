@@ -41,7 +41,7 @@ namespace TreeStructures {
         public int Depth {
             get {
                 if (this._path.Any()) return this._path.Count() - 1;
-                else return 0;
+                else return -1;
             }
         }
         /// <summary>Returns a string representation.</summary>
