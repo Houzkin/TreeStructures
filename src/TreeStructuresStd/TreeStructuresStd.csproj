@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.1;net6.0</TargetFrameworks>
 	  <LangVersion>10</LangVersion>
 	  <Nullable>enable</Nullable>
-	  <Version>1.7.7</Version>
+	  <Version>1.7.8</Version>
 	  <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
 	  <PackageIcon>icon.jpg</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>

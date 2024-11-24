@@ -20,13 +20,18 @@ namespace SampleConsoleApp {
 				new("A","F"),
 				new("A","G","O","R")
 			};
-			var pt=	pathlist.AssembleTreeByPath(x => new NamedNode(){ Name = x.Last()});
+			var pt = pathlist.AssembleTreeByPath(x => new NamedNode() { Name = x.Last() });
 			Console.WriteLine(pt.ToTreeDiagram(x => x.Name));
 
 			var pathDic = pathlist.ToDictionary(x => x, x => new NamedNode() { Name = x.Last() });
 			var ptt = pathDic.AssembleTreeByPath();
-			Console.WriteLine(ptt.ToTreeDiagram(x=>x.Name));
+			Console.WriteLine(ptt.ToTreeDiagram(x => x.Name));
 
+			pathlist.AddRange( new List<NodePath<string>>() { new("FF"),new("FF", "G"),});
+
+			foreach(var p in pathlist.AssembleForestByPath(x=> new NamedNode(){ Name = x.Last() })){
+				Console.WriteLine(p.ToTreeDiagram(x => x.Name));
+			}
 
 			var root = "ADSEFSFSYELILIYOM".ToCharArray().Select(x => x.ToString())
 			.AssembleAsNAryTree(2, x => new NamedNode() { Name = x });
