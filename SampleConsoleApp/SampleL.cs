@@ -13,11 +13,12 @@ namespace SampleConsoleApp {
 			var pathlist = new List<NodePath<string>>() {
 				new("A","BB"),
 				new("A"),
-				new("A","C"), 
+				new("A","C"),
 				new("A","C","D"),
 				new("A","B"),
 				new("A","C","E"),
-				new("A","F")
+				new("A","F"),
+				new("A","G","O","R")
 			};
 			var pt=	pathlist.AssembleTreeByPath(x => new NamedNode(){ Name = x.Last()});
 			Console.WriteLine(pt.ToTreeDiagram(x => x.Name));

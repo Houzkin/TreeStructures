@@ -56,11 +56,11 @@ namespace TreeStructures.Linq {
 
         /// <summary>Generates a sequence in preorder starting from the current node.</summary>
         public static IEnumerable<T> Preorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//b a c
+            return self.Evolve(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//a b c
         }
         /// <summary>Generates a sequence in postorder starting from the current node.</summary>
         public static IEnumerable<T> Postorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//a b c
+            return self.Evolve(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//b a c
         }
         /// <summary>Generates a sequence in level order starting from the current node.</summary>
         public static IEnumerable<T> Levelorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
