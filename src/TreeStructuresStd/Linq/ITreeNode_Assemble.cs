@@ -27,15 +27,7 @@ namespace TreeStructures.Linq {
                     .When(r => addAction(tr.Item1.BranchIndex(), r.Current.Item2, tr.Item2));
             }
             return v.First().Current.Item2;
-            //var vst = self.Postorder()
-            //    .Select(x => Tuple.Create(x, generator(x)))
-            //    .ToSequenceScroller();
-            //foreach (var tr in vst.GetSequence()) {
-            //    vst.MoveTo(tr)
-            //        .TryNext(x => x.Item1.Children.Contains(tr.Item1))
-            //        .When(r => addAction(tr.Item1.BranchIndex(), r.Current.Item2, tr.Item2));
-            //}
-            //return vst.Current.Item2;
+             
         }
         /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
         /// <typeparam name="T">Type before conversion.</typeparam>
@@ -90,7 +82,10 @@ namespace TreeStructures.Linq {
 		/// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
 		/// <returns>An enumeration of the root nodes of the assembled tree structure.</returns>
 		public static IEnumerable<T> AssembleForestByPath<U,UPath,T>(this IDictionary<NodePath<UPath>,U> dic,Func<U,T> conv,Action<T,T> addAction){
-            var ps = dic.Where(x=> 0 <= x.Key.Depth).Select(x => Tuple.Create(x.Key, conv(x.Value))).OrderBy(x => x.Item1.Depth).ToSequenceScroller();
+            var pss = dic.Where(x => 0 <= x.Key.Depth).Select(x => Tuple.Create(x.Key, conv(x.Value))).OrderBy(x => x.Item1.Depth);
+            if(!pss.Any())return Enumerable.Empty<T>();
+
+            var ps = pss.ToSequenceScroller();
             foreach(var k in ps.GetSequence().Skip(1)){
                 ps.MoveTo(k)
                     .TryPrevious(x => x.Item1.SequenceEqual(k.Item1.SkipLast(1)))

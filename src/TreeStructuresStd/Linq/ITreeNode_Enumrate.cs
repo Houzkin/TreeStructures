@@ -26,30 +26,33 @@ namespace TreeStructures.Linq {
             seeds = seeds.Skip(1);
             return true;
         }
-        //private static IEnumerable<T> _Evolve<T>(this T self, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds,IEqualityComparer<T> eqComp) where T : class {
-        //    ISet<T> exphistory = new HashSet<T>(new EqualityComparer);//展開した履歴
-        //    ISet<T> rtnhistory = new HashSet<T>(eqComp);//列挙した履歴
-        //    IEnumerable<T?> seeds = new T[1] { (T)self };
-        //    while (expand(ref exphistory, out T? cur, ref seeds, getnewseeds, updateseeds)) {
-        //        if (cur != null && rtnhistory.Add(cur)) yield return cur;
-        //    }
-        //}
-        /// <summary>
-        /// Expands and enumerates the tree structure starting from the current node.
-        /// </summary>
-        /// <typeparam name="T">Type of the node.</typeparam>
-        /// <param name="self">Current node.</param>
-        /// <param name="getnewseeds">Specifies additional nodes to add from the elements.</param>
-        /// <param name="updateseeds">
-        /// Takes the source elements, added elements, and unprocessed elements as arguments and updates the unprocessed elements.
-        /// <para>Unprocessed elements are processed in the order they are expanded and enumerated.</para>
-        /// </param>
-        /// <returns></returns>
-        public static IEnumerable<T> Evolve<T>(this ITreeNode<T> self, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds) where T : ITreeNode<T> {
+
+		/// <summary>
+		/// Expands and enumerates a tree structure starting from the current node, allowing custom logic for adding and updating nodes during the traversal.
+		/// </summary>
+		/// <typeparam name="T">The type of the node.</typeparam>
+		/// <param name="startNode">The starting node for the traversal.</param>
+		/// <param name="getNodes">
+		/// A function that determines additional nodes to add based on the specified node.  
+		/// Takes the current node as an argument and returns a collection of nodes related to it.
+		/// </param>
+		/// <param name="updatePendingNodes">
+		/// A function that updates the list of unenumerated nodes during traversal. This function takes the following arguments:
+		/// <list type="bullet">
+		/// <item><description>The current node. The value passed as the first argument to the <paramref name="getNodes"/> function.</description></item>
+		/// <item><description>The collection of new nodes added for the current node. The return value of the <paramref name="getNodes"/> function.</description></item>
+		/// <item><description>The remaining unenumerated collection. If the head element of this collection has already been used as the first argument to <paramref name="getNodes"/>, that element will be enumerated.</description></item>
+		/// </list>
+		/// If the first element of the collection updated by <paramref name="updatePendingNodes"/> was not enumerated, it will be passed as the current node to the first argument of <paramref name="getNodes"/>.
+		/// </param>
+		/// <returns>
+		/// An enumerable sequence of nodes, representing the expanded tree structure starting from the current node.
+		/// </returns>
+		public static IEnumerable<T> Evolve<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
             ISet<T> exphistory = new HashSet<T>();//展開した履歴
             ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
-            IEnumerable<T?> seeds = new T[1] { (T)self };
-            while (expand(ref exphistory, out T? cur, ref seeds, getnewseeds, updateseeds)) {
+            IEnumerable<T?> seeds = new T[1] { (T)startNode };
+            while (expand(ref exphistory, out T? cur, ref seeds, getNodes, updatePendingNodes)) {
                 if (cur != null && rtnhistory.Add(cur)) yield return cur;
             }
         }
