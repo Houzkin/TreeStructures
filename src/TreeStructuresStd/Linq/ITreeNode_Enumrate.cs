@@ -41,13 +41,13 @@ namespace TreeStructures.Linq {
 		/// <list type="bullet">
 		/// <item><description>The current node. The value passed as the first argument to the <paramref name="getNodes"/> function.</description></item>
 		/// <item><description>The collection of new nodes added for the current node. The return value of the <paramref name="getNodes"/> function.</description></item>
-		/// <item><description>The remaining unenumerated collection. If the head element of this collection has already been used as the first argument to <paramref name="getNodes"/>, that element will be enumerated.</description></item>
+		/// <item><description>
+		/// The remaining unenumerated collection.  
+		/// <para>If the head element of this collection has not been used as an argument to <paramref name="getNodes"/>, it will be passed as the argument to <paramref name="getNodes"/>. </para>
+        /// <para>If it has already been used as an argument to <paramref name="getNodes"/>, that element will be enumerated.</para>
+		/// </description></item>
 		/// </list>
-		/// If the first element of the collection updated by <paramref name="updatePendingNodes"/> was not enumerated, it will be passed as the current node to the first argument of <paramref name="getNodes"/>.
 		/// </param>
-		/// <returns>
-		/// An enumerable sequence of nodes, representing the expanded tree structure starting from the current node.
-		/// </returns>
 		public static IEnumerable<T> Evolve<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
             ISet<T> exphistory = new HashSet<T>();//展開した履歴
             ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
