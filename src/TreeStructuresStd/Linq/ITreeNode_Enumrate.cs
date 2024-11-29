@@ -280,7 +280,7 @@ namespace TreeStructures.Linq {
                 else
                     return Array.Empty<T>();
             }, (cur, clds, seeds) => {
-                if (predicate(cur) && clds.Any(predicate))
+                if (predicate(cur) && clds.OfType<T>().Any(predicate))
                     return seeds.Concat(clds);
                 else if (predicate(cur))
                     return seeds.Append(cur);
