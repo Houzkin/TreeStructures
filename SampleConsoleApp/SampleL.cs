@@ -8,8 +8,8 @@ using TreeStructures.Linq;
 
 namespace SampleConsoleApp {
 	public static partial class UseageSample{
-
 		public static void MethodL(){
+
 			var pathlist = new List<NodePath<string>>() {
 				new("A","BB"),
 				new("A"),
@@ -18,9 +18,14 @@ namespace SampleConsoleApp {
 				new("A","B"),
 				new("A","C","E"),
 				new("A","F"),
-				new("A","G","O","R")
+				new("A","G","O","R"),
+				new("A","B","D"),
+				new("A","B","D","O"),
 			};
 			var pt = pathlist.AssembleTreeByPath(x => new NamedNode() { Name = x.Last() });
+			Console.WriteLine(pt.ToTreeDiagram(x => x.Name));
+
+			pt.RemoveAllDescendant(a => a.Name == "D");
 			Console.WriteLine(pt.ToTreeDiagram(x => x.Name));
 
 			var pathDic = pathlist.ToDictionary(x => x, x => new NamedNode() { Name = x.Last() });

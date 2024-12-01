@@ -67,7 +67,8 @@ public static partial class TreeNodeExtenstions {
     /// <returns>Returns the detached nodes.</returns>
     public static IReadOnlyList<T> DisassembleDescendants<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         List<T> rmvs = new();
-        foreach (var cld in self.Levelorder().Reverse()) rmvs.AddRange(cld.ClearChildren());
+        //foreach (var cld in self.Levelorder().Reverse()) rmvs.AddRange(cld.ClearChildren());
+        foreach (var cld in self.Postorder()) rmvs.AddRange(cld.ClearChildren());
         rmvs.Reverse();
         return rmvs.AsReadOnly();
 
@@ -83,15 +84,15 @@ public static partial class TreeNodeExtenstions {
     /// <returns>Returns the detached nodes.</returns>
     public static IReadOnlyList<T> Disassemble<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         List<T> rmvs=new();
-        self.TryRemoveOwn().When(o => rmvs.Add(o));
         rmvs.AddRange(self.DisassembleDescendants());
+        self.TryRemoveOwn().When(o => rmvs.Add(o));
         return rmvs.AsReadOnly();
     }
     /// <summary>Removes all child nodes that match the specified condition.</summary>
     /// <typeparam name="T">Type of the nodes.</typeparam>
     /// <param name="self">Current node.</param>
     /// <param name="predicate">Condition for removal (true if it should be removed).</param>
-    /// <returns>The removed nodes.</returns>
+    /// <returns>The removed sub trees.</returns>
     public static IReadOnlyList<T> RemoveAllChild<T>(this IMutableTreeNode<T> self, Predicate<T> predicate) where T : IMutableTreeNode<T> {
         return TreeNodeExtenstions.RemoveAllChild(self, predicate,(p,c)=>p.RemoveChild(c));
     }
@@ -100,12 +101,12 @@ public static partial class TreeNodeExtenstions {
     /// <param name="self">Current node.</param>
     /// <param name="predicate">Condition for removal (true if it should be removed).</param>
     /// <param name="removeAction">Function to break the relationship between the parent and the child. Takes the parent node as the first argument and the child node as the second argument.</param>
-    /// <returns>The removed nodes.</returns>
+    /// <returns>The removed sub trees.</returns>
     /// <exception cref="ArgumentNullException"></exception>
     public static IReadOnlyList<T> RemoveAllChild<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction) where T : ITreeNode<T> {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         var lst = new List<T>();
-        foreach (var cld in self.Children.OfType<T>().ToArray()) {
+        foreach (var cld in self.Children.OfType<T>().Reverse()) {
             if (predicate(cld)) {
                 self.TryRemoveChild(cld,removeAction).When(o => lst.Add(cld));
             }
@@ -116,7 +117,7 @@ public static partial class TreeNodeExtenstions {
     /// <typeparam name="T">Type of the node</typeparam>
     /// <param name="self">Current node</param>
     /// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
-    /// <returns>The removed nodes</returns>
+    /// <returns>The removed sub trees</returns>
     public static IReadOnlyList<T> RemoveAllDescendant<T>(this IMutableTreeNode<T> self, Predicate<T> predicate) where T : IMutableTreeNode<T> {
         return TreeNodeExtenstions.RemoveAllDescendant<T>(self, predicate, (p, c) => p.RemoveChild(c));
     }
@@ -125,7 +126,7 @@ public static partial class TreeNodeExtenstions {
     /// <param name="self">Current node</param>
     /// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
     /// <param name="removeAction">Function to dissolve the relationship, taking the parent node as the first argument and the child node as the second.</param>
-    /// <returns>The removed nodes</returns>
+    /// <returns>The removed sub trees</returns>
     public static IReadOnlyList<T> RemoveAllDescendant<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction)where T : ITreeNode<T> {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         if(removeAction==null) throw new ArgumentNullException(nameof(removeAction));
