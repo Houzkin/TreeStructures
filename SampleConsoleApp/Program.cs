@@ -4,11 +4,11 @@ using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!");
-MethodL();
-ExtensionSample.TreeNodeSample();
-MethodK();
-MethodJJJ();
-MethodJJ();
+//MethodL();
+//ExtensionSample.TreeNodeSample();
+//MethodK();
+//MethodJJJ();
+//MethodJJ();
 MethodJ();
 ExtensionSample.EnumerableSample();
 MethodI();
