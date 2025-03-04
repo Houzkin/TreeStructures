@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
@@ -10,9 +12,9 @@ using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public static partial class UseageSample{
+public static partial class UseageSample {
 
-	public static void MethodG(){
+	public static void MethodG() {
 		#region debug test
 		//var rmdtst = new RandomDateTime(new DateTime(2020, 1, 1), new DateTime(2020, 3, 1));
 		//var srccoll = new ObservableCollection<Anniversary>();
@@ -37,8 +39,7 @@ public static partial class UseageSample{
 		//Console.WriteLine(string.Join("\n", srccoll));
 		//Console.WriteLine("sorted collection");
 		//Console.WriteLine(string.Join("\n", wrprcoll));
-
-
+		Test<Anniversary>(x => x.Name, x => x.Name.Length);
 
 
 		#endregion
@@ -56,10 +57,15 @@ public static partial class UseageSample{
 		Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
 
 		//Anniversarys.RemoveAt(0);
-		Anniversarys.Add(new Anniversary() { Name = "X",Date = rmd.Next() });
+		Anniversarys.Add(new Anniversary() { Name = "X", Date = rmd.Next() });
+		Anniversarys.Move(1, 0);
 		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
-		Console.WriteLine(DispTree.ToTreeDiagram(x=> x.HeaderString));
+		Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
 
+	}
+	static void Test<T>(Expression<Func<T,object>> expression,Expression<Func<T,object>> exp){
+		Console.WriteLine(Equals(expression.ToString(),exp.ToString()));
+		Console.WriteLine($"expression:{expression.ToString()}, exp:{exp.ToString()}");
 	}
 
 }
