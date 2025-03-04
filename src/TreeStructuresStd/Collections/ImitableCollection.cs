@@ -143,7 +143,7 @@ namespace TreeStructures.Collections {
             IList<ConvertPair> newSrc = new List<ConvertPair>();
             List<ConvertPair> adds = new();//追加される要素
             foreach(var s in _source) {
-                var v = _references.FirstOrDefault(x => object.ReferenceEquals(x.Before, s));
+                var v = _references.FirstOrDefault(x => object.Equals(x.Before, s));
                 if(v != null) {
                     newSrc.Add(v);
                     _references.Remove(v);
@@ -160,7 +160,7 @@ namespace TreeStructures.Collections {
 
             Func<IList?, IEnumerable<ConvertPair>, IList> getSyncObj = (tgt, range) => {
                 return tgt == null ? Array.Empty<object>() : 
-                range.Where(x => tgt.OfType<object?>().Any(y => object.ReferenceEquals(y, x.Before))).Select(x => x.After).ToArray();
+                range.Where(x => tgt.OfType<object?>().Any(y => object.Equals(y, x.Before))).Select(x => x.After).ToArray();
             };
             NotifyCollectionChangedEventArgs arg = e.Action switch {
                 NotifyCollectionChangedAction.Add => new NotifyCollectionChangedEventArgs(e.Action, getSyncObj(e.NewItems,adds), e.NewStartingIndex),

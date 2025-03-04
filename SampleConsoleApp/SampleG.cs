@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
+using TreeStructures.Collections;
 using TreeStructures.Linq;
 using TreeStructures.Tree;
 
@@ -12,21 +13,51 @@ namespace SampleConsoleApp;
 public static partial class UseageSample{
 
 	public static void MethodG(){
+		#region debug test
+		//var rmdtst = new RandomDateTime(new DateTime(2020, 1, 1), new DateTime(2020, 3, 1));
+		//var srccoll = new ObservableCollection<Anniversary>();
+		//var srcAnnys = "ABCDEFG".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmdtst.Next() });
+		//var wrprcoll = new ReadOnlySortFilterObservableCollection<Anniversary>(srccoll);
+		//wrprcoll.SortBy(x => x.Date);
+
+		//foreach (var e in srcAnnys) srccoll.Add(e);
+
+		//Console.WriteLine("src collection");
+		//Console.WriteLine(string.Join("\n", srccoll));
+		//Console.WriteLine("sorted collection");
+		//Console.WriteLine(string.Join("\n", wrprcoll));
+
+		////Console.WriteLine("Add X");
+		////srccoll.Add(new Anniversary() { Name = "X", Date = new DateTime(2020, 2, 2) });
+
+		//Console.WriteLine("Remove at 0");
+		//srccoll.RemoveAt(0);
+
+		//Console.WriteLine("src collection");
+		//Console.WriteLine(string.Join("\n", srccoll));
+		//Console.WriteLine("sorted collection");
+		//Console.WriteLine(string.Join("\n", wrprcoll));
+
+
+
+
+		#endregion
 		var rmd = new RandomDateTime(new DateTime(2021, 1, 1), new DateTime(2022, 1, 1));
 		var Anniversarys = new ObservableCollection<Anniversary>();
-		var anys = "ABCDEFGHIJKLMNOPQRSTU".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmd.Next() });
+		var anys = "ABCDEF".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmd.Next() });
 
 		foreach (var item in anys) Anniversarys.Add(item);
 		var tree = new DateTimeTree<Anniversary>(Anniversarys,
 			x => x.Date, d => d.Month < 4 ? d.Year - 1 : d.Year,
 			d => d.Month < 4 ? d.Month + 12 : d.Month, d => d.Day);
-		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasValue ? x.Value.ToString() : x.NodeClass.ToString()));
+		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
 
 		var DispTree = new AnnivWrapper(tree.Root);
 		Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
 
-		Anniversarys.RemoveAt(0);
+		//Anniversarys.RemoveAt(0);
 		Anniversarys.Add(new Anniversary() { Name = "X",Date = rmd.Next() });
+		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
 		Console.WriteLine(DispTree.ToTreeDiagram(x=> x.HeaderString));
 
 	}
@@ -54,15 +85,15 @@ public class Anniversary {
 	}
 	public bool IsHoliday { get; set; }
 }
-public class AnnivWrapper : BindableTreeNodeWrapper<DateTimeTree<Anniversary>.Node, AnnivWrapper> {
+public class AnnivWrapper : TreeNodeWrapper<DateTimeTree<Anniversary>.Node, AnnivWrapper> {
 	public AnnivWrapper(DateTimeTree<Anniversary>.Node node) : base(node) { }
 	protected override AnnivWrapper GenerateChild(DateTimeTree<Anniversary>.Node sourceChildNode) {
 		return new AnnivWrapper(sourceChildNode);
 	}
 	public string HeaderString {
 		get{
-			if(this.Source.HasValue){
-				return this.Source.Value.ToString();
+			if(this.Source.HasItemAndValue){
+				return this.Source.Item.ToString();
 			}
 			var str = this.Source.Depth() switch {
 				0 => string.Empty,

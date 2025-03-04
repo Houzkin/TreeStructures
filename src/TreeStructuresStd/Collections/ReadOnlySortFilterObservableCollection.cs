@@ -50,7 +50,7 @@ namespace TreeStructures.Collections {
 			Align();
 		}
 
-		private ImitableCollection<ObservedPropertyTree<T>> _trees;
+		private ImitableCollection<T,ObservedPropertyTree<T>> _trees;
 		private IEnumerable<T> _list;
 		protected ListAligner<T, ObservableCollection<T>> ListAligner { get; }
 		readonly IEqualityComparer<T> equality;
@@ -69,7 +69,8 @@ namespace TreeStructures.Collections {
 
 		void Align(){
 			ListAligner.AlignBy(_list.Where(_filter ?? new(x => true)).OrderBy(x => x, _comparer ?? _incCmpr), this.equality);
-			//ListAligner.AlignBy(_list, this.equality);
+			//var tmplst = _trees._references.Select(x => x.Before).OfType<T>();
+			//ListAligner.AlignBy(_trees._references.Select(x=>x.Before).OfType<T>().Where(_filter ?? new(x => true)).OrderBy(x => x, _comparer ?? _incCmpr), this.equality);
 		}
 		/// <summary>
 		/// Filters the collection by the specified property. (Nesting is allowed)
@@ -130,7 +131,7 @@ namespace TreeStructures.Collections {
 		public void SortBy<TKey>(Func<T,TKey> getCompareKey,IComparer<TKey>? keyComparer=null,params Expression<Func<T,object>>[] triggerProperties){
 			_comparerExpression.Clear();
 			comparerTrigger.Dispose();
-			_comparer = new AnonyComparer<T,TKey>(getCompareKey, keyComparer);
+			_comparer = new CustomComparer<T,TKey>(getCompareKey, keyComparer);
 			_comparerExpression.AddRange(triggerProperties);
 			foreach(var item in _trees){
 				foreach(var props in triggerProperties){
@@ -166,24 +167,18 @@ namespace TreeStructures.Collections {
 			_trees.Dispose();
 			isDisposed = true;
 		}
-		private class AnonyComparer<TItem,TKey> : IComparer<TItem> {
-			Func<TItem,TKey> _keySelector;
-			IComparer<TKey> _keyComparer;
-			internal AnonyComparer(Func<TItem,TKey> keySelector, IComparer<TKey>? comparer = null){
-				_keySelector = keySelector;
-				_keyComparer = comparer ?? Comparer<TKey>.Default;
-			}
-			public virtual int Compare(TItem? x, TItem? y) {
-				if (x == null && y == null) return 0;
-				if (x == null) return 1;
-				if (y == null) return -1;
-				return _keyComparer.Compare(_keySelector(x), _keySelector(y));
-			}
-		}
+		ReadOnlyObservableCollection<T>? _readonly;
+		/// <summary></summary>
+		/// <returns></returns>
+		public ReadOnlyObservableCollection<T> AsReadOnlyObservableCollection()
+			=> _readonly ??= new ReadOnlyObservableCollection<T>(_Items);
+
 		private class IncompetentComparer<TItem> : IComparer<TItem> {
 			public int Compare(TItem? x, TItem? y) {
 				return 0;
 			}
 		}
+
+
 	}
 }
