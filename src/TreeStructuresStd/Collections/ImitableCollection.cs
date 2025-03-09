@@ -20,6 +20,8 @@ namespace TreeStructures.Collections {
         /// <summary>Initializes an instance.</summary>
         /// <param name="source">The source collection for synchronization.</param>
         protected ImitableCollection(IEnumerable source) { _source = source; }
+        /// <summary>Source collection </summary>
+        public IEnumerable Source => _source;
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -75,7 +77,7 @@ namespace TreeStructures.Collections {
         /// <summary>Prevents operations on an already disposed instance.</summary>
         /// <exception cref="ObjectDisposedException"></exception>
         protected void ThrowExceptionIfDisposed() {
-            if(disposedValue) throw new ObjectDisposedException(GetType().FullName,"既に破棄されたインスタンスが操作されました。");
+            if(disposedValue) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
         }
         #endregion
         internal class ConvertPair {
@@ -254,9 +256,13 @@ namespace TreeStructures.Collections {
         /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
         /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
         public ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TConv> converter, Action<TConv>? removedAction = null, bool isImitate = true)
-            : this(collection, new Func<TSrc, ConvertPair<TSrc, TConv>>(src => new ConvertPair<TSrc, TConv>(src, converter(src))), removedAction,isImitate) { }
-       
-        
+            : this(collection, new Func<TSrc, ConvertPair<TSrc, TConv>>(src => new ConvertPair<TSrc, TConv>(src, converter(src))), removedAction,isImitate) {
+            src = collection;
+        }
+
+        IEnumerable<TSrc> src;
+        /// <summary>Source collection</summary>
+        public new IEnumerable<TSrc> Source => src;
     }
     
 }

@@ -9,6 +9,7 @@ using TreeStructures.Linq;
 using TreeStructures.EventManagement;
 using System.Runtime.CompilerServices;
 using TreeStructures.Collections;
+using System.Reactive.Linq;
 
 namespace SampleConsoleApp;
 public abstract class NotificationObject : INotifyPropertyChanged {
@@ -102,7 +103,7 @@ public static partial class UseageSample{
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nsort state");
-		sfoheads.SortBy(x => x.State.Length,Comparer<int>.Default.Invert(), x => x.State);
+		sfoheads.SortBy(x => x.State.Length,/**Comparer<int>.Default.Invert(),**/ x => x.State);
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nClear filter");
@@ -115,6 +116,11 @@ public static partial class UseageSample{
 		}
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
+		Console.WriteLine("changed hander");
+		var disp = sfoheads.Subscribe(x => x.Name, (s, e) => {
+			Console.WriteLine($"State:{s.State}, Name:{s.Name}, Birthday:{s.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{s.IsRepublic}, IsEmpress:{s.IsEmpress}");
+		});
+		foreach (var item in heads.Where(x => x.State == "USA")) { item.Name = "Trump"; }
 	}
 
 }

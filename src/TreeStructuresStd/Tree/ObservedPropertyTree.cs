@@ -391,7 +391,7 @@ namespace TreeStructures.Tree {
                 var curv = GetPresentValue();
                 if(object.Equals(this.BeforeValue, curv)) return;
                 //var arg = new ChainedPropertyChangedEventArgs<TVal>(string.Join('.',status.Key), curv);
-                var arg = new ChainedPropertyChangedEventArgs<TVal>(e?.PropertyName ?? string.Empty, this.Key, curv);
+                var arg = new ChainedPropertyChangedEventArgs<TVal>(e?.PropertyName ?? string.Empty, this.Key.SkipWhile(x=>x == string.Empty), curv);
                 ChainedPropertyChanged?.Invoke(sender, arg);
                 BeforeValue = curv;
             }
