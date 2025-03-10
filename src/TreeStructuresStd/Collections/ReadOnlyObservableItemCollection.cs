@@ -13,11 +13,14 @@ using TreeStructures.Tree;
 using TreeStructures.Utility;
 
 namespace TreeStructures.Collections {
+
 	/// <summary>
-	/// 各要素のプロパティ変更通知を、一括で購読できるコレクションを提供する。
+	/// Provides a collection that allows subscribing to property change notifications for each element in bulk.  
+	/// The properties to be subscribed to can also be nested.  
+	/// To subscribe to nested properties, the nested objects must also implement <see cref="INotifyPropertyChanged"/>.
 	/// </summary>
-	/// <typeparam name="T">各要素の型。プロパティ変更通知の購読を受け取るには<see cref="INotifyPropertyChanged"/>を実装している必要があります。</typeparam>
-	public class ReadOnlyObservableItemCollection<T> : IEnumerable<T>,/*ReadOnlyObservableCollection<T>,*/ IDisposable,INotifyCollectionChanged {
+	/// <typeparam name="T">The type of the elements in the collection. To receive property change notifications, the elements must implement <see cref="INotifyPropertyChanged"/>.</typeparam>
+	public class ReadOnlyObservableItemCollection<T> : IEnumerable<T>, IDisposable,INotifyCollectionChanged {
 
 		ImitableCollection<T,ObservedPropertyTree<T>> _trees;
 		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>,IDisposable>>> dim3 = new();
@@ -26,11 +29,9 @@ namespace TreeStructures.Collections {
 		/// Returns the <see cref="IEnumerable{T}"/>that the <see cref="ReadOnlyObservableItemCollection{T}"/> wraps.
 		/// </summary>
 		protected virtual IEnumerable<T> Items => _trees.Source;
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="list">参照元となるコレクション。連動させるには<see cref="INotifyCollectionChanged"/>を実装している必要があります。</param>
-		public ReadOnlyObservableItemCollection(IEnumerable<T> list) /*: base(new ObservableCollection<T>(list))*/ {
+		/// <summary>Initializes a new instance.</summary>
+		/// <param name="list">The source collection to be referenced. To enable synchronization, the collection must implement <see cref="INotifyCollectionChanged"/>.</param>
+		public ReadOnlyObservableItemCollection(IEnumerable<T> list) {
 
 			_trees = ImitableCollection.Create(list,
 				x => {
@@ -73,6 +74,13 @@ namespace TreeStructures.Collections {
 		void dispExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area) {
 			if (dim3.Remove(area)) { clearExpressions(area); }
 		}
+		/// <summary>
+		/// Acquires a collection for managing properties to subscribe to.  
+		/// If the collection already contains the same <see cref="Expression{Func{T,object }}"/>, it will be excluded.  
+		/// If duplicates are allowed, a new collection should be acquired.
+		/// </summary>
+		/// <param name="exps">The collection of property expressions to subscribe to.</param>
+		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
 		protected ExpressionSubscriptionList AcquireNewSubscriptionList(IEnumerable<Expression<Func<T,object>>> exps){
 			var expc = new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions) {
 				exps
@@ -80,9 +88,11 @@ namespace TreeStructures.Collections {
 			return expc;
 		}
 		/// <summary>
-		/// 購読するプロパティを編集するためのコレクションを確保します。同一の<c>Expression&lt;Func&lt;T, object&gt;&gt;</c>が含まれる場合は除外されます。重複を許容する場合は、新たにコレクションを確保してください。
+		/// Acquires a collection for managing properties to subscribe to.  
+		/// If the collection already contains the same <see cref="Expression{Func{T,object }}"/>, it will be excluded.  
+		/// If duplicates are allowed, a new collection should be acquired.
 		/// </summary>
-		/// <returns>購読するプロパティを追加・削除するためのコレクション。</returns>
+		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
 		protected ExpressionSubscriptionList AcquireNewSubscriptionList() => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
 
 		void handleItemPropertyChanged(object? sender, ChainedPropertyChangedEventArgs<object> e) {
@@ -93,21 +103,26 @@ namespace TreeStructures.Collections {
 			}
 		}
 		/// <summary>
-		/// 各要素からのプロパティ変更通知を受け取ったときに処理される。
+		/// Handles the property change event for an item in the collection.
 		/// </summary>
-		/// <param name="sender">通知を発行した要素</param>
-		/// <param name="e">変更があったプロパティを示す</param>
+		/// <param name="sender">The item whose property has changed.</param>
+		/// <param name="e">The event arguments containing details about the change.</param>
+		/// <remarks>
+		/// When overriding this method, be sure to call the base class method.  
+		/// The base class method invokes the delegate registered via the  
+		/// <see cref="Subscribe(Expression{Func{T, object}}, Action{T, ChainedPropertyChangedEventArgs{object}})"/> method  
+		/// and raises notifications to subscribers monitoring property changes within the collection.
+		/// </remarks>
 		protected virtual void HandleItemPropertyChanged(T sender,ChainedPropertyChangedEventArgs<object> e){
 			ChainedPropertyChanged?.Invoke(sender, e);
 		}
 		event Action<T, ChainedPropertyChangedEventArgs<object>>? ChainedPropertyChanged;
-
 		/// <summary>
-		/// 指定したプロパティの変更通知を購読する。
+		/// Subscribes to notifications of changes to the specified property.
 		/// </summary>
-		/// <param name="expression">プロパティを指定</param>
-		/// <param name="handle">通知を受け取った時の処理</param>
-		/// <returns>イベントリスナー</returns>
+		/// <param name="expression">An expression that specifies the property to monitor for changes.</param>
+		/// <param name="handle">An action that handles the event when a property change notification is received.</param>
+		/// <returns>An <see cref="IDisposable"/> that can be used to unsubscribe from the property change notifications.</returns>
 		public IDisposable Subscribe(Expression<Func<T,object>> expression,Action<T,ChainedPropertyChangedEventArgs<object>> handle) {
 			var col = this.AcquireNewSubscriptionList(new Expression<Func<T, object>>[] { expression });
 			Action<T, ChainedPropertyChangedEventArgs<object>> action = (s, e) => {
@@ -169,7 +184,8 @@ namespace TreeStructures.Collections {
 		}
 
 		/// <summary>
-		/// 確保された、購読するプロパティ一覧を編集するためのコレクションを表す。同一の<c>Expression&lt;Func&lt;T, object&gt;&gt;</c>が含まれる場合は除外されます。
+		/// Represents a collection used to edit the list of properties to be subscribed to.  
+		/// Duplicate <see cref="Expression"/> instances are excluded from the collection.
 		/// </summary>
 		public class ExpressionSubscriptionList : IEnumerable<Expression<Func<T,object>>>, IDisposable {
 			Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area = new();
@@ -187,17 +203,23 @@ namespace TreeStructures.Collections {
 				_clearAction = clearAction;
 				_dispAction = dispAction;
 			}
-			/// <summary>購読するプロパティを追加する。同一の<c>Expression&lt;Func&lt;T, object&gt;&gt;</c>が含まれる場合は除外されます。</summary>
-			/// <param name="expressions"></param>
+			/// <summary>
+			/// Adds properties (expressed as <c>Expression&lt;Func&lt;T, object&gt;&gt;</c>) to the subscription list.  
+			/// Duplicate <c>Expression&lt;Func&lt;T, object&gt;&gt;</c> instances are excluded from the collection.
+			/// </summary>
+			/// <param name="expressions">The collection of expressions representing the properties to be added to the subscription list.</param>
 			public void Add(IEnumerable<Expression<Func<T, object>>> expressions) {
 				_addAction(_area,expressions);
 			}
-			/// <summary>指定したプロパティの購読を解除する。</summary>
-			/// <param name="expressions"></param>
+			/// <summary>
+			/// Unsubscribes from the specified properties (expressed as <c>Expression&lt;Func&lt;T, object&gt;&gt;</c>).
+			/// </summary>
+			/// <param name="expressions">The collection of expressions representing the properties to unsubscribe from.</param>
+
 			public void Remove(IEnumerable<Expression<Func<T, object>>> expressions) { _removeAction(_area, expressions); }
-			/// <summary>購読を全て解除する。</summary>
+			/// <summary>Unsubscribes from all properties in the collection.</summary>
 			public void Clear() { _clearAction(_area); }
-			/// <summary>購読を全て解除し、確保されたコレクションを破棄する。</summary>
+			/// <summary>Unsubscribes from all properties and disposes of the allocated collection.</summary>
 			public void Dispose() { _dispAction(_area); }
 			/// <inheritdoc/>
 			public IEnumerator<Expression<Func<T, object>>> GetEnumerator() { return _area.Keys.GetEnumerator(); }

@@ -3,20 +3,20 @@
 using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
-//Console.WriteLine("Hello, World!");
+Console.WriteLine("Hello, World!");
 //MethodL();
 //ExtensionSample.TreeNodeSample();
-MethodK();
+//MethodK();
 //MethodJJJ();
 //MethodJJ();
 //MethodJ();
 //ExtensionSample.EnumerableSample();
 //MethodI();
 //MethodH();
-MethodG();
-MethodF3();
-MethodF2();
-MethodF();
+//MethodG();
+//MethodF3();
+//MethodF2();
+//MethodF();
 MethodA();
 MethodB();
 MethodC();

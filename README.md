@@ -34,7 +34,7 @@ Editing: Including `TryAddChild`, Try●●Child, `Disassemble`, `RemoveAllDesce
 Parameter Retrieval: `NodeIndex`, `NodePath`, `Height`, `Depth`, etc.  
 Predicate Methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
 Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
-Assembly Methods: `Convert`, `AssembleTree`, `AssembleAsNAryTree`
+Assembly Methods: `Convert`, `AssembleTree`, `AssembleAsNAryTree`,`AssembleForestByPath`
 
 ### Mutual References Between Parent and Child Nodes
 Mutual references between parent and child nodes are handled by base classes (`TreeNodeBase<TNode>` or `HierarchyWrapper<TSrc,TWrpr>`). 
