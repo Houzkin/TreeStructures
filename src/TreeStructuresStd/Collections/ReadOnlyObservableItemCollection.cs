@@ -82,10 +82,14 @@ namespace TreeStructures.Collections {
 		/// <param name="exps">The collection of property expressions to subscribe to.</param>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
 		protected ExpressionSubscriptionList AcquireNewSubscriptionList(IEnumerable<Expression<Func<T,object>>> exps){
-			var expc = new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions) {
-				exps
-			};
-			return expc;
+			//var dic = new Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>, IDisposable>>();
+			//var expc = new ExpressionSubscriptionList(dic,addExpressions, removeExpressions, clearExpressions, dispExpressions) {
+			//	exps
+			//};
+			//return expc;
+			var esp = this.AcquireNewSubscriptionList();
+			esp.Add(exps);
+			return esp;
 		}
 		/// <summary>
 		/// Acquires a collection for managing properties to subscribe to.  
@@ -93,7 +97,11 @@ namespace TreeStructures.Collections {
 		/// If duplicates are allowed, a new collection should be acquired.
 		/// </summary>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
-		protected ExpressionSubscriptionList AcquireNewSubscriptionList() => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
+		protected ExpressionSubscriptionList AcquireNewSubscriptionList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
+			var dic = new Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>, IDisposable>>();
+			dim3.Add(dic);
+			return new ExpressionSubscriptionList(dic, addExpressions, removeExpressions, clearExpressions, dispExpressions);
+		}
 
 		void handleItemPropertyChanged(object? sender, ChainedPropertyChangedEventArgs<object> e) {
 			if (sender is T typedSender) {
@@ -188,16 +196,18 @@ namespace TreeStructures.Collections {
 		/// Duplicate <see cref="Expression"/> instances are excluded from the collection.
 		/// </summary>
 		public class ExpressionSubscriptionList : IEnumerable<Expression<Func<T,object>>>, IDisposable {
-			Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area = new();
+			Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area;
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>,IEnumerable<Expression<Func<T, object>>>> _addAction;
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>,IEnumerable<Expression<Func<T, object>>>> _removeAction;
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _clearAction;
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _dispAction;
 			internal ExpressionSubscriptionList(
+				Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>,IDisposable>> area,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> addAction,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> removeAction,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> clearAction,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>>  dispAction) {
+				_area = area;
 				_addAction = addAction;
 				_removeAction = removeAction;
 				_clearAction = clearAction;

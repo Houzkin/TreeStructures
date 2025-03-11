@@ -31,18 +31,23 @@ namespace TreeStructures.Collections {
 			}
 			filterExps = this.AcquireNewSubscriptionList();
 			comparerExps = this.AcquireNewSubscriptionList();
+			Align();
 		}
 
 		private IEnumerable<T> _list;
 		ListAligner<T,ObservableCollection<T>>? _listAligner;
-		private ListAligner<T, ObservableCollection<T>> ListAligner { 
+
+		/// <summary>
+		/// Provides functionality to align and rearrange the collection represented by the current instance, <see cref="Items"/>.
+		/// </summary>
+		protected ListAligner<T, ObservableCollection<T>> ListAligner { 
 			get => _listAligner ??= new ListAligner<T, ObservableCollection<T>>((ObservableCollection<T>)Items,move: (collection, ord, to) => {collection.Move(ord, to); });
 		}
 		readonly IEqualityComparer<T> equality;
 		/// <summary>
 		/// Returns the underlying <see cref="ObservableCollection{T}"/> wrapped by <see cref="ReadOnlyObservableItemCollection{T}"/> as an <see cref="IEnumerable{T}"/>.
 		/// </summary>
-		protected override IEnumerable<T> Items { get; }
+		protected override sealed IEnumerable<T> Items { get; }
 		Func<T, bool>? _filter;
 		ExpressionSubscriptionList filterExps;
 		ExpressionSubscriptionList comparerExps;
@@ -66,8 +71,10 @@ namespace TreeStructures.Collections {
 			if (sbcprps.Select(x => PropertyUtils.GetPropertyPath(x)).Any(x => e.ChainedProperties.SequenceEqual(x)))
 				Align();
 		}
-
-		void Align(){
+		/// <summary>
+		/// Adjusts the arrangement of the collection represented by the current instance, <see cref="Items"/>.
+		/// </summary>
+		protected virtual void Align(){
 			ListAligner.AlignBy(_list.Where(_filter ?? new(x => true)).OrderBy(x => x, _comparer ?? _incCmpr), this.equality);
 		}
 		/// <summary>
