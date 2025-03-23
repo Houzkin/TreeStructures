@@ -7,19 +7,17 @@
 1. 親ノードと子ノードの相互参照を実現
 1. ツリー構造をなすクラス群とそれらの拡張性
 1. 異なるデータ構造とツリー構造の相互変換
-
-以上4つが挙げられます。
-
+1. 上記を実装する過程で必要となったコレクション関連クラス
 
 
 ## Useage
-[wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja) に書く
+[wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja) 参照  
 
 ## Concept
 このライブラリで完結することは目指していません。  
-既に様々な便利なライブラリが公開されているので、ツリー構造に関する機能を担いつつ、他ライブラリとの共存を目指しています。  
+ツリー構造の機能を提供し、他のライブラリと共存できる設計を目指しています。
   
-冒頭にて示した4つの特徴について補足します。
+上記の特徴について、詳細を説明します。
 ### 豊富な拡張メソッド
 `ITreeNode<TNode>`の拡張メソッドはオーバーロードも含め60以上を定義しています。  
 例を挙げると、  
@@ -29,7 +27,7 @@
 パラメータの取得は、`NodeIndex`, `NodePath`, `Height`, `Depth`, etc  
 判定メソッドは、`IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc  
 変換は、`ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
-組み立てメソッドは、`Convert`, `AssembleTree`, `AssembleAsNAryTree`  
+組み立てメソッドは、`Convert`, `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`  
 
 
 ### 親ノードと子ノードの相互参照
@@ -37,20 +35,37 @@
 TreeNodeBaseの派生型では、RemoveChildProcess、InsertChildProcessなど、protected virtualで定義された○○ChildProcessメソッドでカスタマイズできます。
 
 ### ツリー構造をなすクラス群とその汎用性
-細かくカスタマイズするならTreeNodeBase。  
-GeneralTreeで、データ構造またはデータのコンテナとして使用するならGeneralTreeNodeまたはObservableTreeNode、  
-Branchの数を固定して、空のノードをnullとするN-Ary Treeとして使用するのであればNAryTreeNode、  
-階層構造をなすオブジェクトまたはツリー構造の、ラッパークラスとして使用するならば(Hierarchy | TreeNode) Wrapper、  
-ラッパーとしての機能に加え、MVVMにおけるViewModelなど、観測可能且つインスタンスの破棄が必要な場合はBindable(Hierarchy | TreeNode) Wrapper  
-をそれぞれ継承して使用してください。
+用途に応じて以下のクラスを継承して利用できます。
 
-TreeNodeBaseとその派生型ではSetup(Inner | Public)ChildCollectionメソッドをオーバーライドすることで、内部で扱うコレクションと外部に公開するコレクションをカスタマイズできます。  
+- **TreeNodeBase**: メソッド定義など細かくカスタマイズしたい場合
+- **GeneralTreeNode / ObservableTreeNode**: データ構造やコンテナとして使用する場合
+- **NAryTreeNode**: 空のノードを `null` とする N 分岐ツリーとして使用する場合
+- **HierarchyWrapper / TreeNodeWrapper**: 階層構造をラップする場合
+- **BindableHierarchyWrapper / BindableTreeNodeWrapper**: MVVM の ViewModel など、観測可能で破棄が必要な場合
+
+TreeNodeBaseとその派生型では、`Setup(Inner | Public)ChildCollection` メソッドをオーバーライドすることで、  
+内部で使用するコレクションや外部に公開するコレクションをカスタマイズできます。
+
 HierarchyWrapperとその派生型は外部に公開するコレクションのみカスタマイズできます。  
   
 ### 異なるデータ構造とツリー構造の相互変換
-`ITreeNode<TNode>`を実装していないオブジェクトへ`ITreeNode<TNode>`の拡張メソッドを提供と相互変換もサポートしています。  
-`HierarchyWrapper<TSrc,TWrpr>`または`BindableHierarchyWrapper<TSrc,TWrpr>`で階層構造をなすオブジェクトをラップする、または、`AsValuedTreeNode`を呼び出して`ITreeNode<TNode>`の拡張メソッドを提供します。  
+`ITreeNode<TNode>`を実装していないオブジェクトでも、`ITreeNode<TNode>`の拡張メソッドを利用できます。  
+`HierarchyWrapper<TSrc,TWrpr>`や`BindableHierarchyWrapper<TSrc,TWrpr>`を使って階層構造をラップする、または、`AsValuedTreeNode`を呼び出して`ITreeNode<TNode>`の拡張メソッドを提供します。  
 その他にも、拡張メソッドの`Convert`や`AssembleTree`、`ToNodeMap`など、相互変換方法をいくつか用意しています。  
+
+### 実装過程で必要となったコレクション
+- `ListAligner<T,TList>`  
+指定したリストの並び替えを担う。
+- `ImitableCollection<TSrc,TConv>`  
+指定したコレクションに同期したコレクション。
+- `CombinableObservableCollection<T>`  
+観測可能なコレクションを結合するコレクション。
+- `ReadOnlyObservableItemCollection<T>`
+指定したコレクションの観測と、各要素のプロパティを一括で観測する機能を追加した、観測可能なコレクション。
+- `ReadOnlySortFilterObservableCollection<T>`
+指定したコレクションの各要素を観測して、ソートやフィルター機能を追加した、観測可能なコレクション。
+- `ListScroller<T>`
+コレクション内を移動できる機能を提供する。
 
 ## 名前空間とその分類
 
@@ -71,9 +86,6 @@ HierarchyWrapperとその派生型は外部に公開するコレクションの�
 　Try○○メソッドの戻り値として使用する`ResultWithValue<T>`の定義など
 ### TreeStructures.Collections;
  内部実装や拡張メソッドの処理過程などで使用されるコレクション。  
- 同期可能な`ImitableCollection<TSrc,TConv>`,  
- Observableなコレクションを結合可能な`CombinableObservableCollection<T>`,  
- Observableなコレクションに同期したうえで、ソート・フィルターをかける`ReadOnlySortFilterObservableCollection<T>`などを定義しています。
 ### TreeStructures.EventManagement;
 　Event関連、ObservableなTreeNodeを実装するときに使用するオブジェクトなど
 ### TreeStructures.Xml.Serialization;

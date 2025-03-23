@@ -19,10 +19,11 @@
 Emphasizing flexibility and extensibility, the library allows easy manipulation of various tree structures.
 
 Features:
- Rich extension methods for `ITreeNode&lt;TNode&gt;`
- Achieving mutual references between parent and child nodes
- Classes forming a tree structure and their Generality
- Bidirectional Conversion between Different Data Structures and Tree Structures.</Description>
+A rich set of extension methods for `ITreeNode&lt;TNode&gt;`
+Mutual referencing between parent and child nodes
+A collection of tree-structured classes with high extensibility
+Conversion between different data structures and tree structures
+Collection-related classes developed as a byproduct of implementing the above</Description>
 	  <Copyright>Houzkin</Copyright>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
