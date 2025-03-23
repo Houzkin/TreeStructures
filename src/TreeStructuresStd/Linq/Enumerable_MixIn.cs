@@ -39,30 +39,34 @@ namespace TreeStructures.Linq {
             return new LumpedDisopsables(enumerable.OfType<IDisposable>());
         }
         /// <summary>Generates an instance for traversing the sequence.</summary>
-        public static SequenceScroller<T> ToSequenceScroller<T> (this IEnumerable<T> sequence) {
-            return new SequenceScroller<T>(sequence);
-        }
+        //public static SequenceScroller<T> ToSequenceScroller<T> (this IEnumerable<T> sequence) {
+        //    return new SequenceScroller<T>(sequence);
+        //}
+		public static ListScroller<T> ToListScroller<T>(this IEnumerable<T> list) {
+			return new ListScroller<T>(list);
+		}
 		/// <summary>
 		/// Aligns the elements of the current <see cref="IList{T}"/> with the specified original sequence.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the lists.</typeparam>
 		/// <param name="self">The current list to align.</param>
-		/// <param name="org">The original sequence to align with.</param>
+		/// <param name="sequence">The original sequence to align with.</param>
 		/// <param name="equality">An optional equality comparer for element comparison.</param>
-		public static void AlignBy<T>(this IList<T> self, IEnumerable<T> org, IEqualityComparer<T>? equality = null) {
-			var editer = new ListAligner<T, IList<T>>(self);
-			editer.AlignBy(org, equality);
+		public static void AlignBy<T>(this IList<T> self,IEnumerable<T> sequence, IEqualityComparer<T>? equality = null) {
+			var editor = new ListAligner<T, IList<T>>(self, comparer: equality);
+			editor.AlignBy(sequence);
 		}
+
 		/// <summary>
 		/// Aligns the elements of the current <see cref="ObservableCollection{T}"/> with the specified original sequence.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the observable collection.</typeparam>
 		/// <param name="self">The current observable collection to align.</param>
-		/// <param name="org">The original sequence to align with.</param>
+		/// <param name="sequence">The original sequence to align with.</param>
 		/// <param name="equality">An optional equality comparer for element comparison.</param>
-		public static void AlignBy<T>(this ObservableCollection<T> self, IEnumerable<T> org, IEqualityComparer<T>? equality = null) {
-			var editer = new ListAligner<T, ObservableCollection<T>>(self, move: (list, ord, to) => { list.Move(ord, to); });
-			editer.AlignBy(org, equality);
+		public static void AlignBy<T>(this ObservableCollection<T> self, IEnumerable<T> sequence, IEqualityComparer<T>? equality = null) {
+			var editer = new ListAligner<T, ObservableCollection<T>>(self, move: (list, ord, to) => { list.Move(ord, to); }, comparer: equality);
+			editer.AlignBy(sequence);
 		}
 
 		/// <summary>
@@ -99,8 +103,23 @@ namespace TreeStructures.Linq {
 		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
 			return new ReadOnlySortFilterObservableCollection<T>(self, equality);
 		}
-
 #if NETSTANDARD2_0
+		internal static IEnumerable<TSource> SkipLast<TSource>(this IEnumerable<TSource> source, int count) {
+			var q = new Queue<TSource>();
+			foreach (var x in source) { 
+				q.Enqueue(x);
+				if (q.Count > count) {
+					yield return q.Dequeue();
+				}
+			}
+		}
+		internal static bool Remove<TKey,T>(this Dictionary<TKey,T> dictionary,TKey key,out T result) {
+			if(dictionary.ContainsKey(key)) {
+				result = dictionary[key];
+			} else { result = default(T); }
+			return dictionary.Remove(key);
+		}
+
 		internal static bool TryPop<T>(this Stack<T> stack, out T result) {
 			result = default(T);
 

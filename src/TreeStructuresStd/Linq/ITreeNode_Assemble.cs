@@ -20,14 +20,26 @@ namespace TreeStructures.Linq {
         where T : ITreeNode<T> {
             if (generator == null) throw new ArgumentNullException(nameof(generator));
             if (addAction == null) throw new ArgumentNullException(nameof(addAction));
-            var v = self.Levelorder().Select(x => Tuple.Create(x, generator(x))).ToSequenceScroller();
-            foreach(var tr in v.GetSequence()){
-                v.MoveTo(tr)
-                    .TryPrevious(x => x.Item1.Children.Contains(tr.Item1))
-                    .When(r => addAction(tr.Item1.BranchIndex(), r.Current.Item2, tr.Item2));
-            }
-            return v.First().Current.Item2;
-             
+
+            //var v = self.Levelorder().Select(x => Tuple.Create(x, generator(x))).ToSequenceScroller();
+            //foreach (var tr in v.GetSequence()) {
+            //    v.MoveTo(tr)
+            //        .TryPrevious(x => x.Item1.Children.Contains(tr.Item1))
+            //        .When(r => addAction(tr.Item1.BranchIndex(), r.Current.Item2, tr.Item2));
+            //}
+            //return v.First().Current.Item2;
+
+            //var scroller = self.Levelorder().Select(x => Tuple.Create(x, generator(x))).ToListScroller();
+            //scroller.MoveForEach(ele => {
+            //    scroller
+            //        .TryPrevious(x => x.Item1.Children.Contains(ele.Item1))
+            //        .When(r => addAction(ele.Item1.BranchIndex(), r.Current.Item2, ele.Item2));
+            //});
+            //return scroller.First().Current.Item2;
+
+            return self.ToNodeMap().AssembleTree(generator, addAction);
+            //var dic = self.ToNodeMap(x=>generator(x));
+            //return dic.AssembleTree(addAction);
         }
         /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
         /// <typeparam name="T">Type before conversion.</typeparam>
@@ -85,13 +97,20 @@ namespace TreeStructures.Linq {
             var pss = dic.Where(x => 0 <= x.Key.Depth).Select(x => Tuple.Create(x.Key, conv(x.Value))).OrderBy(x => x.Item1.Depth);
             if(!pss.Any())return Enumerable.Empty<T>();
 
-            var ps = pss.ToSequenceScroller();
-            foreach(var k in ps.GetSequence().Skip(1)){
-                ps.MoveTo(k)
-                    .TryPrevious(x => x.Item1.SequenceEqual(k.Item1.SkipLast(1)))
-                    .When(o => addAction(o.Current.Item2, k.Item2));
-            }
-            return ps.GetSequence().TakeWhile(x => x.Item1.Depth == 0).Select(x => x.Item2);
+            //var ps = pss.ToSequenceScroller();
+            //foreach (var k in ps.GetSequence().Skip(1)) {
+            //    ps.MoveTo(k)
+            //        .TryPrevious(x => x.Item1.SequenceEqual(k.Item1.SkipLast(1)))
+            //        .When(o => addAction(o.Current.Item2, k.Item2));
+            //}
+            //return ps.GetSequence().TakeWhile(x => x.Item1.Depth == 0).Select(x => x.Item2);
+
+            var scroller = pss.ToListScroller();
+            scroller.MoveForEach(ele => {
+                scroller.TryPrevious(x => x.Item1.SequenceEqual(ele.Item1.SkipLast(1)))
+                    .When(o => addAction(o.Current.Item2, ele.Item2));
+            });
+            return scroller.Items.TakeWhile(x => x.Item1.Depth == 0).Select(x => x.Item2);
         }
 		/// <summary>
 		/// Assembles a tree structure (forest) with multiple roots from a dictionary where paths are used as keys.
@@ -209,15 +228,19 @@ namespace TreeStructures.Linq {
 
 		#region NodeIndexから組み立て
 		private static T _assemble<T>(IEnumerable<Tuple<NodeIndex, T>> dic, Action<int, T, T> addAction) {
-            //var seq = dic.OrderBy(x => x.Item1, TreeStructure.NodeIndex.GetPostorderComparer());
-            var vst = dic.OrderBy(x => x.Item1, TreeStructures.NodeIndex.GetPostorderComparer())
-                .ToSequenceScroller();// new ElementScroller<Tuple<NodeIndex, T>>(seq);
-            foreach (var tr in vst.GetSequence()) {
-                vst.MoveTo(tr)
-                    .TryNext(x => tr.Item1.Depth > x.Item1.Depth)
-                    .When(r => addAction(tr.Item1.LastOrDefault(), r.Current.Item2, tr.Item2));
-            }
-            return vst.Current.Item2;
+            //var vst = dic.OrderBy(x => x.Item1, TreeStructures.NodeIndex.GetPostorderComparer()) .ToSequenceScroller();
+            //foreach (var tr in vst.GetSequence()) {
+            //    vst.MoveTo(tr)
+            //        .TryNext(x => tr.Item1.Depth > x.Item1.Depth)
+            //        .When(r => addAction(tr.Item1.LastOrDefault(), r.Current.Item2, tr.Item2));
+            //}
+            //return vst.Current.Item2;
+            var scroller = dic.OrderBy(x => x.Item1, TreeStructures.NodeIndex.GetPostorderComparer()).ToListScroller();
+            scroller.MoveForEach(ele => {
+                scroller.TryNext(x => ele.Item1.Depth > x.Item1.Depth)
+                    .When(r => addAction(ele.Item1.LastOrDefault(), r.Current.Item2, ele.Item2));
+            });
+            return scroller.Current.Item2;
         }
         private static U assemble<U,TKey, T>(IDictionary<TKey, T> dictionary, Func<T, U> conv, Action<int, U, U> addAction) where TKey: IEnumerable<int> {
             var seq = dictionary.Select(x => Tuple.Create(new NodeIndex(x.Key), conv(x.Value)));

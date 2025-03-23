@@ -41,7 +41,7 @@ namespace TreeStructures.Collections {
 		/// Provides functionality to align and rearrange the collection represented by the current instance, <see cref="Items"/>.
 		/// </summary>
 		protected ListAligner<T, ObservableCollection<T>> ListAligner { 
-			get => _listAligner ??= new ListAligner<T, ObservableCollection<T>>((ObservableCollection<T>)Items,move: (collection, ord, to) => {collection.Move(ord, to); });
+			get => _listAligner ??= new ListAligner<T, ObservableCollection<T>>((ObservableCollection<T>)Items,move: (collection, ord, to) => {collection.Move(ord, to); },comparer:this.equality);
 		}
 		readonly IEqualityComparer<T> equality;
 		/// <summary>
@@ -75,7 +75,7 @@ namespace TreeStructures.Collections {
 		/// Adjusts the arrangement of the collection represented by the current instance, <see cref="Items"/>.
 		/// </summary>
 		protected virtual void Align(){
-			ListAligner.AlignBy(_list.Where(_filter ?? new(x => true)).OrderBy(x => x, _comparer ?? _incCmpr), this.equality);
+			ListAligner.AlignBy(_list.Where(_filter ?? new(x => true)).OrderBy(x => x, _comparer ?? _incCmpr));
 		}
 		/// <summary>
 		/// Filters the collection by the specified property. (Nesting is allowed)

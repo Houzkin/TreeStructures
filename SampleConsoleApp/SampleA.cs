@@ -55,17 +55,16 @@ public static　partial class UseageSample {
         E.AddChild(N);
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
 
-		Console.WriteLine("Move nodeB to be a child node of nodeF (Failure: Cannot add due to cyclic relationship)");
-		F.AddChild(B);
-		Console.WriteLine(A.ToTreeDiagram(x => x.Name));
+        Console.WriteLine("Move nodeB to be a child node of nodeF (Failure: Cannot add due to cyclic relationship)");
+        F.AddChild(B);
+        Console.WriteLine(A.ToTreeDiagram(x => x.Name));
 
         Console.WriteLine("Add nodeD to nodeA (Failure: Cannot add duplicate child nodes)");
         A.AddChild(D);
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
 
 
-		A.Disassemble();
-        //Console.ReadLine();
+        A.Disassemble();
 
         Console.WriteLine("Assembling from a Dictionary with specified indices.");
         var dic = new Dictionary<int[], NamedNode>() {
@@ -75,9 +74,9 @@ public static　partial class UseageSample {
             [new int[] { 0, 1 }] = L,
             [new int[] { 0, 0, 0, }] = D,
             [new int[] { 0, 0, 0, 0 }] = E,
-            [new int[] { 0, 0, 0, 1 }]=J,
-            [new int[] { 0, 0, 0, 0, 0 }]=F,
-            [new int[] { 0, 0, 0, 0, 1 }]=K,
+            [new int[] { 0, 0, 0, 1 }] = J,
+            [new int[] { 0, 0, 0, 0, 0 }] = F,
+            [new int[] { 0, 0, 0, 0, 1 }] = K,
             [new int[] { 1 }]=G,
             [new int[] { 1, 0 }]=H,
             [new int[] { 1, 1 }]=B,

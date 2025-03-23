@@ -17,16 +17,21 @@ namespace TreeStructures.Collections {
 	/// <typeparam name="T">The type of elements.</typeparam>
 	public class CombinableObservableCollection<T> : ReadOnlyObservableCollection<T>{
 		/// <summary>Initialize a new instance.</summary>
-		/// <param name="comparer"></param>
-		public CombinableObservableCollection(IEqualityComparer<T>? comparer = null) : base(new ObservableCollection<T>()) {
-			ListAligner = new ListAligner<T, ObservableCollection<T>>(_Items, move: (list, ord, to) => { list.Move(ord, to); });
-			_combines = new List<IEnumerable<T>>();
-			this.comparer = comparer ??= EqualityComparer<T>.Default;
+		/// <param name="equality"></param>
+		public CombinableObservableCollection(IEqualityComparer<T>? equality = null) : this() {
+			_Aligner = new ListAligner<T, ObservableCollection<T>>(_Items, move: (list, ord, to) => { list.Move(ord, to); },comparer: equality ?? EqualityComparer<T>.Default );
+			//_combines = new List<IEnumerable<T>>();
+			//this._comparer = equality ??= EqualityComparer<T>.Default;
 		}
+		/// <summary>Initialize a new instance.</summary>
+		public CombinableObservableCollection() : base(new ObservableCollection<T>()) {
+			_combines = new List<IEnumerable<T>>();
+		}
+		private ListAligner<T, ObservableCollection<T>>? _Aligner;
 		/// <summary></summary>
-		protected virtual ListAligner<T,ObservableCollection<T>> ListAligner{ get; }
+		protected virtual ListAligner<T,ObservableCollection<T>> ListAligner => _Aligner??= new ListAligner<T, ObservableCollection<T>>(_Items, move: (list, ord, to) => { list.Move(ord, to); });
 		private List<IEnumerable<T>> _combines;
-		readonly IEqualityComparer<T> comparer;
+		//readonly IEqualityComparer<T> _comparer;
 		private ObservableCollection<T> _Items => (this.Items as ObservableCollection<T>)!;
 		/// <summary>Adds the collection to the end.</summary>
 		public void AppendCollection(IEnumerable<T> collection){
@@ -46,7 +51,7 @@ namespace TreeStructures.Collections {
 			if(collection is INotifyCollectionChanged notify){
 				notify.CollectionChanged += collectionChanged;
 			}
-			ListAligner.AlignBy(_combines.SelectMany(x => x), comparer);
+			ListAligner.AlignBy(_combines.SelectMany(x => x));
 		}
 		/// <summary>Removes the collection.</summary>
 		/// <param name="collection"></param>
@@ -55,7 +60,7 @@ namespace TreeStructures.Collections {
 			if(collection is INotifyCollectionChanged notify){
 				notify.CollectionChanged -= collectionChanged;
 			}
-			ListAligner.AlignBy(_combines.SelectMany(x => x), comparer);
+			ListAligner.AlignBy(_combines.SelectMany(x => x));
 		}
 		/// <summary>Clears all combined collections.</summary>
 		public void ClearCollection(){
@@ -65,11 +70,11 @@ namespace TreeStructures.Collections {
 					notify.CollectionChanged -= collectionChanged;
 				}
 			}
-			ListAligner.AlignBy(_combines.SelectMany(x => x), comparer);
+			ListAligner.AlignBy(_combines.SelectMany(x => x));
 		}
 
 		private void collectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-			ListAligner.AlignBy(_combines.SelectMany(x => x),comparer);
+			ListAligner.AlignBy(_combines.SelectMany(x => x));
 		}
 		/// <summary>
 		/// Occurs when the collection changes, either by adding or removing an item.

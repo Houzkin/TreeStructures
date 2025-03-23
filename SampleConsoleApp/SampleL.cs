@@ -38,7 +38,7 @@ namespace SampleConsoleApp {
 				Console.WriteLine(p.ToTreeDiagram(x => x.Name));
 			}
 
-			var root = "ADSEFSFSYELILIYOM".ToCharArray().Select(x => x.ToString())
+			var root = "ABSCDSESFGHIJKLMN".ToCharArray().Select(x => x.ToString())
 			.AssembleAsNAryTree(2, x => new NamedNode() { Name = x });
 
 			Console.WriteLine(root.ToTreeDiagram(x => $"{x.Name}, {x.NodeIndex()}"));

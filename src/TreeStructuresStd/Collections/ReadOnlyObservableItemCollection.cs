@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
 using TreeStructures.Internals;
+using TreeStructures.Linq;
 using TreeStructures.Tree;
 using TreeStructures.Utility;
 
@@ -28,11 +29,12 @@ namespace TreeStructures.Collections {
 		/// <summary>
 		/// Returns the <see cref="IEnumerable{T}"/>that the <see cref="ReadOnlyObservableItemCollection{T}"/> wraps.
 		/// </summary>
-		protected virtual IEnumerable<T> Items => _trees.Source;
+		protected virtual IEnumerable<T> Items { get; }
 		/// <summary>Initializes a new instance.</summary>
 		/// <param name="list">The source collection to be referenced. To enable synchronization, the collection must implement <see cref="INotifyCollectionChanged"/>.</param>
 		public ReadOnlyObservableItemCollection(IEnumerable<T> list) {
 
+			Items = list;
 			_trees = ImitableCollection.Create(list,
 				x => {
 					var opt = new ObservedPropertyTree<T>(x);
@@ -56,14 +58,20 @@ namespace TreeStructures.Collections {
 			ThrowExceptionIfDisposed();
 			foreach(var key in exps) {
 				if (area.ContainsKey(key)) continue;
-				area[key] = new Dictionary<ObservedPropertyTree<T>, IDisposable>(
-					_trees.Select(trr => KeyValuePair.Create(trr, trr.Subscribe(key, this.handleItemPropertyChanged))));
+//#if NETSTANDARD2_0
+				var newDic = new Dictionary<ObservedPropertyTree<T>,IDisposable>();
+				foreach (var trr in _trees) newDic.Add(trr, trr.Subscribe(key, this.handleItemPropertyChanged));
+				area[key] = newDic;
+//#else
+//				area[key] = new Dictionary<ObservedPropertyTree<T>, IDisposable>(
+//					_trees.Select(trr => KeyValuePair.Create(trr, trr.Subscribe(key, this.handleItemPropertyChanged))));
+//#endif
 			}
 		}
-		void removeExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area,IEnumerable<Expression<Func<T,object>>> exps) {
+		void removeExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area, IEnumerable<Expression<Func<T, object>>> exps) {
 			foreach (var key in exps) {
-				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of(area.Remove, key).When(
-					o => {
+				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of( area.Remove, key)
+					.When( o => {
 						foreach (var t in o.Values) t.Dispose();
 					});
 			}
@@ -93,7 +101,7 @@ namespace TreeStructures.Collections {
 		}
 		/// <summary>
 		/// Acquires a collection for managing properties to subscribe to.  
-		/// If the collection already contains the same <see cref="Expression{Func{T,object }}"/>, it will be excluded.  
+		/// If the collection already contains the same <see cref="Expression{Func{T, object}}"/>, it will be excluded.  
 		/// If duplicates are allowed, a new collection should be acquired.
 		/// </summary>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>

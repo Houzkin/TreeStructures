@@ -169,13 +169,15 @@ namespace TreeStructures {
 			    Action<ObservableCollection<T>,int,T> replaceAction,
 			    Action<ObservableCollection<T>,int> removeAction,
 			    Action<ObservableCollection<T>,int,int> moveAction,
-			    Action<ObservableCollection<T>> clearAction)
-		    : base(Equality<T>.ReferenceComparer){
+			    Action<ObservableCollection<T>> clearAction) : base(){
+
 			    _childNodes = childNodes;
-			    this.ListAligner = new ListAligner<T, ObservableCollection<T>>((this.Items as ObservableCollection<T>)!,insertAction,replaceAction,removeAction,moveAction,clearAction);
+                this.ListAligner = new ListAligner<T, ObservableCollection<T>>(
+                    (this.Items as ObservableCollection<T>)!, insertAction, replaceAction, removeAction, moveAction, clearAction, Equality<T>.ReferenceComparer);
 			    this.AppendCollection(childNodes);
 		    }
 		    internal void Imitate(){ _childNodes.Imitate(); }
+            /// <inheritdoc/>
 		    protected override ListAligner<T, ObservableCollection<T>> ListAligner { get; }
 	    }
 

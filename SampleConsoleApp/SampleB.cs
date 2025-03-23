@@ -65,7 +65,7 @@ public static partial class UseageSample {
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
 
-        Console.ReadLine();
+        //Console.ReadLine();
     }
 }
 

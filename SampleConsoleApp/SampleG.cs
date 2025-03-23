@@ -39,7 +39,6 @@ public static partial class UseageSample {
 		//Console.WriteLine(string.Join("\n", srccoll));
 		//Console.WriteLine("sorted collection");
 		//Console.WriteLine(string.Join("\n", wrprcoll));
-		Test<Anniversary>(x => x.Name, x => x.Name.Length);
 
 
 		#endregion
@@ -62,10 +61,6 @@ public static partial class UseageSample {
 		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
 		Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
 
-	}
-	static void Test<T>(Expression<Func<T,object>> expression,Expression<Func<T,object>> exp){
-		Console.WriteLine(Equals(expression.ToString(),exp.ToString()));
-		Console.WriteLine($"expression:{expression.ToString()}, exp:{exp.ToString()}");
 	}
 
 }

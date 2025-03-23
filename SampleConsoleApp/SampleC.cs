@@ -36,7 +36,7 @@ public static partial class UseageSample {
 
         Console.WriteLine("\nTransform each node into a different node and assemble them.");
         var convertedRoot = A.Convert(
-            x => new NamedBinaryNode() { Name = x.Name },
+            x => new NamedBinaryNode() { Name = x.Name.ToLower() },
             (i, p, c) => p.SetChild(i, c));
 
         Console.WriteLine(convertedRoot.ToTreeDiagram(x => $"({x.Name})"));
@@ -59,7 +59,7 @@ public static partial class UseageSample {
 
         Console.WriteLine($"Inorder:{string.Join(",", exroot.Inorder().Select(x => x.Name))}");
 
-        Console.ReadLine();
+        //Console.ReadLine();
 
     }
 }

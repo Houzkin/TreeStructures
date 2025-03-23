@@ -68,15 +68,9 @@ public static partial class TreeNodeExtenstions {
     public static IReadOnlyList<T> DisassembleDescendants<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         List<T> rmvs = new();
         //foreach (var cld in self.Levelorder().Reverse()) rmvs.AddRange(cld.ClearChildren());
-        foreach (var cld in self.Postorder()) rmvs.AddRange(cld.ClearChildren());
+        foreach (var cld in self.Preorder().Reverse()) rmvs.AddRange(cld.ClearChildren());
         rmvs.Reverse();
         return rmvs.AsReadOnly();
-
-        //var lst = self.Levelorder().ToArray();
-        //foreach (var cld in lst) {
-        //    rmvs.AddRange(cld.ClearChildren().OfType<T>());
-        //}
-        //return rmvs.AsReadOnly();
     }
     /// <summary>Disassembles from the current node to the leaves.</summary>
     /// <typeparam name="T">Type of the nodes.</typeparam>

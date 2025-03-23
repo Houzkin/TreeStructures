@@ -20,13 +20,21 @@ namespace TreeStructures.Utility {
     /// <param name="input">The input value.</param>
     /// <param name="value">The output value.</param>
     /// <returns>Success or failure of the operation.</returns>
-    public delegate bool TryCallback<in TInput, TValue>(TInput input,[MaybeNullWhen(false)] out TValue value);
+    public delegate bool TryCallback<in TInput, TValue>(TInput input,
+#if !NETSTANDARD2_0
+        [MaybeNullWhen(false)]
+#endif
+		out TValue value);
 
     /// <summary>Represents a method processed by the TryParse pattern.</summary>
     /// <typeparam name="TValue">The type of the output value.</typeparam>
     /// <param name="value">The output value.</param>
     /// <returns>Success or failure of the operation.</returns>
-    public delegate bool TryCallback<TValue>([MaybeNullWhen(false)] out TValue value);
+    public delegate bool TryCallback<TValue>(
+#if !NETSTANDARD2_0
+        [MaybeNullWhen(false)]
+#endif
+        out TValue value);
 
     ////// <summary>ResultWithValueに関するstaticメソッドを提供する。</summary>
     //public static class Result {

@@ -302,7 +302,7 @@ namespace TreeStructures.Linq {
         public static IEnumerable<T> DescendArrivals<T, Trc>(this ITreeNode<T> self, Func<T, Trc> selector, IEnumerable<Trc> trace, IEqualityComparer<Trc>? comparer = null) where T : ITreeNode<T> {
             if(!trace.Any()) return Enumerable.Empty<T>();
             comparer ??= EqualityComparer<Trc>.Default;
-            var matchs = new SequenceScroller<Trc>(trace);
+            var matchs = new ListScroller<Trc>(trace);
             var startdpth = self.Depth();
             return self.Evolve(cur => {
                 int curlv = cur.Depth() - startdpth;
