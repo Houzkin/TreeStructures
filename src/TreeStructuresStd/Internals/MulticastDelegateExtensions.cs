@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TreeStructures.Utilities;
 
-namespace TreeStructures.Utility {
+namespace TreeStructures.Internals {
     /// <summary>
     /// 
     /// </summary>
@@ -18,6 +19,10 @@ namespace TreeStructures.Utility {
                 return 0;
             }
             return self.GetInvocationList().Length;
+        }
+        public static IDisposable Subscribe(this EventHandler self, EventHandler handler) {
+            self += handler;
+            return new DisposableObject(()=>self -= handler);
         }
     }
 }

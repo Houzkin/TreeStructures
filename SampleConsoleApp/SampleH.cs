@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 using TreeStructures.Linq;
 using TreeStructures.Tree;
 

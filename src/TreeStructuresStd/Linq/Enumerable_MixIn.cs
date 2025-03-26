@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Collections;
 using TreeStructures.Internals;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Linq {
     /// <summary>Extension methods for <see cref="IEnumerable{T}"/>.</summary>

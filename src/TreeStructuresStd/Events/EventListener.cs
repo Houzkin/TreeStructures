@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructures.EventManagement {
+namespace TreeStructures.Events {
     /// <summary>An event listener that enables unsubscribing in the Dispose method.</summary>
     /// <typeparam name="THandler">The type of the event handler.</typeparam>
     public class EventListener<THandler> : IDisposable where THandler : class {

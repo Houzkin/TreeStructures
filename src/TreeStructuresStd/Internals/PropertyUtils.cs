@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructures.Utility {
+namespace TreeStructures.Internals {
     public static class PropertyUtils {
         #region static methods
         public static IEnumerable<string> GetPropertyPath<T, TValue>(Expression<Func<T, TValue>> expression) {

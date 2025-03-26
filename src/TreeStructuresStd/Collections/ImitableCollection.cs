@@ -8,9 +8,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Collections {
     /// <summary>Provides an imitable collection with synchronization.</summary>

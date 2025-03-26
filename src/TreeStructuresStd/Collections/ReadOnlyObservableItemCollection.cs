@@ -8,10 +8,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Text;
+using TreeStructures.Events;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
+using TreeStructures.Results;
 using TreeStructures.Tree;
-using TreeStructures.Utility;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Collections {
 
@@ -21,15 +23,17 @@ namespace TreeStructures.Collections {
 	/// To subscribe to nested properties, the nested objects must also implement <see cref="INotifyPropertyChanged"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of the elements in the collection. To receive property change notifications, the elements must implement <see cref="INotifyPropertyChanged"/>.</typeparam>
-	public class ReadOnlyObservableItemCollection<T> : IEnumerable<T>, IDisposable,INotifyCollectionChanged {
+	public class ReadOnlyObservableItemCollection<T> : IReadOnlyList<T>, IDisposable,INotifyCollectionChanged {
 
 		ImitableCollection<T,ObservedPropertyTree<T>> _trees;
 		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>,IDisposable>>> dim3 = new();
+		IDisposable? listener;
 
 		/// <summary>
 		/// Returns the <see cref="IEnumerable{T}"/>that the <see cref="ReadOnlyObservableItemCollection{T}"/> wraps.
 		/// </summary>
 		protected virtual IEnumerable<T> Items { get; }
+
 		/// <summary>Initializes a new instance.</summary>
 		/// <param name="list">The source collection to be referenced. To enable synchronization, the collection must implement <see cref="INotifyCollectionChanged"/>.</param>
 		public ReadOnlyObservableItemCollection(IEnumerable<T> list) {
@@ -53,7 +57,14 @@ namespace TreeStructures.Collections {
 					}
 					x.Dispose();
 				});
+			if(Items is INotifyCollectionChanged notify) {
+				listener = new EventListener<NotifyCollectionChangedEventHandler>(
+					h => notify.CollectionChanged += h,
+					h => notify.CollectionChanged -= h,
+					(s, e) => this.CollectionChanged?.Invoke(this, e));
+			}
 		}
+
 		void addExpressions(Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>,IDisposable>> area,IEnumerable<Expression<Func<T,object>>> exps) {
 			ThrowExceptionIfDisposed();
 			foreach(var key in exps) {
@@ -155,10 +166,11 @@ namespace TreeStructures.Collections {
 		/// <summary>
 		/// CollectionChanged event (per <see cref="INotifyCollectionChanged" />).
 		/// </summary>
-		public event NotifyCollectionChangedEventHandler? CollectionChanged {
-			add { if(Items is INotifyCollectionChanged ncc) ncc.CollectionChanged += value; }
-			remove { if(Items is INotifyCollectionChanged ncc)ncc.CollectionChanged -= value; }
-		}
+		public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
+		//	{
+		//	add { if(Items is INotifyCollectionChanged ncc) ncc.CollectionChanged += value; }
+		//	remove { if(Items is INotifyCollectionChanged ncc)ncc.CollectionChanged -= value; }
+		//}
 
 		bool isDisposed = false;
 		///<inheritdoc/>
@@ -180,6 +192,7 @@ namespace TreeStructures.Collections {
 					}
 				}
 				_trees.Dispose();
+				listener?.Dispose();
             }
             // TODO: アンマネージド リソース (アンマネージド オブジェクト) を解放し、ファイナライザーをオーバーライドします
             // TODO: 大きなフィールドを null に設定します
@@ -189,7 +202,22 @@ namespace TreeStructures.Collections {
         void ThrowExceptionIfDisposed() {
             if(isDisposed) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
         }
-
+		/// <inheritdoc/>
+		public int Count {
+			get {
+				if (Items is IReadOnlyCollection<T> lst) return lst.Count;
+				else if (Items is IList<T> ilist) return ilist.Count;
+				else return Items.Count();
+			}
+		}
+		/// <inheritdoc/>
+		public T this[int index] {
+			get {
+				if(Items is IReadOnlyList<T> lst) return lst[index];
+				else if (Items is IList<T> ilist) return ilist[index];
+				else return Items.ElementAt(index);
+			}
+		}
 		/// <inheritdoc/>
 		public IEnumerator<T> GetEnumerator() {
 			return Items.GetEnumerator();

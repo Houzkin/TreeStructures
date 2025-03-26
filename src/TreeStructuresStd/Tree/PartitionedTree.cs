@@ -5,9 +5,10 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using TreeStructures.Collections;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 using TreeStructures.Linq;
-using TreeStructures.Utility;
+using TreeStructures.Results;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Tree {
     /// <summary>

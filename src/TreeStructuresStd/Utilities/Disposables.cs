@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TreeStructures.Internals;
+namespace TreeStructures.Utilities;
 
-internal class DisposableObject : IDisposable {
+public class DisposableObject : IDisposable {
     Action? _disp;
     public DisposableObject() { }
     public DisposableObject(Action? disp) { _disp = disp; }
@@ -18,7 +18,7 @@ internal class DisposableObject : IDisposable {
         }
     }
 }
-internal class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
+public class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
     List<IDisposable> _disposings = new();
     public LumpedDisopsables(IEnumerable<IDisposable> disposables) {
         foreach(var dsp in disposables) this.Add(dsp);
@@ -39,11 +39,15 @@ internal class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
             _disposings.Remove(dis);
         }
     }
-    public IEnumerator<IDisposable> GetEnumerator() {
-        return _disposings.GetEnumerator();
-    }
+    //public IEnumerator<IDisposable> GetEnumerator() {
+    //    return _disposings.GetEnumerator();
+    //}
     IEnumerator IEnumerable.GetEnumerator() {
         return _disposings.GetEnumerator();
     }
+
+	IEnumerator<IDisposable> IEnumerable<IDisposable>.GetEnumerator() {
+        return _disposings.GetEnumerator();
+	}
 }
 

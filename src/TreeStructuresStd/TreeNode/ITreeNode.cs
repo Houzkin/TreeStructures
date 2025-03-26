@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 namespace TreeStructures {
 
     /// <summary>Provides a tree structure.</summary>

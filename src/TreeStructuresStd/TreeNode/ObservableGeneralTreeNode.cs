@@ -7,7 +7,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
+using TreeStructures.Internals;
 using TreeStructures.Linq;
 
 namespace TreeStructures {

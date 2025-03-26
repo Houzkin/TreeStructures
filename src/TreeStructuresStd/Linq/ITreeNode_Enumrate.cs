@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TreeStructures.Collections;
-using TreeStructures.Utility;
+using TreeStructures.Results;
+using TreeStructures.Utilities;
 using TreeStructures.Xml.Serialization;
 
 namespace TreeStructures.Linq {

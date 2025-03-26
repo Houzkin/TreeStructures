@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using TreeStructures.Collections;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 using TreeStructures.Linq;
 
 namespace TreeStructures {

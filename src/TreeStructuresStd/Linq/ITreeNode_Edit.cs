@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructures.Utility;
+using TreeStructures.Results;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Linq;
 

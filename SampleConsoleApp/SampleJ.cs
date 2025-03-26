@@ -43,11 +43,11 @@ public static partial class UseageSample{
 		}
         ObservableCollection<NamedNodeWrapper> artificals = new();
         ReadOnlySortFilterObservableCollection<NamedNodeWrapper> filterable;
-		protected override IEnumerable<NamedNodeWrapper> SetupPublicChildCollection(CombinableChildWrapperCollection<NamedNodeWrapper> children) {
+        protected override IEnumerable<NamedNodeWrapper> SetupPublicChildCollection(CombinableChildWrapperCollection<NamedNodeWrapper> children) {
             children.AppendCollection(artificals);
             filterable = children.ToSortFilterObservable();
             return filterable;
-		}
+        }
         public void Hide(string name){
             filterable.FilterBy(x => x.Name != name, x => x.Name);
         }

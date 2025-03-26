@@ -8,9 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
-using TreeStructures.Utility;
+using TreeStructures.Results;
+using TreeStructures.Utilities;
 
-namespace TreeStructures.EventManagement {
+namespace TreeStructures.Internals {
     /// <summary>Controls the change events of <see cref="IObservableTreeNode{TNode}"/>.</summary>
     /// <typeparam name="TNode">The type of the tree node.</typeparam>
     public sealed class StructureChangedEventExecutor<TNode> : UniqueOperationExecutor where TNode: class, IObservableTreeNode<TNode> {

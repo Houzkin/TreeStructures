@@ -11,10 +11,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TreeStructures.Collections;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
-using TreeStructures.Utility;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Tree {
     /// <summary>

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Linq;
-using TreeStructures.EventManagement;
+using TreeStructures.Events;
 using System.Runtime.CompilerServices;
 using TreeStructures.Collections;
 using System.Reactive.Linq;

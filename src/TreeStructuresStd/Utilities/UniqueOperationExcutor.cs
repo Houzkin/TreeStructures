@@ -7,14 +7,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructures.Utility;
 using TreeStructures.Collections;
 using System.Runtime.CompilerServices;
 //using System.Buffers;
 using TreeStructures.Internals;
+using TreeStructures.Results;
 //using System.Text.Json;
 
-namespace TreeStructures.EventManagement {
+namespace TreeStructures.Utilities {
 
     /// <summary>Manages operations, ignoring recursive or duplicate executions.</summary>
     public class UniqueOperationExecutor {

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using TreeStructures.Utility;
+using TreeStructures.Utilities;
 
-namespace TreeStructures.EventManagement {
+namespace TreeStructures.Events {
 
     //public class NotificationObject : INotifyPropertyChanged {
     //    public NotificationObject() {
@@ -56,8 +56,8 @@ namespace TreeStructures.EventManagement {
         public void ClearHandler() { 
             PropertyChanged = null;
         }
-        internal int HandlerCount =>
-                PropertyChanged.GetLength();
+        //internal int HandlerCount =>
+        //        PropertyChanged.GetLength();
         event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged {
             add { PropertyChanged += value; }
             remove { PropertyChanged -= value; }

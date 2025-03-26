@@ -8,10 +8,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using TreeStructures.Events;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
 using TreeStructures.Tree;
-using TreeStructures.Utility;
+using TreeStructures.Utilities;
 
 namespace TreeStructures.Collections {
 
@@ -22,13 +23,21 @@ namespace TreeStructures.Collections {
 		/// <param name="list">The collection to synchronize with.</param>
 		/// <param name="equality"></param>
 		public ReadOnlySortFilterObservableCollection(IEnumerable<T> list, IEqualityComparer<T>? equality = null) : base(list) {
-			Items = new ObservableCollection<T>(list);
+			var items = new ObservableCollection<T>(list);
+			items.CollectionChanged += (s, e) => this.CollectionChanged?.Invoke(this, e);
+			Items = items;
 			//ListAligner = new ListAligner<T, ObservableCollection<T>>((ObservableCollection<T>)Items, move: (collection, ord, to) => { collection.Move(ord, to); });
 			this.equality = equality ??= EqualityComparer<T>.Default;
 			_list = list;
-			if(list is INotifyCollectionChanged notify){
-				notify.CollectionChanged += collectionchanged;
+			if (list is INotifyCollectionChanged notify) {
+				//notify.CollectionChanged += collectionchanged;
+				_listener = new EventListener<NotifyCollectionChangedEventHandler>(
+					h => notify.CollectionChanged += h,
+					h => notify.CollectionChanged -= h,
+					collectionchanged);
+				_listener = 
 			}
+			//base.CollectionChanged += collectionchanged;
 			filterExps = this.AcquireNewSubscriptionList();
 			comparerExps = this.AcquireNewSubscriptionList();
 			Align();
@@ -36,6 +45,7 @@ namespace TreeStructures.Collections {
 
 		private IEnumerable<T> _list;
 		ListAligner<T,ObservableCollection<T>>? _listAligner;
+		IDisposable? _listener;
 
 		/// <summary>
 		/// Provides functionality to align and rearrange the collection represented by the current instance, <see cref="Items"/>.
@@ -48,6 +58,10 @@ namespace TreeStructures.Collections {
 		/// Returns the underlying <see cref="ObservableCollection{T}"/> wrapped by <see cref="ReadOnlyObservableItemCollection{T}"/> as an <see cref="IEnumerable{T}"/>.
 		/// </summary>
 		protected override sealed IEnumerable<T> Items { get; }
+
+		/// <inheritdoc/>
+		public override event NotifyCollectionChangedEventHandler? CollectionChanged;
+
 		Func<T, bool>? _filter;
 		ExpressionSubscriptionList filterExps;
 		ExpressionSubscriptionList comparerExps;
@@ -148,9 +162,10 @@ namespace TreeStructures.Collections {
 		/// <inheritdoc/>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				if (this._list is INotifyCollectionChanged notify) {
-					notify.CollectionChanged -= collectionchanged;
-				}
+				//if (this._list is INotifyCollectionChanged notify) {
+				//	notify.CollectionChanged -= collectionchanged;
+				//}
+				_listener?.Dispose();
 			}
 			base.Dispose(disposing);
 		}

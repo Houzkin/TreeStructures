@@ -1,104 +1,118 @@
 # Introduction
-This is a C# library designed to efficiently handle tree structures.  
-It emphasizes flexibility and extensibility, making it easy to manipulate various tree structures.
+This is a C# library designed to effectively handle tree structures.  
+The library focuses on flexibility and extensibility, making it easy to manipulate various tree structures.
 
-## Features
-1. A rich set of extension methods for `ITreeNode<TNode>`
-2. Mutual referencing between parent and child nodes
-3. A collection of tree-structured classes with high extensibility
-4. Conversion between different data structures and tree structures
-5. Collection-related classes developed as a byproduct of implementing the above
+Key features:
+1. Rich extension methods for `ITreeNode<TNode>`
+1. Mutual references between parent and child nodes
+1. A set of classes forming tree structures with extensibility
+1. Conversion between different data structures and tree structures
+1. Generic utility classes needed for implementing the above features
 
-## Usage
-Refer to the [wiki](https://github.com/Houzkin/TreeStructures/wiki/).
+[Nuget TreeStructures](https://www.nuget.org/packages/TreeStructures/)
 
-## Concept
-This library is not intended to be a standalone solution.  
-Instead, it provides tree-related functionality while being designed to coexist with other libraries.
+# Usage
+See [wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja)  
 
-Below is a detailed explanation of its key features.
+# Concept
+This library is not intended to be a complete solution on its own.  
+It aims to provide tree structure functionality while maintaining compatibility with other libraries.
 
-### Rich Extension Methods
-More than 60 extension methods, including overloads, are defined for `ITreeNode<TNode>`.  
-Some examples:
+Below is a detailed explanation of the key features.
 
-- **Enumeration**: `Preorder`, `Levelorder`, all traversal methods, `Leafs`, `Ancestors`, `DiscendArrivals`, `DescendTraces`, etc.
-- **Navigation**: `Root`, `NextSibling`, `LastSibling`, etc.
-- **Modification**: `TryAddChild`, `Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc.
-- **Parameter Retrieval**: `NodeIndex`, `NodePath`, `Height`, `Depth`, etc.
-- **Validation**: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.
-- **Conversion**: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`
-- **Construction**: `Convert`, `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`
+## Rich Extension Methods
+Over 60 extension methods are defined for `ITreeNode<TNode>`, including overloads.  
+For example:  
+Enumeration: `Preorder`, `Levelorder`, all traversal methods, `Leafs`, `Ancestors`, `DescendArrivals`, `DescendTraces`, etc.  
+Navigation: `Root`, `NextSibling`, `LastSibling`, etc.  
+Editing: `TryAddChild`, `Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc.  
+Retrieving parameters: `NodeIndex`, `NodePath`, `Height`, `Depth`, etc.  
+Validation methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
+Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
+Tree construction: `Convert`, `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`
 
-### Mutual Referencing Between Parent and Child Nodes
-Mutual references between parent and child nodes are handled by the base classes (`TreeNodeBase` or `HierarchyWrapper`).  
-In `TreeNodeBase` derivatives, customization is possible via `○○ChildProcess` methods like `RemoveChildProcess` and `InsertChildProcess`, which are defined as `protected virtual`.
+## Mutual References Between Parent and Child Nodes
+Mutual references between parent and child nodes are handled in the base classes (`TreeNodeBase` or `HierarchyWrapper`).  
+In `TreeNodeBase` derivatives, behavior can be customized by overriding `protected virtual` methods such as `RemoveChildProcess` and `InsertChildProcess`.
 
-### Tree-Structured Classes and Their Versatility
-Depending on the use case, you can extend the following classes:
+## A Set of Tree Structure Classes and Their Versatility
+Depending on the use case, the following classes can be inherited and used:
 
-- **`TreeNodeBase`**: For detailed customization, such as defining methods
-- **`GeneralTreeNode` / `ObservableTreeNode`**: When used as a data structure or container
-- **`NAryTreeNode`**: For an N-ary tree where empty nodes are represented as `null`
-- **`HierarchyWrapper` / `TreeNodeWrapper`**: For wrapping hierarchical structures
-- **`BindableHierarchyWrapper` / `BindableTreeNodeWrapper`**: For MVVM ViewModels that need observability and disposal
+- **TreeNodeBase**: When fine-tuning method definitions is necessary
+- **GeneralTreeNode / ObservableTreeNode**: For use as a data structure or container
+- **NAryTreeNode**: For an N-ary tree where empty nodes are represented as `null`
+- **HierarchyWrapper / TreeNodeWrapper**: To wrap hierarchical structures
+- **BindableHierarchyWrapper / BindableTreeNodeWrapper**: For MVVM ViewModels that require observability and disposal
 
-By overriding `Setup(Inner | Public)ChildCollection` in `TreeNodeBase` and its derivatives,  
-you can customize both internal and externally exposed collections.
+In `TreeNodeBase` and its derivatives, the internal collection used and the collection exposed externally can be customized by overriding `Setup(Inner | Public)ChildCollection` methods.
 
-For `HierarchyWrapper` and its derivatives, only externally exposed collections can be customized.
+For `HierarchyWrapper` and its derivatives, only the externally exposed collection can be customized.
 
-### Conversion Between Different Data Structures and Tree Structures
-Objects that do not implement `ITreeNode<TNode>` can still utilize its extension methods.  
-This is achieved by wrapping hierarchical structures with `HierarchyWrapper<TSrc,TWrpr>` or `BindableHierarchyWrapper<TSrc,TWrpr>`,  
-or by calling `AsValuedTreeNode`, which provides `ITreeNode<TNode>` extension methods.  
+## Conversion Between Different Data Structures and Tree Structures
+Even objects that do not implement `ITreeNode<TNode>` can utilize the extension methods for `ITreeNode<TNode>`.  
+By wrapping hierarchical structures using `HierarchyWrapper<TSrc,TWrpr>` or `BindableHierarchyWrapper<TSrc,TWrpr>`, or calling `AsValuedTreeNode`, the extension methods of `ITreeNode<TNode>` can be provided.  
+Additionally, methods such as `Convert`, `AssembleTree`, and `ToNodeMap` enable various conversion options.
 
-Additionally, methods like `Convert`, `AssembleTree`, and `ToNodeMap` offer various ways to perform mutual conversions.
+## Generic Utility Classes Needed for Implementation
 
-### Collection Classes Developed in the Implementation Process
-- **`ListAligner<T,TList>`**  
-  Handles the reordering of a specified list.
-- **`ImitableCollection<TSrc,TConv>`**  
+- `ListAligner<T,TList>`  
+  Reorders a specified list through manipulation.
+- `ImitableCollection<TSrc,TConv>`  
   A collection synchronized with a specified collection.
-- **`CombinableObservableCollection<T>`**  
+- `CombinableObservableCollection<T>`  
   A collection that merges multiple observable collections.
-- **`ReadOnlyObservableItemCollection<T>`**  
-  An observable collection that monitors a specified collection  
-  and collectively observes the properties of each element.
-- **`ReadOnlySortFilterObservableCollection<T>`**  
-  An observable collection that monitors each element of a specified collection  
-  and adds sorting and filtering functionalities.
-- **`ListScroller<T>`**  
+- `ReadOnlyObservableItemCollection<T>`  
+  An observable collection that links with a specified collection and enables batch property observation of each element.
+- `ReadOnlySortFilterObservableCollection<T>`  
+  An observable collection that links with a specified collection and adds sorting and filtering functionality.
+- `ListScroller<T>`  
   Provides navigation functionality within a collection.
+- `UniqueOperationExecutor`  
+  Controls operation uniqueness (prevents duplicate execution).
+- `PropertyChangeProxy`  
+  Assists in implementing `INotifyPropertyChanged`.
+- `ResultWithValue<TValue>`, `ResultWith<TValue>`  
+  Manages the result of Try methods.
 
-## Namespaces and Their Classification
+And more.
 
-### `TreeStructures;`
-  Abstractly defined generic tree nodes, surrounding objects, and event arguments.
+# Namespaces and Their Classification
 
-  **Inheritance diagram of generic tree nodes:**
-  
-  ![InheritanceGenericTreeNode](images/InheritanceGenericTreeNode.png)
+Some classes used for internal implementation are also exposed.  
+Namespaces are categorized by purpose and use case.
 
-  **Inheritance diagram of `NodePath` and `NodeIndex` (surrounding objects):**
-  
-  ![InheritancePeripheralObjects](images/InheritancePeripheralObjects.png)
+Only `TreeStructures.Tree` is grouped based on implementation rather than purpose, containing classes that form tree structures according to specific rules.
 
-### `TreeStructures.Linq;`
-  Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, and `IEnumerable<T>`.
+## TreeStructures;
+Defines abstract generic tree nodes, related objects, and event arguments.
 
-### `TreeStructures.Utility;`
-  Defines `ResultWithValue<T>`, used as the return value for `Try○○` methods.
+### Inheritance diagram of generic tree nodes:
+![InheritanceGenericTreeNode](https://raw.githubusercontent.com/Houzkin/TreeStructures/master/images/InheritanceGenericTreeNode.png)
 
-### `TreeStructures.Collections;`
-  Collections used in internal implementations and within extension methods.
+### Inheritance diagram of NodePath and NodeIndex (related objects):
+![InheritancePeripheralObjects](https://raw.githubusercontent.com/Houzkin/TreeStructures/master/images/InheritancePeripheralObjects.png)
 
-### `TreeStructures.EventManagement;`
-  Objects related to event management, including those used for implementing observable tree nodes.
+## TreeStructures.Linq;
+Extension methods for `ITreeNode<TNode>`, `IMutableTreeNode<TNode>`, and `IEnumerable<T>`.
 
-### `TreeStructures.Xml.Serialization;`
-  Dictionaries used during serialization and deserialization.
+## TreeStructures.Collections;
+Collections used in internal implementation and extension methods.
 
-### `TreeStructures.Tree;`
-  Trees designed for specific purposes and use cases.
+## TreeStructures.Events;
+Event-related classes that support listener and notification implementation.
+
+## TreeStructures.Results;
+Defines `ResultWithValue<T>` used as the return value for Try○○ methods.
+
+## TreeStructures.Utilities;
+General-purpose classes that do not fit into the above categories.
+
+## TreeStructures.Xml.Serialization;
+Dictionaries and other structures used for serialization and deserialization.
+
+## TreeStructures.Internals;
+Classes used internally in the library but with limited general applicability.
+
+## TreeStructures.Tree;
+Classes that form tree structures based on specific purposes and use cases.
 
