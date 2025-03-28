@@ -24,6 +24,9 @@ public class ObservableOtherHierarchy : OtherHierarchy{
 	public ObservableOtherHierarchy(string name):base(name){ }
 	public override IList<OtherHierarchy> Nests { get; } = new ObservableCollection<OtherHierarchy>();
 }
+public class RootOtherHierarchy : OtherHierarchy {
+	public RootOtherHierarchy(string name) : base(name) { }
+}
 
 /// <summary>
 /// Wrap objects forming the hierarchy object.
@@ -81,6 +84,17 @@ public static partial class UseageSample {
 		var wrpRt = root.AsValuedTreeNode(x=>x.Name);
 		root.Preorder().First(x => x.Name == "B").TryRemoveOwn();
 		Console.WriteLine(root.ToTreeDiagram(x => x.Name));
+
+		var nodeA = new RootOtherHierarchy("A");
+		var nodeB = new OtherHierarchy("B");
+		var nodeC = new OtherHierarchy("C");
+		var nodeD = new ObservableOtherHierarchy("D");
+
+		nodeA.Nests.Add(nodeB);
+		nodeA.Nests.Add(nodeD);
+		nodeD.Nests.Add(nodeC);
+
+		var node_a = nodeA.AsValuedTreeNode<OtherHierarchy, string>(p => p.Nests, x => x.Name);
 	}
 }
 

@@ -26,10 +26,10 @@ For example:
 Enumeration: `Preorder`, `Levelorder`, all traversal methods, `Leafs`, `Ancestors`, `DescendArrivals`, `DescendTraces`, etc.  
 Navigation: `Root`, `NextSibling`, `LastSibling`, etc.  
 Editing: `TryAddChild`, `Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc.  
-Retrieving parameters: `NodeIndex`, `NodePath`, `Height`, `Depth`, etc.  
+Retrieving parameters: `TreeIndex`, `NodePath`, `Height`, `Depth`, etc.  
 Validation methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
-Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
-Tree construction: `Convert`, `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`
+Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `Convert`, `AsValuedTreeNode`   
+Tree construction: `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`
 
 ## Mutual References Between Parent and Child Nodes
 Mutual references between parent and child nodes are handled in the base classes (`TreeNodeBase` or `HierarchyWrapper`).  
@@ -49,9 +49,10 @@ In `TreeNodeBase` and its derivatives, the internal collection used and the coll
 For `HierarchyWrapper` and its derivatives, only the externally exposed collection can be customized.
 
 ## Conversion Between Different Data Structures and Tree Structures
-Even objects that do not implement `ITreeNode<TNode>` can utilize the extension methods for `ITreeNode<TNode>`.  
-By wrapping hierarchical structures using `HierarchyWrapper<TSrc,TWrpr>` or `BindableHierarchyWrapper<TSrc,TWrpr>`, or calling `AsValuedTreeNode`, the extension methods of `ITreeNode<TNode>` can be provided.  
-Additionally, methods such as `Convert`, `AssembleTree`, and `ToNodeMap` enable various conversion options.
+Even objects that do not implement `ITreeNode<TNode>` can still utilize the extension methods of `ITreeNode<TNode>`.  
+By wrapping them with `HierarchyWrapper<TSrc, TWrpr>` or `BindableHierarchyWrapper<TSrc, TWrpr>`, or by calling the `AsValuedTree` method, you can access the extension methods of `ITreeNode<TNode>`.  
+
+Additionally, several other conversion methods are available, such as the extension methods `AssembleTree`, `AssembleTryByPath`, and `ToNodeMap`.
 
 ## Generic Utility Classes Needed for Implementation
 

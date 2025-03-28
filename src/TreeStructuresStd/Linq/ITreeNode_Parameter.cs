@@ -9,7 +9,7 @@ namespace TreeStructures.Linq {
 
         #region パラメータの取得
         /// <summary>Gets the path code indicating the position of the current node.</summary>
-        public static NodeIndex NodeIndex<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+        public static NodeIndex TreeIndex<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
             var z = self
                 .Upstream()
                 .Select(b => b.BranchIndex())

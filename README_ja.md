@@ -25,7 +25,7 @@
 列挙は`Preorder`, `Levelorder`など全ての走査法や、 `Leafs`, `Ancestors`, `DescendArrivals`, `DescendTraces`, etc  
 移動は、`Root`, `NextSibling`, `LastSibling`, etc  
 編集は`TryAddChild`をはじめ、`Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc  
-パラメータの取得は、`NodeIndex`, `NodePath`, `Height`, `Depth`, etc  
+パラメータの取得は、`TreeIndex`, `NodePath`, `Height`, `Depth`, etc  
 判定メソッドは、`IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc  
 変換は、`ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `AsValuedTreeNode`  
 組み立てメソッドは、`Convert`, `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`  

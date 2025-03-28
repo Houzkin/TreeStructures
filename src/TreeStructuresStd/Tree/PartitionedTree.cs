@@ -92,34 +92,11 @@ namespace TreeStructures.Tree {
             foreach (var itm in collection) AddItem(itm);
         }
         public void Reflect(){
-            foreach(var ele in this._collection) MoveItem(ele);
+            foreach(var ele in this._collection) AdjustItem(ele);
         }
 
         internal void AddItem(TItm item) {
             AddItemNode(new InnerDateLeaf<TItm>(default, default, item));
-            //var addlst = selectChargeDic.Select(x => x.Value(SelectValue(item))).ToArray();//追加ノードのクラスを取得
-            //Stack<InnerNodeBase> stack = new Stack<InnerNodeBase>();
-            //stack.Push(_innerRoot);//巡回用リストにルートをセットする
-
-            //for (int i = 0; i < addlst.Length; i++) {//ノードを巡回
-            //    var ele = stack.Peek().Children.FirstOrDefault(x => object.Equals(x.NodeClass, addlst[i]));//該当クラスと一致するノードを取得
-            //    ele ??= new InnerDateNode(addlst[i]);//取得できなかった場合、生成
-            //    stack.Push(ele);//巡回用リストにプッシュ
-            //    if (i + 1 == addlst.Length) {//終端だった場合、リーフを生成して巡回用リストに追加
-            //        stack.Push(new InnerDateLeaf<TItm>(addlst[i], SelectValue(item), item));
-            //        break;
-            //    }
-            //}
-            //bool next = true;
-            //do {
-            //    ResultWith<InnerNodeBase>.Of(stack.TryPop).When(
-            //        o => {
-            //            ResultWith<InnerNodeBase>.Of(stack.TryPeek).When(
-            //                oo => next = oo.TryAddChild(o),
-            //                ox => next = false);
-            //        },
-            //        x => next = false);
-            //} while (next);
         }
         void AddItemNode(InnerDateLeaf<TItm> itemNode){
             var addlst = selectChargeDic.Select(x => x.Value(SelectValue(itemNode.Item))).ToArray();//追加ノードのクラスを取得
@@ -159,7 +136,7 @@ namespace TreeStructures.Tree {
                 }
             }
         }
-        internal void MoveItem(TItm item) {
+        internal void AdjustItem(TItm item) {
             var tgtnode = _innerRoot.Leafs().OfType<InnerDateLeaf<TItm>>().FirstOrDefault(x => object.Equals(x.Item, item));//該当ノードを取得
             if (tgtnode == null) return;
             var ans = tgtnode.Ancestors().ToArray();
@@ -196,8 +173,8 @@ namespace TreeStructures.Tree {
             public InnerDateNode(TClass chargedValue) : base(chargedValue) { }
         }
         private class InnerDateLeaf<TItem> : InnerNodeBase {
-            public InnerDateLeaf(TClass chargedValue, TVal datetime, TItem item) : base(chargedValue) {
-                SelectedValue = datetime;
+            public InnerDateLeaf(TClass selectedClass, TVal selectedValue, TItem item) : base(selectedClass) {
+                SelectedValue = selectedValue;
                 Item = item;
             }
             public TVal SelectedValue { get; set; }

@@ -41,10 +41,10 @@ namespace SampleConsoleApp {
 			var root = "ABSCDSESFGHIJKLMN".ToCharArray().Select(x => x.ToString())
 			.AssembleAsNAryTree(2, x => new NamedNode() { Name = x });
 
-			Console.WriteLine(root.ToTreeDiagram(x => $"{x.Name}, {x.NodeIndex()}"));
+			Console.WriteLine(root.ToTreeDiagram(x => $"{x.Name}, {x.TreeIndex()}"));
 
 			var testseq = root.DescendFirstMatches(x => x.Name == "S");
-			foreach( var x in testseq)Console.WriteLine($"{x.Name}, {x.NodeIndex()}");
+			foreach( var x in testseq)Console.WriteLine($"{x.Name}, {x.TreeIndex()}");
 
 		}
 	}
