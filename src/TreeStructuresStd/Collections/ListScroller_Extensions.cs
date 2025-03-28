@@ -180,10 +180,10 @@ namespace TreeStructures.Collections {
 		/// Iterates through all elements by moving the scroller and applies the specified action to each step.
 		/// </summary>
 		/// <param name="list">The scroller to iterate over.</param>
-		/// <param name="action">The action to apply at each step.</param>
+		/// <param name="currentAction">The action to apply at each step.</param>
 		/// <typeparam name="T">The type of elements in the scroller.</typeparam>
 		/// <typeparam name="TList">The scroller type.</typeparam>
-		public static TList MoveForEach<T,TList>(this IListScroller<T,TList> list,Action<T> action) where TList: IListScroller<T, TList> {
+		public static TList MoveForEach<T,TList>(this IListScroller<T,TList> list,Action<T> currentAction) where TList: IListScroller<T, TList> {
 			list.Reset();
 			if (list.CurrentIndex < 0) return list.asTList();
 			return list.DoWhile(
@@ -191,14 +191,14 @@ namespace TreeStructures.Collections {
 					return lst.TryNext();
 				}, 
 				lst => {
-					lst.RestoreAfter(x => action(x.Current));
+					lst.RestoreAfter(x => currentAction(x.Current));
 				});
 		}
-		public static TList MoveForEachReverse<T, TList>(this IListScroller<T, TList> list, Action<T> action) where TList : IListScroller<T, TList> {
+		public static TList MoveForEachReverse<T, TList>(this IListScroller<T, TList> list, Action<T> currentAction) where TList : IListScroller<T, TList> {
 			list.Reset();
 			if (list.CurrentIndex < 0) return list.asTList();
 			list.MoveTo(list.Tail());
-			return list.DoWhile(lst => lst.TryPrevious(), lst=>lst.RestoreAfter(x=>action(x.Current)));
+			return list.DoWhile(lst => lst.TryPrevious(), lst=>lst.RestoreAfter(x=>currentAction(x.Current)));
 		}
 		public static TList Repeat<T,TList>(this IListScroller<T,TList> list, int count,Action<int,TList> action) where TList : IListScroller<T, TList> {
 			for (int i = 1; i <= count; i++) { action(i, list.asTList()); }

@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0</TargetFrameworks>
 	  <LangVersion>10</LangVersion>
 	  <Nullable>enable</Nullable>
-	  <Version>2.0.2</Version>
+	  <Version>2.1.0</Version>
 	  <PackageTags>tree;hierarchy;node;traversal;parent;child;root;leaf;</PackageTags>
 	  <PackageIcon>icon.jpg</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -23,7 +23,7 @@ A rich set of extension methods for `ITreeNode&lt;TNode&gt;`
 Mutual referencing between parent and child nodes
 A collection of tree-structured classes with high extensibility
 Conversion between different data structures and tree structures
-Collection-related classes developed as a byproduct of implementing the above</Description>
+Generic utility classes needed for implementing the above features</Description>
 	  <Copyright>Houzkin</Copyright>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>

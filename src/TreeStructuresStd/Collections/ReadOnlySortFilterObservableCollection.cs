@@ -35,7 +35,6 @@ namespace TreeStructures.Collections {
 					h => notify.CollectionChanged += h,
 					h => notify.CollectionChanged -= h,
 					collectionchanged);
-				_listener = 
 			}
 			//base.CollectionChanged += collectionchanged;
 			filterExps = this.AcquireNewSubscriptionList();
@@ -60,7 +59,7 @@ namespace TreeStructures.Collections {
 		protected override sealed IEnumerable<T> Items { get; }
 
 		/// <inheritdoc/>
-		public override event NotifyCollectionChangedEventHandler? CollectionChanged;
+		public override sealed event NotifyCollectionChangedEventHandler? CollectionChanged;
 
 		Func<T, bool>? _filter;
 		ExpressionSubscriptionList filterExps;

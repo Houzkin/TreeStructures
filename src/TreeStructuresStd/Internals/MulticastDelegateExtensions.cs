@@ -20,9 +20,5 @@ namespace TreeStructures.Internals {
             }
             return self.GetInvocationList().Length;
         }
-        public static IDisposable Subscribe(this EventHandler self, EventHandler handler) {
-            self += handler;
-            return new DisposableObject(()=>self -= handler);
-        }
     }
 }

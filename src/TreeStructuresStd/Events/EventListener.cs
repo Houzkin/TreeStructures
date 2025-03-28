@@ -48,11 +48,11 @@ namespace TreeStructures.Events {
     /// <typeparam name="TArgs">The type of the event arguments for the subscribed event.</typeparam>
     public class EventListener<THandler,TArgs> : EventListener<THandler> where THandler:class {
         /// <summary>Initializes the listener.</summary>
-        /// <param name="conversion">Converts from <typeparamref name="THandler"/> to <see cref="EventHandler{TArgs}"/>. Example: <code>h => (s, e) => h(s, new OtherEventArgs())</code></param>
         /// <param name="add">Registers the <see cref="EventHandler{TArgs}"/>. Example: <code>h => obj.Event += h</code></param>
         /// <param name="remove">Unsubscribes from the <see cref="EventHandler{TArgs}"/>. Example: <code>h => obj.Event -= h</code></param>
+        /// <param name="conversion">Converts from <typeparamref name="THandler"/> to <see cref="EventHandler{TArgs}"/>. Example: <code>h => (s, e) => h(s, new OtherEventArgs())</code></param>
         /// <param name="handler">The action to be executed by the event.</param>
-        public EventListener(Func<EventHandler<TArgs>,THandler> conversion, Action<THandler> add, Action<THandler> remove, EventHandler<TArgs> handler)
+        public EventListener(Action<THandler> add, Action<THandler> remove,Func<EventHandler<TArgs>,THandler> conversion,  EventHandler<TArgs> handler)
             :base(add,remove,conversion(handler)){
 
         }
@@ -65,9 +65,9 @@ namespace TreeStructures.Events {
                 h => a.Disposed -= h,
                 (s, e) => { });
             var xx = new EventListener<EventHandler<StructureChangedEventArgs<TestCommonNode>>, PropertyChangedEventArgs>(
-                h => (s, e) => h(s, new PropertyChangedEventArgs($"{e.Target.Name}")),
                 h => a.StructureChanged += h,
                 h => a.StructureChanged -= h,
+                h => (s, e) => h(s, new PropertyChangedEventArgs($"{e.Target.Name}")),
                 (s, e) => { });
             INotifyCollectionChanged obsonly = new ReadOnlyObservableCollection<object>(new ObservableCollection<object>());
             var xxx = new EventListener<NotifyCollectionChangedEventHandler>(

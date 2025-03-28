@@ -3,7 +3,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using TreeStructures.Events;
+using TreeStructures.Internals;
 namespace TreeStructures {
+
+    /// <summary>Represents a path traversing nodes.</summary>
+    /// <typeparam name="T">The type represented by each node.</typeparam>
+    public interface INodePath<T> : IEnumerable<T>{
+        /// <summary>Gets the path at the specified level.</summary>
+        /// <param name="level">The level.</param>
+        T this[int level] { get; }
+        /// <summary>Gets the depth from the root.</summary>
+        int Depth { get; }
+    }
 
     /// <summary>Provides a tree structure.</summary>
     /// <typeparam name="TNode">The type of each node.</typeparam>

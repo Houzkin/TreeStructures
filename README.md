@@ -12,7 +12,7 @@ Key features:
 [Nuget TreeStructures](https://www.nuget.org/packages/TreeStructures/)
 
 # Usage
-See [wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja)  
+Refer to the [wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja)  
 
 # Concept
 This library is not intended to be a complete solution on its own.  
@@ -55,6 +55,8 @@ Additionally, methods such as `Convert`, `AssembleTree`, and `ToNodeMap` enable 
 
 ## Generic Utility Classes Needed for Implementation
 
+Some classes used for internal implementation are also exposed.  
+
 - `ListAligner<T,TList>`  
   Reorders a specified list through manipulation.
 - `ImitableCollection<TSrc,TConv>`  
@@ -78,7 +80,6 @@ And more.
 
 # Namespaces and Their Classification
 
-Some classes used for internal implementation are also exposed.  
 Namespaces are categorized by purpose and use case.
 
 Only `TreeStructures.Tree` is grouped based on implementation rather than purpose, containing classes that form tree structures according to specific rules.
