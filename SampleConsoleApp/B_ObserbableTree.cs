@@ -43,7 +43,7 @@ public static partial class UseageSample {
 
         EventHandler disposedHdlr = (s, e) => { Console.WriteLine($"sender:{s} Disposed.\n"); };
 
-        foreach (var node in root.Preorder()) {
+        foreach (var node in root.PreOrder()) {
             node.StructureChanged += structreChangedHdlr;
             node.PropertyChanged += propertyChangedHdlr;
             node.Disposed += disposedHdlr;

@@ -49,18 +49,18 @@ public static partial class UseageSample{
 
 		var wrprRoot = hrcyA.AsValuedTreeNode(x => x.Nests, x => x.Name);
 		Console.WriteLine(wrprRoot.ToTreeDiagram(x => x.Value));
-		Console.WriteLine($"Preorder : {string.Join(',', wrprRoot.Preorder().Select(x => x.Value))}");
-		Console.WriteLine($"Levelorder : {string.Join(',', wrprRoot.Preorder().Select(x => x.Value))}");
-		Console.WriteLine($"Postorder : {string.Join(',', wrprRoot.Postorder().Select(x => x.Value))}");
-		Console.WriteLine($"Inorder : {string.Join(',', wrprRoot.Inorder().Select(x => x.Value))}");
+		Console.WriteLine($"Preorder : {string.Join(',', wrprRoot.PreOrder().Select(x => x.Value))}");
+		Console.WriteLine($"Levelorder : {string.Join(',', wrprRoot.PreOrder().Select(x => x.Value))}");
+		Console.WriteLine($"Postorder : {string.Join(',', wrprRoot.PostOrder().Select(x => x.Value))}");
+		Console.WriteLine($"Inorder : {string.Join(',', wrprRoot.InOrder().Select(x => x.Value))}");
 		Console.WriteLine($"Leafs : {string.Join(',', wrprRoot.Leafs().Select(x => x.Value))}\n");
 
 		var wrprC = hrcyC.AsValuedTreeNode(x => x.Nests, x => x.Name);
 		Console.WriteLine(wrprC.ToTreeDiagram(x => x.Value));
-		Console.WriteLine($"Preorder : {string.Join(',', wrprC.Preorder().Select(x => x.Value))}");
-		Console.WriteLine($"Levelorder : {string.Join(',', wrprC.Preorder().Select(x => x.Value))}");
-		Console.WriteLine($"Postorder : {string.Join(',', wrprC.Postorder().Select(x => x.Value))}");
-		Console.WriteLine($"Inorder : {string.Join(',', wrprC.Inorder().Select(x => x.Value))}");
+		Console.WriteLine($"Preorder : {string.Join(',', wrprC.PreOrder().Select(x => x.Value))}");
+		Console.WriteLine($"Levelorder : {string.Join(',', wrprC.PreOrder().Select(x => x.Value))}");
+		Console.WriteLine($"Postorder : {string.Join(',', wrprC.PostOrder().Select(x => x.Value))}");
+		Console.WriteLine($"Inorder : {string.Join(',', wrprC.InOrder().Select(x => x.Value))}");
 		Console.WriteLine($"Leafs : {string.Join(',', wrprC.Leafs().Select(x => x.Value))}\n");
 
 		Console.WriteLine("Enumeration is not performed, but access is allowed.");
@@ -68,18 +68,18 @@ public static partial class UseageSample{
 
 		var conRt = wrprRoot.Convert(x => new NamedNode() { Name = x.Value });
 		Console.WriteLine(conRt.ToTreeDiagram(x => x.Name));
-		Console.WriteLine($"Preorder : {string.Join(',', conRt.Preorder().Select(x => x.Name))}");
-		Console.WriteLine($"Levelorder : {string.Join(',', conRt.Preorder().Select(x => x.Name))}");
-		Console.WriteLine($"Postorder : {string.Join(',', conRt.Postorder().Select(x => x.Name))}");
-		Console.WriteLine($"Inorder : {string.Join(',', conRt.Inorder().Select(x => x.Name))}");
+		Console.WriteLine($"Preorder : {string.Join(',', conRt.PreOrder().Select(x => x.Name))}");
+		Console.WriteLine($"Levelorder : {string.Join(',', conRt.PreOrder().Select(x => x.Name))}");
+		Console.WriteLine($"Postorder : {string.Join(',', conRt.PostOrder().Select(x => x.Name))}");
+		Console.WriteLine($"Inorder : {string.Join(',', conRt.InOrder().Select(x => x.Name))}");
 		Console.WriteLine($"Leafs : {string.Join(',', conRt.Leafs().Select(x => x.Name))}\n");
 
 		var conC = wrprC.ToNodeMap(x => x.Value).AssembleTree(x => new NamedNode() { Name = x });
 		Console.WriteLine(conC.ToTreeDiagram(x=>x.Name));
-		Console.WriteLine($"Preorder : {string.Join(',', conC.Preorder().Select(x => x.Name))}");
-		Console.WriteLine($"Levelorder : {string.Join(',', conC.Preorder().Select(x => x.Name))}");
-		Console.WriteLine($"Postorder : {string.Join(',', conC.Postorder().Select(x => x.Name))}");
-		Console.WriteLine($"Inorder : {string.Join(',', conC.Inorder().Select(x => x.Name))}");
+		Console.WriteLine($"Preorder : {string.Join(',', conC.PreOrder().Select(x => x.Name))}");
+		Console.WriteLine($"Levelorder : {string.Join(',', conC.PreOrder().Select(x => x.Name))}");
+		Console.WriteLine($"Postorder : {string.Join(',', conC.PostOrder().Select(x => x.Name))}");
+		Console.WriteLine($"Inorder : {string.Join(',', conC.InOrder().Select(x => x.Name))}");
 		Console.WriteLine($"Leafs : {string.Join(',', conC.Leafs().Select(x => x.Name))}\n");
 	}
 	public static void MethodF2() {

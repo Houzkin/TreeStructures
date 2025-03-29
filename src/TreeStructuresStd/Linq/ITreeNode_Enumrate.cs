@@ -49,7 +49,7 @@ namespace TreeStructures.Linq {
 		/// </description></item>
 		/// </list>
 		/// </param>
-		public static IEnumerable<T> Evolve<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
+		public static IEnumerable<T> Traverse<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
             ISet<T> exphistory = new HashSet<T>();//展開した履歴
             ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
             IEnumerable<T?> seeds = new T[1] { (T)startNode };
@@ -59,20 +59,20 @@ namespace TreeStructures.Linq {
         }
 
         /// <summary>Generates a sequence in preorder starting from the current node.</summary>
-        public static IEnumerable<T> Preorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//a b c
+        public static IEnumerable<T> PreOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+            return self.Traverse(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//a b c
         }
         /// <summary>Generates a sequence in postorder starting from the current node.</summary>
-        public static IEnumerable<T> Postorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//b a c
+        public static IEnumerable<T> PostOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+            return self.Traverse(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//b a c
         }
         /// <summary>Generates a sequence in level order starting from the current node.</summary>
-        public static IEnumerable<T> Levelorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b));//a c b
+        public static IEnumerable<T> LevelOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+            return self.Traverse(a => a.Children, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b));//a c b
         }
         /// <summary>Generates a sequence in inorder starting from the current node.</summary>
-        public static IEnumerable<T> Inorder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => {
+        public static IEnumerable<T> InOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+            return self.Traverse(a => a.Children, (a, b, c) => {
                 var lst = new List<T?>(b);
                 if (lst.Any()) lst.Insert(1, a); else lst.Add(a);
                 return lst.Concat(c);
@@ -80,16 +80,16 @@ namespace TreeStructures.Linq {
         }
         /// <summary>Generates a sequence in the ancestor direction starting from the current node, with the root as the last element.</summary>
         public static IEnumerable<T> Upstream<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => new T?[1] { a.Parent }, (a, b, c) => new T?[1] { a }.Concat(b).Concat(c));//upstream
+            return self.Traverse(a => new T?[1] { a.Parent }, (a, b, c) => new T?[1] { a }.Concat(b).Concat(c));//upstream
         }
         /// <summary>Enumerates the ancestors of the current node, with the root as the last element.
         /// <para>If you want to include the current node, consider using <see cref="Upstream{T}(ITreeNode{T})"/>.</para></summary>
         public static IEnumerable<T> Ancestors<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => new T?[1] { a.Parent }, (a, b, c) => new T?[1] { a }.Concat(b).Concat(c)).Skip(1);
+            return self.Traverse(a => new T?[1] { a.Parent }, (a, b, c) => new T?[1] { a }.Concat(b).Concat(c)).Skip(1);
         }
         /// <summary>Enumerates the leaf nodes in the descendant direction from the current node.</summary>
         public static IEnumerable<T> Leafs<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Evolve(a => a.Children, (a, b, c) => (b.OfType<T>().Any() ? b : new T?[1] { a }).Concat(c));//leafs
+            return self.Traverse(a => a.Children, (a, b, c) => (b.OfType<T>().Any() ? b : new T?[1] { a }).Concat(c));//leafs
         }
         /// <summary>Gets the sibling nodes, including the current node.</summary>
         public static IEnumerable<T> Siblings<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
@@ -105,7 +105,7 @@ namespace TreeStructures.Linq {
         /// <returns>Nodes at the same depth as the current node.</returns>
         public static IEnumerable<T> Generations<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
             int depth = self.Depth();
-            return self.Root().Levelorder().SkipWhile(node => node.Depth() < depth).TakeWhile(node => node.Depth() == depth);
+            return self.Root().LevelOrder().SkipWhile(node => node.Depth() < depth).TakeWhile(node => node.Depth() == depth);
         }
 
         /// <summary>Retrieves sibling nodes that precede the current node.</summary>
@@ -275,7 +275,7 @@ namespace TreeStructures.Linq {
 		/// <param name="predicate">The condition for the nodes in the descendant direction, including the current node.</param>
 		/// <returns></returns>
 		public static IEnumerable<T> DescendArrivals<T>(this ITreeNode<T> self,Func<T,bool> predicate)where T:ITreeNode<T>{
-            return self.Evolve(cur => {
+            return self.Traverse(cur => {
                 if (predicate(cur))
                     return cur.Children.Where(predicate);
                 else
@@ -305,7 +305,7 @@ namespace TreeStructures.Linq {
             comparer ??= EqualityComparer<Trc>.Default;
             var matchs = new ListScroller<Trc>(trace);
             var startdpth = self.Depth();
-            return self.Evolve(cur => {
+            return self.Traverse(cur => {
                 int curlv = cur.Depth() - startdpth;
                 if(matchs.TryMoveTo(curlv)) {
                     var cld = comparer.Equals(matchs.Current,selector(cur)) ? cur.Children : Array.Empty<T>();
@@ -371,7 +371,7 @@ namespace TreeStructures.Linq {
 		/// For example, if a node matches the condition, its descendants are not explored further.
 		/// </remarks>
 		public static IEnumerable<T> DescendFirstMatches<T>(this ITreeNode<T> self, Func<T, bool> predicate) where T : ITreeNode<T> {
-            return self.Evolve(
+            return self.Traverse(
                 cur => !predicate(cur) ? cur.Children : Array.Empty<T>(), 
                 (cur, clds, seeds) => predicate(cur) ? seeds.Prepend(cur) : seeds.Concat(clds));
         }

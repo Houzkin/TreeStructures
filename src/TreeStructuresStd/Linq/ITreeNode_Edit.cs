@@ -69,7 +69,7 @@ public static partial class TreeNodeExtenstions {
     public static IReadOnlyList<T> DisassembleDescendants<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
         List<T> rmvs = new();
         //foreach (var cld in self.Levelorder().Reverse()) rmvs.AddRange(cld.ClearChildren());
-        foreach (var cld in self.Preorder().Reverse()) rmvs.AddRange(cld.ClearChildren());
+        foreach (var cld in self.PreOrder().Reverse()) rmvs.AddRange(cld.ClearChildren());
         rmvs.Reverse();
         return rmvs.AsReadOnly();
     }
@@ -126,7 +126,7 @@ public static partial class TreeNodeExtenstions {
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         if(removeAction==null) throw new ArgumentNullException(nameof(removeAction));
         var lst = new List<T>();
-        var dm = self.Evolve(a => {
+        var dm = self.Traverse(a => {
             lst.AddRange(a.RemoveAllChild(predicate, removeAction).OfType<T>());
             return a.Children;
         }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b))

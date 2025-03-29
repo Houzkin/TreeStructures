@@ -260,7 +260,7 @@ namespace TreeStructures {
             try {
                 this.Parent?.RemoveChildProcess(Self);
             } catch { }
-            foreach (var cld in this.Evolve(a => a.ChildNodes, (a, b, c) => c.Concat(b).Prepend(a)).Skip(1).Reverse().OfType<IDisposable>()) {
+            foreach (var cld in this.Traverse(a => a.ChildNodes, (a, b, c) => c.Concat(b).Prepend(a)).Skip(1).Reverse().OfType<IDisposable>()) {
                 cld.Dispose();
             }
             //foreach (var cld in this.Levelorder().Skip(1).Reverse().OfType<IDisposable>()) {

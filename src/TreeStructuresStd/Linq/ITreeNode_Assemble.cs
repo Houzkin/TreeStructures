@@ -22,7 +22,7 @@ namespace TreeStructures.Linq {
             if (generator == null) throw new ArgumentNullException(nameof(generator));
             if (addAction == null) throw new ArgumentNullException(nameof(addAction));
 
-            var scroller = self.Levelorder().Select(x => Tuple.Create(x, generator(x))).ToListScroller();
+            var scroller = self.LevelOrder().Select(x => Tuple.Create(x, generator(x))).ToListScroller();
             scroller.MoveForEach(ele => {
                 scroller
                     .TryPrevious(x => x.Item1.Children.Contains(ele.Item1))

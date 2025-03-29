@@ -82,7 +82,7 @@ public static partial class UseageSample {
 	public static void MethodDD(){
 		var root = "ABCDEFG".ToCharArray().Select(x=>x.ToString()).AssembleAsNAryTree(2,x=>new NamedNode(){ Name = x });
 		var wrpRt = root.AsValuedTreeNode(x=>x.Name);
-		root.Preorder().First(x => x.Name == "B").TryRemoveOwn();
+		root.PreOrder().First(x => x.Name == "B").TryRemoveOwn();
 		Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
 		var nodeA = new RootOtherHierarchy("A");

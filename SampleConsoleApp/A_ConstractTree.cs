@@ -98,13 +98,13 @@ public static　partial class UseageSample {
             .AssembleAsNAryTree(3, x => new NamedNode() { Name = x });
         
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
-        Console.WriteLine($"Levelorder:{string.Join(",", root.Levelorder().Select(x=>x.Name))}");
-        Console.WriteLine($"Preorder:{string.Join(",", root.Preorder().Select(x => x.Name))}");
-        Console.WriteLine($"Postorder:{string.Join(",", root.Postorder().Select(x => x.Name))}");
-        Console.WriteLine($"Inorder:{string.Join(",", root.Inorder().Select(x => x.Name))}");
+        Console.WriteLine($"Levelorder:{string.Join(",", root.LevelOrder().Select(x=>x.Name))}");
+        Console.WriteLine($"Preorder:{string.Join(",", root.PreOrder().Select(x => x.Name))}");
+        Console.WriteLine($"Postorder:{string.Join(",", root.PostOrder().Select(x => x.Name))}");
+        Console.WriteLine($"Inorder:{string.Join(",", root.InOrder().Select(x => x.Name))}");
 
         Console.WriteLine("\n ----- Pickup C node -----");
-        var nodeC = root.Levelorder().First(x => x.Name == "C");
+        var nodeC = root.LevelOrder().First(x => x.Name == "C");
         Console.WriteLine($"Upstream:{string.Join(",", nodeC.Upstream().Select(x=>x.Name))}");
         Console.WriteLine($"Ancestors:{string.Join(",", nodeC.Ancestors().Select(x => x.Name))}");
         Console.WriteLine($"Leafs:{string.Join(", ", nodeC.Leafs().Select(x=>x.Name))}");
@@ -113,7 +113,7 @@ public static　partial class UseageSample {
         Console.WriteLine($"Width:{nodeC.Width()}");
 
         Console.WriteLine("\n ----- Pickup R node -----");
-        var nodeR = root.Levelorder().First(x => x.Name == "R");
+        var nodeR = root.LevelOrder().First(x => x.Name == "R");
         Console.WriteLine($"Upstream:{string.Join(",", nodeR.Upstream().Select(x => x.Name))}");
         Console.WriteLine($"Ancestors:{string.Join(",", nodeR.Ancestors().Select(x => x.Name))}");
         Console.WriteLine($"Leafs:{string.Join(", ", nodeR.Leafs().Select(x => x.Name))}");

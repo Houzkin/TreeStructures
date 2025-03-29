@@ -111,7 +111,7 @@ public static partial class UseageSample{
 
         //dispose node D wrapper.
         Console.WriteLine("Dispose node D Wrapper.");
-        WrprRoot.Preorder().First(x => x.Name == "D").Dispose();
+        WrprRoot.PreOrder().First(x => x.Name == "D").Dispose();
         Console.WriteLine(WrprRoot.ToTreeDiagram(x => $"{x.Name}, IsDisposed : {x.IsDisposed}"));
 
         //remove node D.
@@ -125,7 +125,7 @@ public static partial class UseageSample{
         Console.WriteLine(WrprRoot.ToTreeDiagram(x => $"{x.Name}, IsDisposed : {x.IsDisposed}"));
 
         //add dummy wrapper child.
-        var nodeG = WrprRoot.Preorder().First(x => x.Name == "G");
+        var nodeG = WrprRoot.PreOrder().First(x => x.Name == "G");
         nodeG.AddArtificalChild("V");
 
         Console.WriteLine(WrprRoot.ToTreeDiagram(x=> x.Name));

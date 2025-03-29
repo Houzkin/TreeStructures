@@ -60,7 +60,7 @@ namespace TreeStructures.Tree {
         ///<inheritdoc/>
         public void Dispose(){
             if(_isDisposed) return;
-            foreach(var nd in _root?.Postorder() ?? Enumerable.Empty<PropertyChainNode>()){ nd.Dispose(); }
+            foreach(var nd in _root?.PostOrder() ?? Enumerable.Empty<PropertyChainNode>()){ nd.Dispose(); }
             _isDisposed = true;
         }
         void ThrowExceptionIfDisposed(){

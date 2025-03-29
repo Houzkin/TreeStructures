@@ -12,7 +12,7 @@ Key features:
 [Nuget TreeStructures](https://www.nuget.org/packages/TreeStructures/)
 
 # Usage
-Refer to the [wiki](https://github.com/Houzkin/TreeStructures/wiki/Home_ja)  
+Refer to the [wiki](https://github.com/Houzkin/TreeStructures/wiki)  
 
 # Concept
 This library is not intended to be a complete solution on its own.  
@@ -23,7 +23,7 @@ Below is a detailed explanation of the key features.
 ## Rich Extension Methods
 Over 60 extension methods are defined for `ITreeNode<TNode>`, including overloads.  
 For example:  
-Enumeration: `Preorder`, `Levelorder`, all traversal methods, `Leafs`, `Ancestors`, `DescendArrivals`, `DescendTraces`, etc.  
+Enumeration: `PreOrder`, `LevelOrder`, all traversal methods, `Leafs`, `Ancestors`, `DescendArrivals`, `DescendTraces`, etc.  
 Navigation: `Root`, `NextSibling`, `LastSibling`, etc.  
 Editing: `TryAddChild`, `Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc.  
 Retrieving parameters: `TreeIndex`, `NodePath`, `Height`, `Depth`, etc.  
@@ -50,7 +50,7 @@ For `HierarchyWrapper` and its derivatives, only the externally exposed collecti
 
 ## Conversion Between Different Data Structures and Tree Structures
 Even objects that do not implement `ITreeNode<TNode>` can still utilize the extension methods of `ITreeNode<TNode>`.  
-By wrapping them with `HierarchyWrapper<TSrc, TWrpr>` or `BindableHierarchyWrapper<TSrc, TWrpr>`, or by calling the `AsValuedTree` method, you can access the extension methods of `ITreeNode<TNode>`.  
+By wrapping them with `HierarchyWrapper<TSrc, TWrpr>` or `BindableHierarchyWrapper<TSrc, TWrpr>`, or by calling the `AsValuedTreeNode` method, you can access the extension methods of `ITreeNode<TNode>`.  
 
 Additionally, several other conversion methods are available, such as the extension methods `AssembleTree`, `AssembleTryByPath`, and `ToNodeMap`.
 

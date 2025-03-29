@@ -32,7 +32,7 @@ public static partial class UseageSample {
         F.Left = G;
 
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
-        Console.WriteLine($"Inorder:{string.Join(",", A.Inorder().Select(x => x.Name))}");
+        Console.WriteLine($"Inorder:{string.Join(",", A.InOrder().Select(x => x.Name))}");
 
         Console.WriteLine("\nTransform each node into a different node and assemble them.");
         var convertedRoot = A.Convert(
@@ -40,7 +40,7 @@ public static partial class UseageSample {
             (i, p, c) => p.SetChild(i, c));
 
         Console.WriteLine(convertedRoot.ToTreeDiagram(x => $"({x.Name})"));
-        Console.WriteLine($"Inorder:{string.Join(",", convertedRoot.Inorder().Select(x => x.Name))}");
+        Console.WriteLine($"Inorder:{string.Join(",", convertedRoot.InOrder().Select(x => x.Name))}");
 
         Console.WriteLine("\nConvert the value of each node into a node map represented by a Dictionary and assemble them.");
 		//Convert to a Dictionary with NodeIndex as the key.
@@ -51,13 +51,13 @@ public static partial class UseageSample {
             (i, p, c) => p.SetChild(i, c));
 
         Console.WriteLine(assembledRoot.ToTreeDiagram(x => $"[{x.Name}]"));
-        Console.WriteLine($"Inorder:{string.Join(",", assembledRoot.Inorder().Select(x => x.Name))}");
+        Console.WriteLine($"Inorder:{string.Join(",", assembledRoot.InOrder().Select(x => x.Name))}");
 
         Console.WriteLine("\nReassemble into nodes without fixed branches (GeneralTreeNode) for comparison.");
         var exroot = A.Convert(x => new NamedNode() { Name = x.Name });
         Console.WriteLine(exroot.ToTreeDiagram(x => x.Name));
 
-        Console.WriteLine($"Inorder:{string.Join(",", exroot.Inorder().Select(x => x.Name))}");
+        Console.WriteLine($"Inorder:{string.Join(",", exroot.InOrder().Select(x => x.Name))}");
 
         //Console.ReadLine();
 

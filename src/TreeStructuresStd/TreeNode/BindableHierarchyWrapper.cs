@@ -121,7 +121,7 @@ namespace TreeStructures {
         protected virtual void Dispose(bool disposing) {
             if (disposing) {
 				var nd = this
-					.Evolve(a => {
+					.Traverse(a => {
 						a.IsImitating = false;
 						//return a.InnerChildren;
 						return a.InnerChildNodes;

@@ -27,7 +27,7 @@ namespace TreeStructures.Linq {
         /// <summary>Gets the distance from the current node to the deepest descendant node.</summary>
         public static int Height<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
             if (self == null) throw new ArgumentNullException(nameof(self));
-            return self.Levelorder().Last().Depth() - self.Depth();
+            return self.LevelOrder().Last().Depth() - self.Depth();
         }
         /// <summary>Gets the depth of the current node from the root.</summary>
         public static int Depth<T>(this ITreeNode<T> self) where T : ITreeNode<T> {

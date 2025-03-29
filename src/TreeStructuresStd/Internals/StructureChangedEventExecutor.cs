@@ -77,7 +77,7 @@ namespace TreeStructures.Internals {
         Tuple<ChangedAncestorInfo<TNode>, IEnumerable<TNode>> ancChangedRange() {
             bool rootChanged = !object.ReferenceEquals(PreOldRoot, Self.Upstream().Last());
             var arg = new ChangedAncestorInfo<TNode>(Self, OldParent, oldIndex, rootChanged);
-            return Tuple.Create(arg, Self.Levelorder());
+            return Tuple.Create(arg, Self.LevelOrder());
         }
 
         IDictionary<StructureChangedEventArgs<TNode>, IEnumerable<TNode>> strChangeRange() {
@@ -88,21 +88,21 @@ namespace TreeStructures.Internals {
             if (object.ReferenceEquals(PreOldRoot, nr)) {
                 var mArg = new StructureChangedEventArgs<TNode>(TreeNodeChangedAction.Move, Self, OldParent, oldIndex);
                 if (NewParent != null && OldParent != null && OldParent.Root() != PreOldRoot) {
-                    dic.Add(dArg, OldParent.Root().Levelorder());//remove
+                    dic.Add(dArg, OldParent.Root().LevelOrder());//remove
                 }
-                dic.Add(mArg, nr.Levelorder());//move
+                dic.Add(mArg, nr.LevelOrder());//move
             } else {
                 //add or remove
                 if (OldParent != null)
-                    dic.Add(dArg, OldParent.Root().Levelorder());
+                    dic.Add(dArg, OldParent.Root().LevelOrder());
                 if (NewParent != null) {
-                    dic.Add(jArg, NewParent.Root().Levelorder());
+                    dic.Add(jArg, NewParent.Root().LevelOrder());
                 } else {
                     IEnumerable<TNode>? v;
                     if (dic.TryGetValue(dArg, out v)) {
-                        dic[dArg] = v.Union(Self.Levelorder());
+                        dic[dArg] = v.Union(Self.LevelOrder());
                     } else {
-                        dic.Add(dArg, Self.Levelorder());
+                        dic.Add(dArg, Self.LevelOrder());
                     }
                 }
             }
