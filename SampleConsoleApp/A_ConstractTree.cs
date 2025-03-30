@@ -48,7 +48,7 @@ public static　partial class UseageSample {
 
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
         Console.WriteLine("Displaying height, level, and node index as additional information.");
-        Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},NodeIndex:{x.TreeIndex()}"));
+        Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},TreeIndex:{x.TreeIndex()}"));
 
 
         Console.WriteLine("Move nodeN to be a child node of nodeE");

@@ -17,23 +17,26 @@ public static partial class ExtensionSample{
 
 		Console.WriteLine(string.Join(", ", list));
 		// 5, 10, 18, 21, 29, 32, 43
+
 		list.AlignBy(Enumerable.Range(8, 4));
 		Console.WriteLine(string.Join(", ", list));
+		//  8, 9, 10, 11
 
 		list.AlignBy(list.AsEnumerable().Reverse().Append(11).Append(11));
 		Console.WriteLine(string.Join(", ", list));
+		// 11, 10, 9, 8, 11, 11
 
 		list.AlignBy(list.AsEnumerable().Reverse().Append(10).Append(11));
 		Console.WriteLine(string.Join(", ", list));
-
-		list.AlignBy(new List<int>(3).AsEnumerable());
-		Console.WriteLine(string.Join(", ", list));
+		// 11, 11, 8, 9, 10, 11, 10, 11
 
 		list.AlignBy(Enumerable.Empty<int>());
 		Console.WriteLine(string.Join(", ", list));
+		//
 
 		list.AlignBy(Enumerable.Range(8, 4));
 		Console.WriteLine(string.Join(", ", list));
+		// 8, 9, 10, 11
 
 	}
 	public static void TreeNodeSample(){

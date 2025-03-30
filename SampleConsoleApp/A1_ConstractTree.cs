@@ -8,7 +8,24 @@ using TreeStructures.Linq;
 
 namespace SampleConsoleApp {
 	public static partial class UseageSample{
-		public static void MethodL(){
+
+		public static void MethodAAA() {
+			var paths = new List<NodePath<string>>() {
+				new("K", "G", "F", "J"),
+				new("K", "A", "B")
+			};
+			var tree = paths.AssembleTreeByPath(x => new OtherHierarchy(x.Last()), (p, c) => p.Nests.Add(c));
+			Console.WriteLine(tree.AsValuedTreeNode(x => x.Nests, x => x).ToTreeDiagram(x => x.Value.Name));
+			/*
+				K
+				├ G
+				│ └ F
+				│   └ J
+				└ A
+				  └ B
+			 * */
+		}
+		public static void MethodAA(){
 
 			var pathlist = new List<NodePath<string>>() {
 				new("A","BB"),

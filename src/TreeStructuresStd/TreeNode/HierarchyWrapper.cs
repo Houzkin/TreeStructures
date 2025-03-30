@@ -173,7 +173,7 @@ namespace TreeStructures {
 
 			    _childNodes = childNodes;
                 this.ListAligner = new ListAligner<T, ObservableCollection<T>>(
-                    (this.Items as ObservableCollection<T>)!, insertAction, replaceAction, removeAction, moveAction, clearAction, Equality<T>.ReferenceComparer);
+                    editList:(this.Items as ObservableCollection<T>)!,insert: insertAction,replace: replaceAction,remove: removeAction,move: moveAction,clear: clearAction,comparer: Equality<T>.ReferenceComparer);
 			    this.AppendCollection(childNodes);
 		    }
 		    internal void Imitate(){ _childNodes.Imitate(); }

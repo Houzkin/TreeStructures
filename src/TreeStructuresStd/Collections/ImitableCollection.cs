@@ -105,6 +105,7 @@ namespace TreeStructures.Collections {
         private ObservableCollection<TConv>? _obsList;
         private ReadOnlyObservableCollection<TConv>? _roObsList;
 
+
         internal ImitableCollection(IEnumerable collection,Func<object,ConvertPair<TConv>> toSetConverter,Action<TConv>? removedAction = null,bool isImitate = true): base(collection) {
 
             _toSyncSet = toSetConverter;
@@ -223,6 +224,11 @@ namespace TreeStructures.Collections {
         public void PauseImitateAndClear() {
             if(!SwitchConnection(false)) return;
             this.Disposables.Dispose();
+            if(_removeAction != null) {
+                foreach(var th in _references.Select(x => x.After)) {
+                    _removeAction.Invoke(th);
+                }
+            }
             _references.Clear();
             this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             _obsList?.AlignBy(_references.Select(x => x.After), Equality<TConv>.ReferenceComparer);

@@ -51,8 +51,9 @@
   
 ## 異なるデータ構造とツリー構造の相互変換
 `ITreeNode<TNode>`を実装していないオブジェクトでも、`ITreeNode<TNode>`の拡張メソッドを利用できます。  
-`HierarchyWrapper<TSrc,TWrpr>`や`BindableHierarchyWrapper<TSrc,TWrpr>`を使って階層構造をラップする、または、`AsValuedTreeNode`を呼び出して`ITreeNode<TNode>`の拡張メソッドを提供します。  
-その他にも、拡張メソッドの`Convert`や`AssembleTree`、`ToNodeMap`など、相互変換方法をいくつか用意しています。  
+`HierarchyWrapper<TSrc,TWrpr>`や`BindableHierarchyWrapper<TSrc,TWrpr>`を使って階層構造をラップする、または、`AsValuedTreeNode`メソッドを呼び出すことによって、`ITreeNode<TNode>`の拡張メソッドにアクセスできます。
+
+その他にも、拡張メソッドの`AssembleTree`や`AssembleTryByPath`、`ToNodeMap`など、相互変換方法をいくつか用意しています。  
 
 ## 実装過程で必要となった、汎用性のあるクラス 
 
