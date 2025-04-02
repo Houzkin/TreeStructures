@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Collections;
 using TreeStructures.Internals;
 using TreeStructures.Utilities;
+using TreeStructures.Events;
 
 namespace TreeStructures.Linq {
     /// <summary>Extension methods for <see cref="IEnumerable{T}"/>.</summary>
@@ -17,6 +19,9 @@ namespace TreeStructures.Linq {
         public static IEnumerable<T> AsReadOnly<T>(this IEnumerable<T> enumerable) {
             return new EnumerableCollection<T>(enumerable);
         }
+		//public static ReadOnlyObservableCollection<T> AsReadOnlyObservable<T,TList>(this TList self) where TList:IEnumerable<T>,INotifyCollectionChanged {
+		//	return new ReadOnlyNotifierCollection<T,TList>(self);
+		//}
         
         internal class EnumerableCollection<T> : IEnumerable<T>,IReadOnlyList<T> {
             public EnumerableCollection(IEnumerable<T> collection) {
@@ -40,9 +45,6 @@ namespace TreeStructures.Linq {
             return new LumpedDisopsables(enumerable.OfType<IDisposable>());
         }
         /// <summary>Generates an instance for traversing the sequence.</summary>
-        //public static SequenceScroller<T> ToSequenceScroller<T> (this IEnumerable<T> sequence) {
-        //    return new SequenceScroller<T>(sequence);
-        //}
 		public static ListScroller<T> ToListScroller<T>(this IEnumerable<T> list) {
 			return new ListScroller<T>(list);
 		}

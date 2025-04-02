@@ -29,7 +29,7 @@ namespace TreeStructures {
             return new ReadOnlyValuedTreeNode<TSrc, TVal>(sourceChildNode, _toChildren, _toValue);
         }
         /// <inheritdoc/>
-        protected override IEnumerable<TSrc>? SourceChildren => _toChildren(this.Source);
+        protected override IEnumerable<TSrc>? SourceChildren => _toChildren(this.Source)?.AsReadOnly();
 
         /// <summary>Gets the value associated with the tree node.</summary>
         public TVal Value { get; private set; }

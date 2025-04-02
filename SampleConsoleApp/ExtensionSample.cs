@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ public static partial class ExtensionSample{
 	public static void EnumerableSample(){
 
 		var list = new List<int> { 10, 21, 32, 43, 5, 65, 70, 18, 29 };
+		//var list = new ObservableCollection<int>(new[] { 10, 21, 32, 43, 5, 65, 70, 18, 29 });
+		//list.CollectionChanged += (s, e) => { 
+		//	Console.WriteLine($"\n{e.Action},{string.Join(',',e.NewItems?.OfType<int>().Select(x=>x.ToString()) ?? new string[] { })},{string.Join(',',e.OldItems?.OfType<int>().Select(x=>x.ToString()) ?? new string[] { })}");
+		//};
 		list.AlignBy(list.OrderBy(x => x).TakeWhile(x => x < 50));
 
 		Console.WriteLine(string.Join(", ", list));

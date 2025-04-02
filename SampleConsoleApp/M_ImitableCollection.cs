@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ public static partial class UseageSample {
 				Console.WriteLine($"Create {conv.Name}");
 				return conv;
 			},
-			x => Console.WriteLine($"Removed {x.Name}"));
+			x => Console.WriteLine($"Remove {x.Name}"));
 		//Create A
 		//Create B
 
@@ -32,9 +33,9 @@ public static partial class UseageSample {
 		//A, B, C
 
 		collection.Remove("b");
-		//Removed B
+		//Remove B
 
-		imit.PauseImitateAndClear();
+		imit.ClearAndPause();
 		//RemoveA
 		//RemoveC
 
@@ -49,6 +50,48 @@ public static partial class UseageSample {
 		//Create C
 		//Create D
 
+		imit.Dispose();
+		//Remove C
+		//Remove D
+
+		Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
+	}
+	public static void MethodMM() {
+
+		var collection = new ObservableCollection<string>(new string[] {"a","b"});
+		var imit = ImitableCollection.Create(
+			collection,
+			x => {
+				return new ObservableNamedNode() { Name = x.ToUpper() };
+			});
+		var readOnly = imit.AsReadOnlyObservableCollection();
+
+		(readOnly as INotifyCollectionChanged).CollectionChanged += (s, e) => {
+			Console.WriteLine($"{e.Action},{string.Join(',',e.NewItems?.OfType<ObservableNamedNode>().Select(x=>x.ToString()) ?? new string[] { })},{string.Join(',',e.OldItems?.OfType<ObservableNamedNode>().Select(x=>x.ToString()) ?? new string[] { })}");
+			Console.WriteLine($"{string.Join(',',imit)}");
+		};
+
+		collection.Add("c");
+		//Add,C,
+		//A,B,C
+
+		collection.Remove("b");
+		//Remove,,B
+		//A,C
+
+		imit.ClearAndPause();
+		//Reset,,
+
+		collection.Add("d");
+		collection.Remove("a");
+		imit.Imitate();
+		//Add,C,
+		//C
+		//Add,D,
+		//C,D
+
+		imit.Dispose();
+		//Reset,
 
 	}
 }

@@ -74,13 +74,17 @@ namespace TreeStructures {
             wrprs.Insert(index, wrpr);
         }
         void Replace(ObservableCollection<TWrpr> wrprs, int index, TWrpr wrpr) {
-            _HandleRemovedChild(wrprs[index]);
+            //_HandleRemovedChild(wrprs[index]);
+            var rmv = wrprs[index];
             SetupChild(wrpr);
             wrprs[index] = wrpr;
+            _HandleRemovedChild(rmv);
         }
         void Remove(ObservableCollection<TWrpr> wrprs, int idx) {
-            _HandleRemovedChild(wrprs[idx]);
+            //_HandleRemovedChild(wrprs[idx]);
+            var rmv = wrprs[idx];
             wrprs.RemoveAt(idx);
+            _HandleRemovedChild(rmv);
         }
         void Move(ObservableCollection<TWrpr> wrprs, int tgtIdx, int toIdx) { 
             try{
@@ -177,13 +181,15 @@ namespace TreeStructures {
 			    this.AppendCollection(childNodes);
 		    }
 		    internal void Imitate(){ _childNodes.Imitate(); }
+
             /// <inheritdoc/>
 		    protected override ListAligner<T, ObservableCollection<T>> ListAligner { get; }
-	    }
 
-
-
-
+            /// <inheritdoc/>
+			protected override void Dispose(bool disposing) {
+				base.Dispose(disposing);
+                _childNodes.Dispose();
+			}
+		}
     }
-
 }

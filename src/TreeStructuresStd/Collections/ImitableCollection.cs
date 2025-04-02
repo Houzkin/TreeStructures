@@ -81,171 +81,56 @@ namespace TreeStructures.Collections {
             if(disposedValue) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
         }
         #endregion
-        internal class ConvertPair<TConv> {
-            public ConvertPair(object ele, TConv syncObj) {
+        internal class ConvertPair<TSrc, TConv> {
+            public ConvertPair(TSrc ele, TConv syncObj) {
                 Before = ele; After = syncObj;
             }
-            public object Before { get; private set; }
+            public TSrc Before { get; private set; }
             public TConv After { get; private set; }
         }
-        internal class ConvertPair<TSrc, TConv> : ConvertPair<TConv> where TConv : class {
-            public ConvertPair(TSrc element, TConv syncObj) : base(element, syncObj) { }
-            public new TSrc Before { get { return base.Before is null ? default : (TSrc)base.Before; } }
-            //public new TSrc Before { get => base.Before is TSrc src1 ? src1 : default; }
-            //public new TConv After { get { return base.After as TConv; } }
-        }
+        //internal class ConvertPair<TSrc, TConv> : ConvertPair<TConv> where TConv : class {
+        //    public ConvertPair(TSrc element, TConv syncObj) : base(element, syncObj) { }
+        //    public new TSrc Before { get { return base.Before is null ? default : (TSrc)base.Before; } }
+        //    //public new TSrc Before { get => base.Before is TSrc src1 ? src1 : default; }
+        //    //public new TConv After { get { return base.After as TConv; } }
+        //}
     }
     /// <summary><inheritdoc/></summary>
     /// <typeparam name="TConv">The type of elements in the imitable collection for synchronization.</typeparam>
-    public class ImitableCollection<TConv> : ImitableCollection,IReadOnlyList<TConv> where TConv : class {
-        LumpedDisopsables Disposables = new LumpedDisopsables();
-        internal IList<ConvertPair<TConv>> _references = new List<ConvertPair<TConv>>();
-        internal readonly Func<object, ConvertPair<TConv>> _toSyncSet;
-        internal Action<TConv>? _removeAction;
-        private ObservableCollection<TConv>? _obsList;
-        private ReadOnlyObservableCollection<TConv>? _roObsList;
+    public abstract class ImitableCollection<TConv> : ImitableCollection,IReadOnlyList<TConv> where TConv : class {
+        internal ImitableCollection(IEnumerable collection) : base(collection) { }
 
-
-        internal ImitableCollection(IEnumerable collection,Func<object,ConvertPair<TConv>> toSetConverter,Action<TConv>? removedAction = null,bool isImitate = true): base(collection) {
-
-            _toSyncSet = toSetConverter;
-            _removeAction = removedAction;
-            if (isImitate) {
-                SetReferenceWithStartObserveCollection();
-            } else {
-                this.SwitchConnection(false);
-            }
-        }
-        /// <summary>Initializes a new instance.</summary>
-        /// <param name="collection">The source collection for synchronization.</param>
-        /// <param name="converter">A function to convert elements from <see cref="object"/> to corresponding <typeparamref name="TConv"/>.</param>
-        /// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
-        /// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
-        public ImitableCollection(IEnumerable collection,Func<object,TConv> converter,Action<TConv>? removedAction = null,bool isImitate = true) 
-            : this(collection,new Func<object,ConvertPair<TConv>>(src => new ConvertPair<TConv>(src, converter(src))), removedAction, isImitate) { }
-
-        void SetReferenceWithStartObserveCollection() {
-            if(_source is INotifyPropertyChanged npc) {
-                var dsp = new EventListener<PropertyChangedEventHandler>(
-                    h => npc.PropertyChanged += h,
-                    h => npc.PropertyChanged -= h,
-                    (s, e) => this.RaisePropertyChanged(e));
-                this.Disposables.Add(dsp);
-            }
-            if (_source is INotifyCollectionChanged ncc) {
-                var listener = new EventListener<NotifyCollectionChangedEventHandler>(
-                    h => ncc.CollectionChanged += h,
-                    h => ncc.CollectionChanged -= h,
-                    onCollectionChangedAction);
-                this.Disposables.Add(listener);
-            }
-            foreach (var item in _source) _references.Add(_toSyncSet(item));
-        }
-        
-        void onCollectionChangedAction(object? sender,NotifyCollectionChangedEventArgs e) {
-            ThrowExceptionIfDisposed();
-            //新規リストに、並べ替えられた要素を格納
-            IList<ConvertPair<TConv>> newSrc = new List<ConvertPair<TConv>>();
-            List<ConvertPair<TConv>> adds = new();//追加される要素
-            foreach(var s in _source) {
-                var v = _references.FirstOrDefault(x => object.Equals(x.Before, s));
-                if(v != null) {
-                    newSrc.Add(v);
-                    _references.Remove(v);
-                } else {
-                    var synset = _toSyncSet(s);
-                    adds.Add(synset);
-                    newSrc.Add(synset);
-                }
-            }
-            var trash = _references;//削除される要素
-
-            var allItem = newSrc.Concat(_references).ToArray();
-            _references = newSrc;//ソート後の要素に置換
-
-            Func<IList?, IEnumerable<ConvertPair<TConv>>, IList> getSyncObj = (tgt, range) => {
-                return tgt == null ? Array.Empty<object>() : 
-                range.Where(x => tgt.OfType<object?>().Any(y => object.Equals(y, x.Before))).Select(x => x.After).ToArray();
-            };
-            NotifyCollectionChangedEventArgs arg = e.Action switch {
-                NotifyCollectionChangedAction.Add => new NotifyCollectionChangedEventArgs(e.Action, getSyncObj(e.NewItems,adds), e.NewStartingIndex),
-                NotifyCollectionChangedAction.Remove => new NotifyCollectionChangedEventArgs(e.Action,getSyncObj(e.OldItems,trash),e.OldStartingIndex),
-                NotifyCollectionChangedAction.Move => new NotifyCollectionChangedEventArgs(e.Action,getSyncObj(e.NewItems,allItem), e.NewStartingIndex,e.OldStartingIndex),
-                NotifyCollectionChangedAction.Replace => new NotifyCollectionChangedEventArgs(e.Action, getSyncObj(e.NewItems, adds), getSyncObj(e.OldItems, trash), e.NewStartingIndex),
-                NotifyCollectionChangedAction.Reset => new NotifyCollectionChangedEventArgs(e.Action),
-                _=>throw new ArgumentException(null, nameof(e)),
-            };
-            this.RaiseCollectionChanged(arg);
-            if(_removeAction != null) {
-                foreach(var th in trash.Select(x => x.After)) {
-                    _removeAction.Invoke(th);
-                }
-            }
-            _obsList?.AlignBy(_references.Select(x => x.After),Equality<TConv>.ReferenceComparer);
-        }
-        /// <summary></summary>
-        /// <returns></returns>
-        public ReadOnlyObservableCollection<TConv> AsReadOnlyObservableCollection(){
-            if(_roObsList is null || _obsList is null){
-                if(_obsList is null){
-                    _obsList = new ObservableCollection<TConv>();
-                    _obsList?.AlignBy(_references.Select(x => x.After),Equality<TConv>.ReferenceComparer);
-                }
-                _roObsList ??= new ReadOnlyObservableCollection<TConv>(_obsList!);
-            }
-            return _roObsList;
-        }
-        /// <summary><inheritdoc/></summary>
-        /// <param name="disposing"></param>
-        protected override void Dispose(bool disposing) {
-            if(disposing) { this.PauseImitateAndClear(); }
-            base.Dispose(disposing);
-        }
         /// <summary>Indicates whether the current state is in synchronization.</summary>
-        public bool IsImitating { get; private set; } = true;
-        bool SwitchConnection(bool observe) {
-            if (IsImitating == observe) return false;
-            IsImitating = observe;
-            return true;
-        }
+        public abstract bool IsImitating { get; }
         /// <summary>If not in synchronization state, starts synchronization.</summary>
-        public void Imitate() {
-            if (!SwitchConnection(true)) return;
-            SetReferenceWithStartObserveCollection();
-            var ary = _references.Select(x => x.After).ToArray();
-            if (ary.Any()) {
-                for(int i=0; i < ary.Length;i++) {
-                    this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, ary[i], i));
-                }
-            }
-            _obsList?.AlignBy(_references.Select(x => x.After),Equality<TConv>.ReferenceComparer);
-        }
+        public abstract void Imitate();
         /// <summary>Stops synchronization and clears the imitable collection.</summary>
-        public void PauseImitateAndClear() {
-            if(!SwitchConnection(false)) return;
-            this.Disposables.Dispose();
-            if(_removeAction != null) {
-                foreach(var th in _references.Select(x => x.After)) {
-                    _removeAction.Invoke(th);
-                }
-            }
-            _references.Clear();
-            this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            _obsList?.AlignBy(_references.Select(x => x.After), Equality<TConv>.ReferenceComparer);
-        }
+        public abstract void ClearAndPause();
+
+		/// <summary>
+		/// Gets this collection as a read-only <see cref="ReadOnlyObservableCollection{T}"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="ReadOnlyObservableCollection{T}"/> corresponding to this instance.
+		/// The first call creates and caches the instance, and subsequent calls return the cached instance.
+		/// </returns>
+		/// <remarks>
+		/// Wraps the internal <see cref="ObservableCollection{T}"/> in a <see cref="ReadOnlyObservableCollection{T}"/>.
+		/// Any changes made to the original collection will be reflected in the read-only collection,
+		/// but modifications to the read-only collection itself are not allowed.
+		/// </remarks>
+        public abstract ReadOnlyObservableCollection<TConv> AsReadOnlyObservableCollection();
         
         #region IReadOnlyList Members
-        /// <summary><inheritdoc/></summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        public TConv this[int index] => _references[index].After;
+        /// <inheritdoc/>
+        public abstract TConv this[int index] { get; }
 
-        /// <summary><inheritdoc/></summary>
-        public int Count => _references.Count;
+        /// <inheritdoc/>
+        public abstract int Count { get; }
 
-        /// <summary><inheritdoc/></summary>
-        public IEnumerator<TConv> GetEnumerator() => _references.Select(x=>x.After).GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => _references.Select(x => x.After).GetEnumerator();
+        /// <inheritdoc/>
+        public abstract IEnumerator<TConv> GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         #endregion
     }
 
@@ -254,7 +139,15 @@ namespace TreeStructures.Collections {
     /// <typeparam name="TConv">The type of elements in the target imitable collection.</typeparam>
     public class ImitableCollection<TSrc,TConv> : ImitableCollection<TConv>  where TConv : class {
         internal ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, ConvertPair<TSrc, TConv>> toSetConverter, Action<TConv>? removedAction = null, bool isImitate = true)
-            : base(collection: collection, toSetConverter: src => toSetConverter(src is null ? default : (TSrc)src), removedAction: removedAction, isImitate: isImitate) {
+            : base(collection: collection) {
+            _srcs = collection;
+            _removedAction = removedAction;
+            _isImitating = isImitate;
+            _pairs = new List<ConvertPair<TSrc, TConv>>();
+            _Aligner = new ListAligner<ConvertPair<TSrc, TConv>, TSrc, IList<ConvertPair<TSrc, TConv>>>(_pairs, toSetConverter, (cp, s) => object.Equals(cp.Before, s),
+                insert:insertAction,replace:replaceAction,move:moveAction,remove:removeAction,clear:clearActon);
+            if (_isImitating) SetReferenceWithStartObserve();
+            else switchConnection(false);
         }
         /// <summary>Initializes a new instance.</summary>
         /// <param name="collection">The source collection for synchronization.</param>
@@ -264,6 +157,107 @@ namespace TreeStructures.Collections {
         public ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TConv> converter, Action<TConv>? removedAction = null, bool isImitate = true)
             : this(collection, new Func<TSrc, ConvertPair<TSrc, TConv>>(src => new ConvertPair<TSrc, TConv>(src, converter(src))), removedAction,isImitate) {
         }
-    }
-    
+
+        IEnumerable<TSrc> _srcs;
+        IList<ConvertPair<TSrc, TConv>> _pairs;
+        ListAligner<ConvertPair<TSrc,TConv>, TSrc, IList<ConvertPair<TSrc,TConv>>> _Aligner;
+        LumpedDisopsables Disposables = new LumpedDisopsables();
+        Action<TConv>? _removedAction;
+        bool _isImitating;
+
+		#region edit list
+		void insertAction(IList<ConvertPair<TSrc, TConv>> pairs,int index, ConvertPair<TSrc,TConv> item) {
+            pairs.Insert(index, item);
+            this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new TConv[1] { item.After }, index));
+        }
+        void replaceAction(IList<ConvertPair<TSrc, TConv>> pairs,int index, ConvertPair<TSrc,TConv> item) {
+            var rmv = pairs[index].After;
+            pairs[index] = item;
+            this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, new TConv[1] { item.After }, new TConv[1] { rmv }, index));
+            _removedAction?.Invoke(rmv);
+        }
+        void removeAction(IList<ConvertPair<TSrc, TConv>> pairs,int index) {
+            var rmv = pairs[index].After;
+            pairs.RemoveAt(index);
+            this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new TConv[1] { rmv }, index));
+            _removedAction?.Invoke(rmv);
+        }
+        void moveAction(IList<ConvertPair<TSrc, TConv>> pairs,int ordIdx,int newIdx) {
+            var mv = pairs[ordIdx];
+            pairs.RemoveAt(ordIdx);
+            pairs.Insert(newIdx, mv);
+            this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, new TConv[1] { mv.After }, ordIdx, newIdx));
+        }
+        void clearActon(IList<ConvertPair<TSrc, TConv>> pairs) {
+            var ary = pairs.Select(x => x.After).ToArray();
+            pairs.Clear();
+            this.RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            if(_removedAction != null) 
+                foreach(var rmv in ary)
+                    _removedAction.Invoke(rmv);
+        }
+        #endregion
+
+        void Align() {
+            _Aligner.AlignBy(_srcs);
+        }
+        void Clear() {
+            _Aligner.AlignBy(Enumerable.Empty<TSrc>());
+        }
+        void SetReferenceWithStartObserve() {
+            if(_source is INotifyPropertyChanged npc) {
+                this.Disposables.Add(new EventListener<PropertyChangedEventHandler>(
+                    h => npc.PropertyChanged += h,
+                    h => npc.PropertyChanged -= h,
+                    (s, e) => this.RaisePropertyChanged(e)));
+            }
+            if(_source is INotifyCollectionChanged ncc) {
+                this.Disposables.Add(new EventListener<NotifyCollectionChangedEventHandler>(
+                    h => ncc.CollectionChanged += h,
+                    h => ncc.CollectionChanged -= h,
+                    (s, e) => this.Align()));
+            }
+            this.Align();
+        }
+        bool switchConnection(bool observe) {
+            if (_isImitating == observe) return false;
+            _isImitating = observe;
+            return true;
+        }
+        /// <inheritdoc/>
+        public override bool IsImitating => _isImitating;
+        /// <inheritdoc/>
+		public override void Imitate() {
+            if (!switchConnection(true)) return;
+            ThrowExceptionIfDisposed();
+            SetReferenceWithStartObserve();
+		}
+        /// <inheritdoc/>
+		public override void ClearAndPause() {
+            if (!switchConnection(false)) return;
+            this.Disposables.Dispose();
+            this.Clear();
+		}
+        /// <inheritdoc/>
+		protected override void Dispose(bool disposing) {
+            if (disposing) this.ClearAndPause();
+			base.Dispose(disposing);
+		}
+        ReadOnlyObservableCollection<TConv>? _readOnlyColl;
+        /// <inheritdoc/>
+		public override ReadOnlyObservableCollection<TConv> AsReadOnlyObservableCollection() {
+            return _readOnlyColl ??= new ReadOnlyObservableEnumerableWrapper<TConv,ImitableCollection<TConv>>(this);
+		}
+		#region ReadOnlyList Member
+        /// <inheritdoc/>
+		public override TConv this[int index] => this._pairs[index].After;
+        /// <inheritdoc/>
+        public override int Count => _pairs.Count;
+        /// <inheritdoc/>
+		public override IEnumerator<TConv> GetEnumerator() {
+            return this._pairs.Select(x=>x.After).GetEnumerator();
+		}
+		#endregion
+	}
+
 }

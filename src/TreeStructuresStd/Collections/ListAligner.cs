@@ -12,16 +12,7 @@ namespace TreeStructures.Collections {
 	/// </summary>
 	/// <typeparam name="T">The type of elements.</typeparam>
 	/// <typeparam name="TList">The type of the list.</typeparam>
-	//public class ListAligner<T, TList>  where TList : IList<T> {
-
 	public class ListAligner<T, TList> : ListAligner<T,T,TList>  where TList : IList<T> {
-		//TList _editList;
-		//Action<int, T> _insert;
-		//Action<int, T> _replace;
-		//Action<int, int> _move;
-		//Action<int> _remove;
-		//Action _clear;
-		//IEqualityComparer<T> _comparer;
 		/// <summary>
 		/// Initializes a new instance.
 		/// </summary>
@@ -38,59 +29,6 @@ namespace TreeStructures.Collections {
 			: base(editList, x => x, (x, y) => comparer?.Equals(x, y) ?? EqualityComparer<T>.Default.Equals(x, y), insert, replace, move, remove, clear) {
 
 		}
-		//public ListAligner(TList editList,
-		//	Action<TList, int, T>? insert = null, Action<TList, int, T>? replace = null,
-		//	Action<TList, int>? remove = null, Action<TList, int, int>? move = null, Action<TList>? clear = null, IEqualityComparer<T>? comparer = null) {
-		//	_editList = editList;
-		//	_insert = (insert != null) ? (i, t) => insert(_editList, i, t) : (i, t) => _editList.Insert(i, t);
-		//	_replace = (replace != null) ? (i, t) => replace(_editList, i, t) : (i, t) => _editList[i] = t;
-		//	_remove = (remove != null) ? i => remove(_editList, i) : i => _editList.RemoveAt(i);
-		//	_move = (move != null) ? (ordi, newi) => move(_editList, ordi, newi)
-		//	: (ordi, newi) => {
-		//		var tmp = _editList[ordi];
-		//		_remove(ordi);
-		//		_insert(newi, tmp);
-		//	};
-
-		//	_clear = (clear != null) ? () => clear(_editList) : () => _editList.Clear();
-
-		//	_comparer = comparer ?? EqualityComparer<T>.Default;
-		//}
-
-		//void setitem(int index,T item,IEnumerable<T> untils) {
-		//	if (_editList.Skip(index).Contains(item, _comparer)) {
-		//		//move
-		//		var tgt =_editList.Skip(index).Select((v, i) => new { v, i }).First(a => _comparer.Equals(item, a.v)).i + index;
-		//		_move(tgt, index);
-		//	} else {
-		//		if (_editList.Count <= index || untils.Contains(_editList[index], _comparer)) {
-		//			//insert
-		//			_insert(index, item);
-		//		} else {
-		//			//replace
-		//			_replace(index, item);
-		//		}
-		//	}
-		//}
-		///// <summary>
-		///// Aligns the list according to the specified sequence.
-		///// </summary>
-		///// <param name="order">The sequence to mimic.</param>
-		//public void AlignBy(IEnumerable<T> order) {
-		//	if (!order.Any() && 1 < _editList.Count) { 
-		//		_clear(); return;
-		//	}
-		//	var orders = new Queue<T>(order);
-		//	var queueCount = orders.Count;
-		//	for(int i = 0; i <= queueCount-1; i++) {
-		//		var item = orders.Dequeue();
-		//		if (i < _editList.Count && _comparer.Equals(item, _editList[i])) continue;
-		//		setitem(i, item, orders);
-		//	}
-		//	for (int i = _editList.Count - 1; queueCount <= i ; i--) {
-		//		_remove(i);
-		//	}
-		//}
 	}
 	/// <summary>
 	/// A utility class that manipulates a given list to align its element order with a specified sequence.
@@ -136,9 +74,18 @@ namespace TreeStructures.Collections {
 		}
 		void setitem(int index,U item,IEnumerable<U> untils) {
 			if (_editList.Skip(index).Any(x => _equality(x, item))) {
-				//move
 				var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(a.v, item)).i + index;
-				_move(tgt, index);
+				if (!untils.Any(x => _equality(_editList[index], x))) {
+					_remove(index);
+					tgt--;
+					if(tgt != index) _move(tgt, index);
+				} else {
+					//move
+					_move(tgt, index);
+				}
+				//move
+				//var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(a.v, item)).i + index;
+				//_move(tgt, index);
 			} else {
 				if(_editList.Count <= index || untils.Any(x => _equality(_editList[index], x))) {
 					//insert

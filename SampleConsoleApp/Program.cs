@@ -4,9 +4,10 @@ using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
 Console.WriteLine("Hello, World!\n\n");
-//MethodM();
-//MethodAAA();
-//MethodAA();
+MethodMM();
+MethodM();
+MethodAAA();
+MethodAA();
 ExtensionSample.EnumerableSample();
 ExtensionSample.TreeNodeSample();
 MethodK();

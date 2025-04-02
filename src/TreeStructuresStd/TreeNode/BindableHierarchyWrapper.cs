@@ -128,8 +128,8 @@ namespace TreeStructures {
 					}, (a, b, c) => c.Prepend(a).Concat(b))// b.Prepend(a).Concat(c))
                     .Skip(1).Reverse().OfType<IDisposable>();
                 foreach (var n in nd) n.Dispose();
-                //InnerChildren.Dispose();
-				InnerChildNodes.ClearCollection();
+				//InnerChildNodes.ClearCollection();
+				InnerChildNodes.Dispose();
 				
             }
             isDisposed = true;
