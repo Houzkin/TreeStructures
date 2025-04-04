@@ -23,10 +23,10 @@ namespace TreeStructures.Collections {
 	/// To subscribe to nested properties, the nested objects must also implement <see cref="INotifyPropertyChanged"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of the elements in the collection. To receive property change notifications, the elements must implement <see cref="INotifyPropertyChanged"/>.</typeparam>
-	public class ReadOnlyObservableItemCollection<T> : IReadOnlyList<T>, IDisposable,INotifyCollectionChanged {
+	public class ReadOnlyObservableItemCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
 
-		ImitableCollection<T,ObservedPropertyTree<T>> _trees;
-		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>,IDisposable>>> dim3 = new();
+		ImitableCollection<ObservedPropertyTree<T>> _trees;
+		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dim3 = new();
 		IDisposable? listener;
 
 		/// <summary>
@@ -52,12 +52,12 @@ namespace TreeStructures.Collections {
 				}, x => {
 					foreach (var d3 in dim3) {
 						foreach (var d2 in d3.Keys) {
-							ResultWith<IDisposable>.Of(d3[d2].Remove,x).When(o => o.Dispose());
+							ResultWith<IDisposable>.Of(d3[d2].Remove, x).When(o => o.Dispose());
 						}
 					}
 					x.Dispose();
 				});
-			if(Items is INotifyCollectionChanged notify) {
+			if (Items is INotifyCollectionChanged notify) {
 				listener = new EventListener<NotifyCollectionChangedEventHandler>(
 					h => notify.CollectionChanged += h,
 					h => notify.CollectionChanged -= h,
@@ -65,25 +65,25 @@ namespace TreeStructures.Collections {
 			}
 		}
 
-		void addExpressions(Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>,IDisposable>> area,IEnumerable<Expression<Func<T,object>>> exps) {
+		void addExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area, IEnumerable<Expression<Func<T, object>>> exps) {
 			ThrowExceptionIfDisposed();
-			foreach(var key in exps) {
+			foreach (var key in exps) {
 				if (area.ContainsKey(key)) continue;
-				var newDic = new Dictionary<ObservedPropertyTree<T>,IDisposable>();
+				var newDic = new Dictionary<ObservedPropertyTree<T>, IDisposable>();
 				foreach (var trr in _trees) newDic.Add(trr, trr.Subscribe(key, this.handleItemPropertyChanged));
 				area[key] = newDic;
 			}
 		}
 		void removeExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area, IEnumerable<Expression<Func<T, object>>> exps) {
 			foreach (var key in exps) {
-				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of( area.Remove, key)
-					.When( o => {
+				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of(area.Remove, key)
+					.When(o => {
 						foreach (var t in o.Values) t.Dispose();
 					});
 			}
 		}
 		void clearExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area) {
-			foreach (var disp in area.Values.SelectMany(x=>x.Values)) { disp.Dispose(); }
+			foreach (var disp in area.Values.SelectMany(x => x.Values)) { disp.Dispose(); }
 		}
 		void dispExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area) {
 			if (dim3.Remove(area)) { clearExpressions(area); }
@@ -95,7 +95,7 @@ namespace TreeStructures.Collections {
 		/// </summary>
 		/// <param name="exps">The collection of property expressions to subscribe to.</param>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
-		protected ExpressionSubscriptionList AcquireNewSubscriptionList(IEnumerable<Expression<Func<T,object>>> exps){
+		protected ExpressionSubscriptionList AcquireNewSubscriptionList(IEnumerable<Expression<Func<T, object>>> exps) {
 			var esp = this.AcquireNewSubscriptionList();
 			esp.Add(exps);
 			return esp;
@@ -107,7 +107,7 @@ namespace TreeStructures.Collections {
 		/// </summary>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
 		protected ExpressionSubscriptionList AcquireNewSubscriptionList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
-			var dic = new Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>, IDisposable>>();
+			var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>();
 			dim3.Add(dic);
 			return new ExpressionSubscriptionList(dic, addExpressions, removeExpressions, clearExpressions, dispExpressions);
 		}
@@ -130,7 +130,7 @@ namespace TreeStructures.Collections {
 		/// <see cref="Subscribe(Expression{Func{T, object}}, Action{T, ChainedPropertyChangedEventArgs{object}})"/> method  
 		/// and raises notifications to subscribers monitoring property changes within the collection.
 		/// </remarks>
-		protected virtual void HandleItemPropertyChanged(T sender,ChainedPropertyChangedEventArgs<object> e){
+		protected virtual void HandleItemPropertyChanged(T sender, ChainedPropertyChangedEventArgs<object> e) {
 			ChainedPropertyChanged?.Invoke(sender, e);
 		}
 		event Action<T, ChainedPropertyChangedEventArgs<object>>? ChainedPropertyChanged;
@@ -140,14 +140,14 @@ namespace TreeStructures.Collections {
 		/// <param name="expression">An expression that specifies the property to monitor for changes.</param>
 		/// <param name="handle">An action that handles the event when a property change notification is received.</param>
 		/// <returns>An <see cref="IDisposable"/> that can be used to unsubscribe from the property change notifications.</returns>
-		public IDisposable Subscribe(Expression<Func<T,object>> expression,Action<T,ChainedPropertyChangedEventArgs<object>> handle) {
+		public IDisposable Subscribe(Expression<Func<T, object>> expression, Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
 			var col = this.AcquireNewSubscriptionList(new Expression<Func<T, object>>[] { expression });
 			Action<T, ChainedPropertyChangedEventArgs<object>> action = (s, e) => {
 				if (PropertyUtils.GetPropertyPath(expression).SequenceEqual(e.ChainedProperties)) handle(s, e);
 			};
 			ChainedPropertyChanged += action;
-			var disp = new DisposableObject(() => { 
-				col.Dispose(); 
+			var disp = new DisposableObject(() => {
+				col.Dispose();
 				ChainedPropertyChanged -= action;
 			});
 			return disp;
@@ -169,13 +169,13 @@ namespace TreeStructures.Collections {
 			this.Dispose(true);
 		}
 		/// <summary>Adds resource disposal in derived classes.</summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                // TODO: マネージド状態を破棄します (マネージド オブジェクト)
-				foreach(var d3 in this.dim3) {
-					foreach(var d2 in d3.Values) {
-						foreach(var d1 in d2) {
+		/// <param name="disposing"></param>
+		protected virtual void Dispose(bool disposing) {
+			if (disposing) {
+				// TODO: マネージド状態を破棄します (マネージド オブジェクト)
+				foreach (var d3 in this.dim3) {
+					foreach (var d2 in d3.Values) {
+						foreach (var d1 in d2) {
 							d1.Value.Dispose();
 							d1.Key.Dispose();
 						}
@@ -183,15 +183,15 @@ namespace TreeStructures.Collections {
 				}
 				_trees.Dispose();
 				listener?.Dispose();
-            }
-            // TODO: アンマネージド リソース (アンマネージド オブジェクト) を解放し、ファイナライザーをオーバーライドします
-            // TODO: 大きなフィールドを null に設定します
-            isDisposed = true;
-        }
+			}
+			// TODO: アンマネージド リソース (アンマネージド オブジェクト) を解放し、ファイナライザーをオーバーライドします
+			// TODO: 大きなフィールドを null に設定します
+			isDisposed = true;
+		}
 
-        void ThrowExceptionIfDisposed() {
-            if(isDisposed) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
-        }
+		void ThrowExceptionIfDisposed() {
+			if (isDisposed) throw new ObjectDisposedException(GetType().FullName, "The instance has already been disposed and cannot be operated on.");
+		}
 		/// <inheritdoc/>
 		public int Count {
 			get {
@@ -203,7 +203,7 @@ namespace TreeStructures.Collections {
 		/// <inheritdoc/>
 		public T this[int index] {
 			get {
-				if(Items is IReadOnlyList<T> lst) return lst[index];
+				if (Items is IReadOnlyList<T> lst) return lst[index];
 				else if (Items is IList<T> ilist) return ilist[index];
 				else return Items.ElementAt(index);
 			}
@@ -221,19 +221,19 @@ namespace TreeStructures.Collections {
 		/// Represents a collection used to edit the list of properties to be subscribed to.  
 		/// Duplicate <see cref="Expression"/> instances are excluded from the collection.
 		/// </summary>
-		public class ExpressionSubscriptionList : IEnumerable<Expression<Func<T,object>>>, IDisposable {
+		public class ExpressionSubscriptionList : IEnumerable<Expression<Func<T, object>>>, IDisposable {
 			Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area;
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>,IEnumerable<Expression<Func<T, object>>>> _addAction;
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>,IEnumerable<Expression<Func<T, object>>>> _removeAction;
+			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _addAction;
+			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _removeAction;
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _clearAction;
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _dispAction;
 			bool isDisposed = false;
 			internal ExpressionSubscriptionList(
-				Dictionary<Expression<Func<T,object>>,Dictionary<ObservedPropertyTree<T>,IDisposable>> area,
+				Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> addAction,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> removeAction,
 				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> clearAction,
-				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>>  dispAction) {
+				Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dispAction) {
 				_area = area;
 				_addAction = addAction;
 				_removeAction = removeAction;
@@ -247,31 +247,31 @@ namespace TreeStructures.Collections {
 			/// <param name="expressions">The collection of expressions representing the properties to be added to the subscription list.</param>
 			public void Add(IEnumerable<Expression<Func<T, object>>> expressions) {
 				this.ThrowExceptionIfDisposed();
-				_addAction(_area,expressions);
+				_addAction(_area, expressions);
 			}
 			/// <summary>
 			/// Unsubscribes from the specified properties (expressed as <c>Expression&lt;Func&lt;T, object&gt;&gt;</c>).
 			/// </summary>
 			/// <param name="expressions">The collection of expressions representing the properties to unsubscribe from.</param>
 
-			public void Remove(IEnumerable<Expression<Func<T, object>>> expressions) { 
+			public void Remove(IEnumerable<Expression<Func<T, object>>> expressions) {
 				this.ThrowExceptionIfDisposed();
-				_removeAction(_area, expressions); 
+				_removeAction(_area, expressions);
 			}
 			/// <summary>Unsubscribes from all properties in the collection.</summary>
 			public void Clear() {
 				this.ThrowExceptionIfDisposed();
-				_clearAction(_area); 
+				_clearAction(_area);
 			}
 			/// <summary>Unsubscribes from all properties and disposes of the allocated collection.</summary>
-			public void Dispose() { 
-				if(isDisposed) return;
+			public void Dispose() {
+				if (isDisposed) return;
 				_dispAction(_area);
 				isDisposed = true;
 			}
 
 			void ThrowExceptionIfDisposed() {
-				if(isDisposed) throw new ObjectDisposedException(GetType().FullName, "The instance has already been disposed and cannot be operated on.");
+				if (isDisposed) throw new ObjectDisposedException(GetType().FullName, "The instance has already been disposed and cannot be operated on.");
 			}
 			/// <inheritdoc/>
 			public IEnumerator<Expression<Func<T, object>>> GetEnumerator() { return _area.Keys.GetEnumerator(); }

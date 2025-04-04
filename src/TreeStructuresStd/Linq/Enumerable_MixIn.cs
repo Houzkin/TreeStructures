@@ -23,22 +23,6 @@ namespace TreeStructures.Linq {
 		//	return new ReadOnlyNotifierCollection<T,TList>(self);
 		//}
         
-        internal class EnumerableCollection<T> : IEnumerable<T>,IReadOnlyList<T> {
-            public EnumerableCollection(IEnumerable<T> collection) {
-                _collection = collection;
-            }
-            public T this[int index] => _collection.ElementAt(index);
-
-            public int Count => _collection.Count();
-            IEnumerable<T> _collection;
-            public IEnumerator<T> GetEnumerator() {
-                return _collection.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() {
-                return _collection.GetEnumerator();
-            }
-        }
 
         /// <summary>Combines disposable collections.</summary>
         public static IDisposable CombineDisposables<T>(this IEnumerable<T> enumerable) where T:IDisposable {

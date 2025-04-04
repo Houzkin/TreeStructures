@@ -88,12 +88,6 @@ namespace TreeStructures.Collections {
             public TSrc Before { get; private set; }
             public TConv After { get; private set; }
         }
-        //internal class ConvertPair<TSrc, TConv> : ConvertPair<TConv> where TConv : class {
-        //    public ConvertPair(TSrc element, TConv syncObj) : base(element, syncObj) { }
-        //    public new TSrc Before { get { return base.Before is null ? default : (TSrc)base.Before; } }
-        //    //public new TSrc Before { get => base.Before is TSrc src1 ? src1 : default; }
-        //    //public new TConv After { get { return base.After as TConv; } }
-        //}
     }
     /// <summary><inheritdoc/></summary>
     /// <typeparam name="TConv">The type of elements in the imitable collection for synchronization.</typeparam>
@@ -144,7 +138,7 @@ namespace TreeStructures.Collections {
             _removedAction = removedAction;
             _isImitating = isImitate;
             _pairs = new List<ConvertPair<TSrc, TConv>>();
-            _Aligner = new ListAligner<ConvertPair<TSrc, TConv>, TSrc, IList<ConvertPair<TSrc, TConv>>>(_pairs, toSetConverter, (cp, s) => object.Equals(cp.Before, s),
+            _Aligner = new ListAligner<TSrc, ConvertPair<TSrc, TConv>, IList<ConvertPair<TSrc, TConv>>>(_pairs, toSetConverter, (cp, s) => object.Equals(cp.Before, s),
                 insert:insertAction,replace:replaceAction,move:moveAction,remove:removeAction,clear:clearActon);
             if (_isImitating) SetReferenceWithStartObserve();
             else switchConnection(false);
@@ -160,7 +154,7 @@ namespace TreeStructures.Collections {
 
         IEnumerable<TSrc> _srcs;
         IList<ConvertPair<TSrc, TConv>> _pairs;
-        ListAligner<ConvertPair<TSrc,TConv>, TSrc, IList<ConvertPair<TSrc,TConv>>> _Aligner;
+        ListAligner<TSrc, ConvertPair<TSrc, TConv>, IList<ConvertPair<TSrc, TConv>>> _Aligner;
         LumpedDisopsables Disposables = new LumpedDisopsables();
         Action<TConv>? _removedAction;
         bool _isImitating;
@@ -246,7 +240,7 @@ namespace TreeStructures.Collections {
         ReadOnlyObservableCollection<TConv>? _readOnlyColl;
         /// <inheritdoc/>
 		public override ReadOnlyObservableCollection<TConv> AsReadOnlyObservableCollection() {
-            return _readOnlyColl ??= new ReadOnlyObservableEnumerableWrapper<TConv,ImitableCollection<TConv>>(this);
+            return _readOnlyColl ??= new ReadOnlyObservableEnumerableWrapper<ImitableCollection<TConv>,TConv>(this);
 		}
 		#region ReadOnlyList Member
         /// <inheritdoc/>

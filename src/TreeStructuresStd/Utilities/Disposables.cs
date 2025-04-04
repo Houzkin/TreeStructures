@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace TreeStructures.Utilities;
 
+//public static class DisposeExtensions {
+//    public static void Using(this IDisposable self,Action action) {
+//        action();
+//        self.Dispose();
+//    }
+//}
+
 public class DisposableObject : IDisposable {
     Action? _disp;
     public DisposableObject() { }

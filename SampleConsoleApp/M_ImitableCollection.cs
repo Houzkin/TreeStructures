@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Collections;
+using TreeStructures.Linq;
 
 namespace SampleConsoleApp;
 
@@ -58,18 +59,19 @@ public static partial class UseageSample {
 	}
 	public static void MethodMM() {
 
-		var collection = new ObservableCollection<string>(new string[] {"a","b"});
+		var collection = new ObservableCollection<string>(new string[] {"a","b","c","d","e","f"});
 		var imit = ImitableCollection.Create(
 			collection,
 			x => {
 				return new ObservableNamedNode() { Name = x.ToUpper() };
 			});
-		var readOnly = imit.AsReadOnlyObservableCollection();
+		var readOnly = imit;
 
 		(readOnly as INotifyCollectionChanged).CollectionChanged += (s, e) => {
 			Console.WriteLine($"{e.Action},{string.Join(',',e.NewItems?.OfType<ObservableNamedNode>().Select(x=>x.ToString()) ?? new string[] { })},{string.Join(',',e.OldItems?.OfType<ObservableNamedNode>().Select(x=>x.ToString()) ?? new string[] { })}");
 			Console.WriteLine($"{string.Join(',',imit)}");
 		};
+		collection.AlignBy(collection.Skip(1));
 
 		collection.Add("c");
 		//Add,C,

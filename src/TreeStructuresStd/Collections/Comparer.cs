@@ -6,17 +6,17 @@ namespace TreeStructures.Collections {
 	/// <summary>
 	/// Provides extension methods for <see cref="IComparer{T}"/>.
 	/// </summary>
-	public static class ComparerExtensions{
+	public static class ComparerExtensions {
 
 		/// <summary>Inverts the comparison result.</summary>
-		public static InvertibleComparer<T> Invert<T>(this IComparer<T> self){
-			if(self is InvertibleComparer<T> inv){
+		public static InvertibleComparer<T> Invert<T>(this IComparer<T> self) {
+			if (self is InvertibleComparer<T> inv) {
 				inv.Invert();
 				return inv;
 			}
-			return new InvertibleComparer<T>(self,true);
-        }
-    }
+			return new InvertibleComparer<T>(self, true);
+		}
+	}
 	/// <summary>
 	/// Represents a comparer that can be inverted.
 	/// </summary>
@@ -29,14 +29,14 @@ namespace TreeStructures.Collections {
 		/// </summary>
 		/// <param name="comparer">The comparer to be inverted.</param>
 		/// <param name="invert">True if the comparison results should be inverted upon initialization.</param>
-		public InvertibleComparer(IComparer<T> comparer,bool invert = false) : base(){
+		public InvertibleComparer(IComparer<T> comparer, bool invert = false) : base() {
 			_comparer = comparer;
 			f = invert ? -1 : 1;
 		}
 		/// <summary>
 		/// Inverts the comparison result.
 		/// </summary>
-		public InvertibleComparer<T> Invert(){
+		public InvertibleComparer<T> Invert() {
 			f *= -1;
 			return this;
 		}

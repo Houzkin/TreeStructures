@@ -3,11 +3,11 @@
 using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
-Console.WriteLine("Hello, World!\n\n");
-MethodMM();
-MethodM();
-MethodAAA();
-MethodAA();
+//Console.WriteLine("Hello, World!\n\n");
+//MethodMM();
+//MethodM();
+//MethodAAA();
+//MethodAA();
 ExtensionSample.EnumerableSample();
 ExtensionSample.TreeNodeSample();
 MethodK();
