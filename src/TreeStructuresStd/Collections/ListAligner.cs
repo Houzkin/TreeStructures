@@ -95,8 +95,9 @@ namespace TreeStructures.Collections {
 						_move(index, unttgt);
 					}
 
-					if (tgt<= unttgt) {
-						_move(tgt -1 , index);
+					//if (tgt<= unttgt) {
+					if (tgt <= index + untils.Count()) {
+						_move(tgt - 1, index);
 					} else {
 						_move(tgt, index);
 					}
