@@ -26,6 +26,12 @@ namespace TreeStructures.Collections {
 			action(list.asTList());
 			return list.MoveTo(b);
 		}
+		public static U RestoreAfter<T,TList,U>(this IListScroller<T,TList> list, Func<TList,U> func) where TList : IListScroller<T, TList> {
+			var b = list.CurrentIndex;
+			U result = func(list.asTList());
+			list.MoveTo(b);
+			return result;
+		}
 		#region Move
 		public static TList Move<T,TList>(this IListScroller<T,TList> list, int moveCount)where TList:IListScroller<T,TList> {
 			return list.MoveTo(list.CurrentIndex + moveCount);

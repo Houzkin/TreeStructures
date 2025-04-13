@@ -15,7 +15,7 @@ namespace SampleConsoleApp;
 public static partial class UseageSample{
     public class DisposingObservableNamedNode : ObservableNamedNode{
 		protected override IEnumerable<ObservableNamedNode> SetupPublicChildCollection(IEnumerable<ObservableNamedNode> innerCollection) {
-            var flitered = (innerCollection as ObservableCollection<ObservableNamedNode>).ToSortFilterObservable();
+            var flitered = (innerCollection as ObservableCollection<ObservableNamedNode>).ToReadOnlyObservableFilterSort();
             flitered.FilterBy(x => x.Name != "H", x => x.Name);
             return flitered;
 			return base.SetupPublicChildCollection(innerCollection);
@@ -42,10 +42,11 @@ public static partial class UseageSample{
 			base.Dispose(disposing);
 		}
         ObservableCollection<NamedNodeWrapper> artificals = new();
-        ReadOnlySortFilterObservableCollection<NamedNodeWrapper> filterable;
-        protected override IEnumerable<NamedNodeWrapper> SetupPublicChildCollection(CombinableChildWrapperCollection<NamedNodeWrapper> children) {
+        //ReadOnlyObservableFilterSortCollection<NamedNodeWrapper> filterable;
+        ReadOnlyObservableFilterSortCollection<NamedNodeWrapper> filterable;
+        protected override IEnumerable<NamedNodeWrapper> SetupPublicChildCollection(CombinableChildrenProxyCollection<NamedNodeWrapper> children) {
             children.AppendCollection(artificals);
-            filterable = children.ToSortFilterObservable();
+            filterable = children.ToReadOnlyObservableFilterSort();
             return filterable;
         }
         public void Hide(string name){

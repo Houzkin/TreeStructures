@@ -3,18 +3,20 @@
 using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
 
+
 //Console.WriteLine("Hello, World!\n\n");
+
+//MethodN();
 //MethodMM();
 //MethodM();
 //MethodAAA();
 //MethodAA();
 ExtensionSample.EnumerableSample();
-ExtensionSample.TreeNodeSample();
+//ExtensionSample.TreeNodeSample();
 MethodK();
 MethodJJJ();
 MethodJJ();
 MethodJ();
-ExtensionSample.EnumerableSample();
 MethodI();
 MethodH();
 MethodG();
@@ -27,3 +29,5 @@ MethodC();
 MethodD();
 MethodDD();
 MethodE();
+
+var cpr = EqualityComparer<string>.Default;

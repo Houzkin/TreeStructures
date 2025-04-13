@@ -59,8 +59,16 @@ public static partial class UseageSample{
 	public static void MethodK() {
 		var rmd = new RandomDateTime(new DateTime(2023, 1, 1), new DateTime(2024, 12, 31));
 		var dtlist = new ObservableCollection<DateTime>() { rmd.Next(), rmd.Next(), rmd.Next(), };
+		//var dtlist = new ObservableCollection<DateTime>() { new DateTime(2024, 9, 28), new DateTime(2024, 10, 6), new DateTime(2023, 5, 1) };//infinite loop
 
-		var sfo = dtlist.ToSortFilterObservable();
+		//dtlist.AlignBy(dtlist.OrderBy(a => a));
+		//Console.WriteLine(string.Join(", ", dtlist.Select(x => x.ToString("yyyy/MM/dd"))));
+		//dtlist.Insert(3, rmd.Next());
+
+
+
+		var sfo = dtlist.ToReadOnlyObservableFilterSort();
+		//var sfo = new RooObsFilterSortCollection<DateTime>(dtlist);
 
 		Console.WriteLine("initial state");
 		Console.WriteLine(string.Join(", ", sfo.Select(x => x.ToString("yyyy/MM/dd"))));
@@ -74,6 +82,7 @@ public static partial class UseageSample{
 		dtlist.Add(rmd.Next());
 		dtlist.Add(rmd.Next());
 		Console.WriteLine(string.Join(", ", sfo.Select(x => x.ToString("yyyy/MM/dd"))));
+
 
 
 		var heads = new ObservableCollection<HeadOfState>() {
@@ -90,7 +99,7 @@ public static partial class UseageSample{
 		};
 
 		Console.WriteLine("\ninitial state");
-		var sfoheads = heads.ToSortFilterObservable();
+		var sfoheads = heads.ToReadOnlyObservableFilterSort();
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nonly republic");
@@ -117,10 +126,11 @@ public static partial class UseageSample{
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("changed hander");
-		var disp = sfoheads.Subscribe(x => x.Name, (s, e) => {
-			Console.WriteLine($"State:{s.State}, Name:{s.Name}, Birthday:{s.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{s.IsRepublic}, IsEmpress:{s.IsEmpress}");
-		});
+		//var disp = sfoheads.Subscribe(x => x.Name, (s, e) => {
+		//	Console.WriteLine($"State:{s.State}, Name:{s.Name}, Birthday:{s.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{s.IsRepublic}, IsEmpress:{s.IsEmpress}");
+		//});
 		foreach (var item in heads.Where(x => x.State == "USA")) { item.Name = "Trump"; }
+		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 	}
 
 }

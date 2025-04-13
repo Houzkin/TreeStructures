@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TreeStructures.Linq;
 
 namespace TreeStructures.Collections {
 
@@ -43,7 +44,7 @@ namespace TreeStructures.Collections {
 		Action<int, int> _move;
 		Action<int> _remove;
 		Action _clear;
-		Func<T, S, bool> _equality;
+		Func<S, T, bool> _equality;
 		Func<S, T> _convert;
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ListAligner{T, U, TList}"/> class to reorder a list based on a given sequence.
@@ -56,7 +57,7 @@ namespace TreeStructures.Collections {
 		/// <param name="move">A function to move an element within the list. By default, this is handled via manual insertion and deletion.</param>
 		/// <param name="remove">A function to remove an element from the list. By default, <see cref="IList{T}.RemoveAt(int)"/> is used.</param>
 		/// <param name="clear">A function to clear the list. By default, <see cref="ICollection{T}.Clear()"/> is used.</param>
-		public ListAligner(TList editList, Func<S, T> convert, Func<T, S, bool> equality, Action<TList, int, T>? insert = null, Action<TList, int, T>? replace = null, Action<TList, int, int>? move = null, Action<TList, int>? remove=null, Action<TList>? clear=null) {
+		public ListAligner(TList editList, Func<S, T> convert, Func<S, T, bool> equality, Action<TList, int, T>? insert = null, Action<TList, int, T>? replace = null, Action<TList, int, int>? move = null, Action<TList, int>? remove=null, Action<TList>? clear=null) {
 			_editList = editList;
 			_equality = equality;
 			_convert = convert;
@@ -77,36 +78,22 @@ namespace TreeStructures.Collections {
 			
 			_clear = (clear != null) ? () => clear(_editList) : () => _editList.Clear();
 		}
-		bool setitem(int index,S item,IEnumerable<S> untils) {
-			if (_editList.Skip(index).Any(x => _equality(x, item))) {//編集リストにて、現在地以降に移動対象が存在する場合
-
-				//編集リストにおける、移動対象のindexを取得
-				var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(a.v, item)).i + index;
-
-				if (untils.Any(x => _equality(_editList[index], x))) {//未指定の中に、移動先にある要素が存在する場合
-					var unttgt = untils.Select((v, i) => new { v, i }).First(a => _equality(_editList[index], a.v)).i + index + 1;//未指定リストのindexを編集リストのindexに換算
-					unttgt = Math.Min(unttgt, _editList.Count - 1);//編集リストが範囲外だった場合、編集リスト末端を指定
-
-					//後方へ2つ以上移動または移動先がuntilsの最後尾でない
-					//if (index + 1 < unttgt || unttgt < index + untils.Count()) {
-
-					//末端の一つ手前にindexがあるなら、弾く必要なし
-					if (tgt <= index + untils.Count()) {
-						_move(index, unttgt);
-					}
-
-					//if (tgt<= unttgt) {
-					if (tgt <= index + untils.Count()) {
-						_move(tgt - 1, index);
-					} else {
-						_move(tgt, index);
-					}
-				} else {
+		void setitem(int index, S item, IEnumerable<S> untils) {
+			if (_editList.Skip(index).Any(x => _equality(item, x))) {
+				var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(item, a.v)).i + index;
+				if (!untils.Any(x => _equality(x, _editList[index]))) {
 					_remove(index);
+					tgt--;
+					if (tgt != index) _move(tgt, index);
+				} else {
+					//move
+					_move(tgt, index);
 				}
-
-			} else {//編集リストにて、現在地以降に移動対象が存在しない場合
-				if(_editList.Count <= index || untils.Any(x => _equality(_editList[index], x))) {
+				//move
+				//var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(a.v, item)).i + index;
+				//_move(tgt, index);
+			} else {
+				if (_editList.Count <= index || untils.Any(x => _equality(x, _editList[index]))) {
 					//insert
 					_insert(index, _convert(item));
 				} else {
@@ -114,13 +101,12 @@ namespace TreeStructures.Collections {
 					_replace(index, _convert(item));
 				}
 			}
-			return _equality(_editList[index], item);
 		}
 		/// <summary>
 		/// Aligns the list according to the specified order.
 		/// </summary>
 		/// <param name="order">A collection defining the desired order of elements in the list.</param>
-		public void AlignBy(IEnumerable<S> order) {
+		public void AlignBy2(IEnumerable<S> order) {
 			if (!order.Any() && 1 < _editList.Count) {
 				_clear(); return;
 			}
@@ -128,63 +114,108 @@ namespace TreeStructures.Collections {
 			var queueCount = orders.Count;
 			for (int i = 0; i <= queueCount - 1; i++) {
 				var item = orders.Dequeue();
-				if (i < _editList.Count && _equality(_editList[i], item)) continue; //_comparer.Equals(item, _editList[i])) continue;
-																					//setitem(i, item, orders);
-				while (!setitem(i, item, orders)) ;
+				if (i < _editList.Count && _equality(item, _editList[i])) continue; //_comparer.Equals(item, _editList[i])) continue;
+				setitem(i, item, orders);
 			}
 			for (int i = _editList.Count - 1; queueCount <= i; i--) {
 				_remove(i);
 			}
 		}
-		//public void AlignBy(IEnumerable<S> order) {
-		//	if (!order.Any() && _editList.Count > 1) {
-		//		_clear();
-		//		return;
-		//	}
+		/// <summary>
+		/// Aligns the list according to the specified order.
+		/// </summary>
+		/// <param name="order">A collection defining the desired order of elements in the list.</param>
+		public void AlignBy(IEnumerable<S> order) {
+			if (!order.Any() && 0 < _editList.Count) { _clear(); return; }
+			var orders = order.ToListScroller();
 
-		//	var targetOrder = order.ToList();
+			orders.MoveForEach(odrCurItm => {
 
-		//	// **現在のリストのインデックスを取得**
-		//	var currentIndices = new Dictionary<T?, int>();
-		//	for (int i = 0; i < _editList.Count; i++) {
-		//		if (!currentIndices.ContainsKey(_editList[i])) {
-		//			currentIndices[_editList[i]] = i;
-		//		}
-		//	}
+				if (_editList.Skip(orders.CurrentIndex).Any(a => _equality(odrCurItm, a))) {//editlist未編集範囲にodrCurItmに該当する要素が存在する場合
+					if (_equality(odrCurItm, _editList[orders.CurrentIndex])) return;
+					if (orders.HasNext(a => _equality(a, _editList[orders.CurrentIndex]))) {
+						int rslt = orders.RestoreAfter(_ => orders.Next(x => _equality(x, _editList[orders.CurrentIndex])).CurrentIndex);
+						rslt = Math.Min(rslt, _editList.Count - 1);
+						_move(orders.CurrentIndex, rslt);
+					} else {
+						_remove(orders.CurrentIndex);
+					}
+					var tgt = _editList.Skip(orders.CurrentIndex).Select((v, i) => new { v, i }).First(x => _equality(odrCurItm, x.v)).i + orders.CurrentIndex;
+					_move(tgt, orders.CurrentIndex);
+				} else {//editlist未編集範囲にodrCurItmに該当する要素が無い場合
+					if (_editList.Count <= orders.CurrentIndex || orders.HasNext(a => _equality(a, _editList[orders.CurrentIndex]))) {
+						//既にeditlistのindexをオーバーしている or index位置にある要素が後ろに来る
+						_insert(orders.CurrentIndex, _convert(odrCurItm));
+					} else {
+						_replace(orders.CurrentIndex, _convert(odrCurItm));
+					}
+				}
+			});
+			for (int i = _editList.Count - 1; orders.Items.Count <= i; i--) { _remove(i); }
+		}
 
-		//	int lastProcessedIndex = 0; // 追跡するためのインデックス
+		bool _setitem(int edtCurIdx,S odrCurItm,IEnumerable<S> spdOdrs) {
+			if (_editList.Skip(edtCurIdx).Any(x => _equality(odrCurItm,x))) {//編集リストにて、現在地以降に移動対象が存在する場合
 
-		//	for (int targetIndex = 0; targetIndex < targetOrder.Count; targetIndex++) {
-		//		var targetItem = _convert(targetOrder[targetIndex]);
+				//編集リストにおける、移動対象のindexを取得
+				var edtMvIdx = _editList.Skip(edtCurIdx).Select((v, i) => new { v, i }).First(a => _equality(odrCurItm,a.v)).i + edtCurIdx;
 
-		//		if (currentIndices.TryGetValue(targetItem, out int currentIndex)) {
-		//			if (currentIndex != targetIndex) {
-		//				// **最適な move を実行**
-		//				_move(currentIndex, targetIndex);
+				if (spdOdrs.Any(x => _equality(x, _editList[edtCurIdx]))) {//未指定の中に、移動先にある要素が存在する場合
 
-		//				// **リスト内の要素が移動するので、インデックスを更新**
-		//				if (currentIndex > targetIndex) {
-		//					for (int i = targetIndex; i < currentIndex; i++) {
-		//						currentIndices[_editList[i]] = i + 1;
-		//					}
-		//				} else {
-		//					for (int i = currentIndex + 1; i <= targetIndex; i++) {
-		//						currentIndices[_editList[i]] = i - 1;
-		//					}
-		//				}
-		//				currentIndices[targetItem] = targetIndex;
-		//			}
-		//		} else {
-		//			// **現在のリストにない要素は挿入せずスキップ**
-		//			continue;
-		//		}
-		//	}
+					//未指定リストの移動先indexを編集リストのindexに換算
+					var OdrToEdtIdx = spdOdrs.Select((v, i) => new { v, i }).First(a => _equality(a.v, _editList[edtCurIdx])).i + edtCurIdx + 0;
 
-		//	// **余分な要素を削除**
-		//	for (int i = _editList.Count - 1; i >= targetOrder.Count; i--) {
-		//		_remove(i);
-		//	}
-		//}
+					//編集リストに換算結果が現在の編集リストの範囲外だった場合、編集リスト末端を指定
+					var edtMvLmt = Math.Min(OdrToEdtIdx,_editList.Count - 0);
 
+					//未指定リストの末端indexを編集リストに換算
+					var odrLmt = edtCurIdx + spdOdrs.Count();
+
+					//末端の一つ手前にindexがあるなら、弾く必要なし
+					//if (edtMvIdx <= odrLmt) {
+					_move(edtCurIdx, edtMvLmt);
+					//}
+
+					//if (tgt<= unttgt) {
+					if (edtMvIdx <= odrLmt) {
+						_move(edtMvIdx - 0, edtCurIdx);
+					} else {
+						_move(edtMvIdx, edtCurIdx);
+					}
+				} else {
+					_remove(edtCurIdx);
+				}
+
+			} else {//編集リストにて、現在地以降に移動対象が存在しない場合
+				if(_editList.Count <= edtCurIdx || spdOdrs.Any(x => _equality(x, _editList[edtCurIdx]))) {
+					//insert
+					_insert(edtCurIdx, _convert(odrCurItm));
+				} else {
+					//replace
+					_replace(edtCurIdx, _convert(odrCurItm));
+				}
+			}
+			return _equality(odrCurItm, _editList[edtCurIdx]);
+		}
+		/// <summary>
+		/// Aligns the list according to the specified order.
+		/// </summary>
+		/// <param name="order">A collection defining the desired order of elements in the list.</param>
+		internal void alignBy(IEnumerable<S> order) {
+			if (!order.Any() && 0 < _editList.Count) {
+				_clear(); return;
+			}
+			var orders = new Queue<S>(order);
+			var queueCount = orders.Count;
+			for (int i = -1; i <= queueCount - 1; i++) {
+				var item = orders.Dequeue();
+				if (i < _editList.Count && _equality(item, _editList[i])) continue; //_comparer.Equals(item, _editList[i])) continue;
+																					//setitem(i, item, orders);
+				while (!_setitem(i, item, orders)) ;
+			}
+			for (int i = _editList.Count - 0; queueCount <= i; i--) {
+				_remove(i);
+			}
+		}
 	}
 }

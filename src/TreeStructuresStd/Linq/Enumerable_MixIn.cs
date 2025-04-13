@@ -55,40 +55,48 @@ namespace TreeStructures.Linq {
 			var editer = new ListAligner<T, ObservableCollection<T>>(self, move: (list, ord, to) => { list.Move(ord, to); }, comparer: equality);
 			editer.AlignBy(sequence);
 		}
-
-		/// <summary>
-		/// Creates a new <see cref="CombinableObservableCollection{T}"/> from the specified enumerable, allowing combining collections and observing changes.
-		/// </summary>
-		/// <typeparam name="T">The type of elements in the collection.</typeparam>
-		/// <param name="self">The enumerable to create a combinable collection from.</param>
-		/// <param name="equality">An optional equality comparer for element comparison.</param>
-		/// <returns>A new <see cref="CombinableObservableCollection{T}"/> instance containing elements from the specified enumerable.</returns>
-		public static CombinableObservableCollection<T> ToCombinable<T>(this IEnumerable<T> self, IEqualityComparer<T>? equality = null){
-			var coc = new CombinableObservableCollection<T>(equality);
-			coc.AppendCollection(self);
-			return coc;
+		public static void AlignBy<S,T>(this ObservableCollection<T> self, IEnumerable<S> sequence,Func<S,T> convert,Func<S,T,bool> equality) {
+			var editer = new ListAligner<S, T, ObservableCollection<T>>(self, convert, equality, move: (list, ord, to) => list.Move(ord, to));
+			editer.AlignBy(sequence);
 		}
+		public static ImitableCollection<S> ToImitable<T, S>(this IEnumerable<T> self, Func<T, S> convert, Action<S>? removedAction = null, bool isImitate = true) {
+			return ImitableCollection.CreateFrom(self, convert, removedAction, isImitate);
+		}
+		
+		///// <summary>
+		///// Creates a new <see cref="CombinableObservableCollection{T}"/> from the specified enumerable, allowing combining collections and observing changes.
+		///// </summary>
+		///// <typeparam name="T">The type of elements in the collection.</typeparam>
+		///// <param name="self">The enumerable to create a combinable collection from.</param>
+		///// <param name="equality">An optional equality comparer for element comparison.</param>
+		///// <returns>A new <see cref="CombinableObservableCollection{T}"/> instance containing elements from the specified enumerable.</returns>
+		//public static CombinableObservableCollection<T> ToCombinable<T>(this IEnumerable<T> self, IEqualityComparer<T>? equality = null){
+		//	var coc = new CombinableObservableCollection<T>(equality);
+		//	coc.AppendCollection(self);
+		//	return coc;
+		//}
 
 		/// <summary>
-		/// Generates a new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
-		/// <returns>A new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null){
-			var sfo = new ReadOnlySortFilterObservableCollection<T>(self,equality);
-			return sfo;
+		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
+		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null){
+			//return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
+			return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
 		}
 		/// <summary>
-		/// Generates a new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
-		/// <returns>A new instance of <see cref="ReadOnlySortFilterObservableCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlySortFilterObservableCollection<T> ToSortFilterObservable<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
-			return new ReadOnlySortFilterObservableCollection<T>(self, equality);
+		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
+		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
+			//return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
+			return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
 		}
 #if NETSTANDARD2_0
 		internal static IEnumerable<TSource> SkipLast<TSource>(this IEnumerable<TSource> source, int count) {

@@ -41,10 +41,11 @@ namespace TreeStructures.Tree {
         /// <summary>Represents the tree of properties currently registered with handlers.</summary>
         public PropertyChainNode Root => _root;
         /// <summary>Constructor.</summary>
-        /// <param name="target">The instance to observe.</param>
-        public ObservedPropertyTree(TSrc target) {
-            _root = new PropertyChainRoot(target);
+        /// <param name="source">The instance to observe.</param>
+        public ObservedPropertyTree(TSrc source) {
+            _root = new PropertyChainRoot(source);
         }
+        //public TSrc RootSource => (TSrc?)_root.Source;
         /// <summary>Gets or sets a value indicating whether change notifications should be issued when the source of observation is reset. Default value is true.</summary>
         public bool IsEvaluateTargetChanged {
             get => _root.IsEvaluateTargetChanged;
@@ -52,7 +53,7 @@ namespace TreeStructures.Tree {
         }
         /// <summary>Resets the source of observation.</summary>
         /// <param name="target">The new target instance to observe.</param>
-        public void ChangeTarget(TSrc target) {
+        public void ChangeSource(TSrc target) {
             ThrowExceptionIfDisposed();
             _root.ChangeTarget(target);
         }
@@ -144,12 +145,12 @@ namespace TreeStructures.Tree {
                 }
             }
             /// <summary>Monitored target or property value.</summary>
-            public object Target { get; private set; }
+            public object Source { get; private set; }
             /// <summary>Name of the property indicating the target of observation.</summary>
             public string NamedProperty { get; private set; }
-            bool TrySetTarget(object? target) {
-                if (ReferenceEquals(target,Target)) return false;
-                Target = target;
+            bool TrySetTarget(object? src) {
+                if (ReferenceEquals(src,Source)) return false;
+                Source = src;
                 return true;
             }
             /// <summary>Registers properties to observe.</summary>
@@ -162,7 +163,7 @@ namespace TreeStructures.Tree {
                 if(cld != null) {
                     cld.AddSubscribeProperty(propNames.Skip(1));
                 } else {
-                    var propValue = PropertyUtils.GetValueFromPropertyName(Target, obsname);
+                    var propValue = PropertyUtils.GetValueFromPropertyName(Source, obsname);
                     this.AddChildProcess(new PropertyChainNode(propValue, obsname, propNames.Skip(1)));
                 }
             }
@@ -180,12 +181,12 @@ namespace TreeStructures.Tree {
                 } else { 
                     if(target!=null && ChainToLeafs.Any()) 
                         throw new InvalidCastException(
-                            $"For the observed target: {this.Root().Target?.ToString()}, the value of the PropertyChain: {string.Join(".", this.Upstream().Reverse().Skip(1))} should implement {nameof(INotifyPropertyChanged)}."); 
+                            $"For the observed target: {this.Root().Source?.ToString()}, the value of the PropertyChain: {string.Join(".", this.Upstream().Reverse().Skip(1))} should implement {nameof(INotifyPropertyChanged)}."); 
                 }
                 foreach(var chain in ChainToLeafs) {
                     if (!chain.Any()) return;
                     var obsname = chain.First();
-                    var propValue = PropertyUtils.GetValueFromPropertyName(Target, obsname);
+                    var propValue = PropertyUtils.GetValueFromPropertyName(Source, obsname);
                     var cld = ChildNodes.FirstOrDefault(a => a.NamedProperty == obsname);
                     if (cld != null) {
                         cld.SubscribePropertyValue(propValue);
@@ -199,7 +200,7 @@ namespace TreeStructures.Tree {
                 //観測プロパティの変更だった場合、該当する子ノードの値を再設定
                 var chgcld = this.ChildNodes.FirstOrDefault(a => a.NamedProperty == e.PropertyName);
                 if (chgcld == null) return;
-                chgcld.SubscribePropertyValue(PropertyUtils.GetValueFromPropertyName(Target, e.PropertyName));
+                chgcld.SubscribePropertyValue(PropertyUtils.GetValueFromPropertyName(Source, e.PropertyName));
                 RaisePropertyChanged( e, chgcld.Leafs());
             }
             /// <summary>イベントの発行</summary>
@@ -219,10 +220,30 @@ namespace TreeStructures.Tree {
             public PropertyChainRoot(TSrc target) : base(target) { }
             public bool IsEvaluateTargetChanged { get; set; } = true;
             public void ChangeTarget(TSrc target) {
-                var pre = this.Target;
+                var pre = this.Source;
                 this.SubscribePropertyValue(target);
-                if (IsEvaluateTargetChanged && !ReferenceEquals(pre, this.Target)) {
-                    this.RaisePropertyChanged(null,this.Leafs());
+                ////if (IsEvaluateTargetChanged && !ReferenceEquals(pre, this.Source)) {
+                ////    this.RaisePropertyChanged(null,this.Leafs());
+                ////}
+                //Func<object?, object?, bool> isEquals = (a, b) => {
+                //    if (a == null || b == null) return ReferenceEquals(a, b);
+                //    var typeA = a.GetType();
+                //    var typeB = b.GetType();
+
+                //    var underA = Nullable.GetUnderlyingType(typeA) ?? typeA;
+                //    var udderB = Nullable.GetUnderlyingType(typeB) ?? typeB;
+
+                //    if (underA.IsValueType && typeA==typeB) {
+                //        return a.Equals(b);
+                //    } else {
+                //        return ReferenceEquals(a, b);
+                //    }
+                //};
+                //if (IsEvaluateTargetChanged && !isEquals(this.Source,pre)) {
+                //    this.RaisePropertyChanged(null,this.Leafs());
+                //}
+                if(IsEvaluateTargetChanged && !Equality.ValueOrReferenceComparer.Equals(pre, this.Source)) {
+                    this.RaisePropertyChanged(null, this.Leafs());
                 }
             }
             
@@ -244,8 +265,8 @@ namespace TreeStructures.Tree {
                 //}
                 Func<TValue> getvalue = () => {
                     try {
-                        if (this.Target != null) {
-                            var val = this.DescendArrivals(a => a.NamedProperty, propChain).Single().Target;
+                        if (this.Source != null) {
+                            var val = this.DescendArrivals(a => a.NamedProperty, propChain).Single().Source;
                             if (val is TValue va) return va;
                         }
                         return default;
@@ -294,7 +315,7 @@ namespace TreeStructures.Tree {
                     if (args.Count == chainStatuses.Count) break;
                 }
                 foreach (var sts in args) {
-                    sts.OnPropertyChanged(Target,e);
+                    sts.OnPropertyChanged(Source,e);
                 }
             }
             void TryRemoveNode(IEnumerable<string> seq) {

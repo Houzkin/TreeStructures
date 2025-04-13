@@ -129,8 +129,9 @@ namespace TreeStructures {
                     .Skip(1).Reverse().OfType<IDisposable>();
                 foreach (var n in nd) n.Dispose();
 				//InnerChildNodes.ClearCollection();
+				//InnerChildNodes.Dispose();
+				foreach(var n in InnerChildNodes.OfType<IDisposable>()) n.Dispose();
 				InnerChildNodes.Dispose();
-				
             }
             isDisposed = true;
         }

@@ -200,10 +200,10 @@ namespace TreeStructures.Tree {
                 }                            
             });
             /// <inheritdoc/>
-			protected override IEnumerable<Node> SetupPublicChildCollection(CombinableChildWrapperCollection<Node> children) {
-                var list = new ReadOnlySortFilterObservableCollection<Node>(children);
+			protected override IEnumerable<Node> SetupPublicChildCollection(CombinableChildrenProxyCollection<Node> children) {
+                var list = new ReadOnlyObservableFilterSortCollection<Node>(children);
                 list.SortBy(x => x, comparer);
-                return list.AsReadOnlyObservableCollection();
+                return list;//.AsReadOnlyObservableCollection();
 			}
 			/// <inheritdoc/>
 			protected override Node GenerateChild(InnerNodeBase sourceChildNode) {

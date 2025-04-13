@@ -22,32 +22,32 @@ public static partial class ExtensionSample{
 		Console.WriteLine(string.Join(", ", list)+"\n");
 		list.AlignBy(list.OrderBy(x => x).TakeWhile(x => x < 50));
 
-		Console.WriteLine(string.Join(", ", list)+"\n");
+		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		// 5, 10, 18, 21, 29, 32, 43
 
 		list.AlignBy(Enumerable.Range(8, 4));
-		Console.WriteLine(string.Join(", ", list)+"\n");
+		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		//  8, 9, 10, 11
 
 		list.AlignBy(list.AsEnumerable().Reverse().Append(11).Append(11));
-		Console.WriteLine(string.Join(", ", list)+"\n");
+		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		// 11, 10, 9, 8, 11, 11
 
 		list.AlignBy(list.AsEnumerable().Reverse().Append(10).Append(11));
-		Console.WriteLine(string.Join(", ", list) + "\n");
+		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		// 11, 11, 8, 9, 10, 11, 10, 11
 
 		//list.AlignBy(Enumerable.Empty<int>());
 		//list.AlignBy(list.SkipLast(1));
-		//Console.WriteLine(string.Join(", ", list) + "\n");
+		//Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		//
 
 		list.AlignBy(Enumerable.Range(8, 4));
-		Console.WriteLine(string.Join(", ", list) + "\n");
+		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		// 8, 9, 10, 11
 
 		list.AlignBy(new[] { 8,9,11,10 });
-		Console.WriteLine(string.Join(", ", list) + "\n");
+		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		
 	}
 	public static void TreeNodeSample(){

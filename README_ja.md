@@ -38,11 +38,21 @@
 ## ツリー構造をなすクラス群とその汎用性
 用途に応じて以下のクラスを継承して利用できます。
 
-- **TreeNodeBase**: メソッド定義など細かくカスタマイズしたい場合
-- **GeneralTreeNode / ObservableTreeNode**: データ構造やコンテナとして使用する場合
-- **NAryTreeNode**: 空のノードを `null` とする N 分岐ツリーとして使用する場合
-- **HierarchyWrapper / TreeNodeWrapper**: 階層構造をラップする場合
-- **BindableHierarchyWrapper / BindableTreeNodeWrapper**: MVVM の ViewModel など、観測可能で破棄が必要な場合
+- **TreeNodeBase**:   
+メソッド定義など細かくカスタマイズしたい場合   
+
+- **GeneralTreeNode / ObservableTreeNode**:  
+データ構造やコンテナとして使用する場合  
+
+- **NAryTreeNode**:   
+空のノードを `null` とする N 分岐ツリーとして使用する場合  
+
+- **HierarchyWrapper / TreeNodeWrapper**:   
+階層構造をラップする。ラップされる側のインスタンスと同時に破棄される場合、またはラップされる側の子ノードのコレクションが`INotifyCollectionChanged`を実装していない場合。  
+(`IEnumerable<TSrc>? HierarchyWrapper<TSrc,TWrpr>.SourceChildren{get;}`が示す子ノードのコレクションが`INotifyCollectionChanged`を実装していた場合、イベントを購読をします。メモリーリークとならないよう、`BindableHierarchyWrapper`,`BindableTreeNodeWrapper`を使用してください。)
+
+- **BindableHierarchyWrapper / BindableTreeNodeWrapper**:   
+ラップされる側の子ノードのコレクションが`INotifyCollectionChanged`を実装している可能性がある場合。MVVM の ViewModel など、観測可能で破棄が必要な場合
 
 `TreeNodeBase`とその派生型では、`Setup(Inner | Public)ChildCollection` メソッドをオーバーライドすることで、  
 内部で使用するコレクションや外部に公開するコレクションをカスタマイズできます。

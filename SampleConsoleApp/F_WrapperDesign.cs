@@ -24,11 +24,11 @@ public class BinaryWrpr : TreeNodeWrapper<NamedBinaryNode, BinaryWrpr> {
 }
 public class InfiniteLoopEmptyBinaryWrpr : BinaryWrpr{
 	public InfiniteLoopEmptyBinaryWrpr() { }
-	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(CombinableChildWrapperCollection<BinaryWrpr> children) {
+	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<BinaryWrpr> children) {
 		var appendlist = new ObservableCollection<BinaryWrpr>();
 		appendlist.Add(new InfiniteLoopEmptyBinaryWrpr());
 		children.AppendCollection(appendlist);
-		return children.AsReadOnlyObservableCollection();
+		return children;
 	}
 	public override string Name => "Empty";
 }
@@ -109,7 +109,7 @@ public static partial class UseageSample{
 		Console.WriteLine(result3);//true
 
 		var result4 = wrprA == new MemberWrapper<MemberNode>(new MemberNode("A"));
-		Console.WriteLine(result4);
+		Console.WriteLine(result4);//false
 		
 	}
 }

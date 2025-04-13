@@ -60,12 +60,24 @@ namespace TreeStructures {
 
 
 
-        private CombinableChildWrapperCollection<TWrpr>? _wrappers;
-        private protected CombinableChildWrapperCollection<TWrpr> InnerChildNodes{
-            get{
-                _wrappers ??= new CombinableChildWrapperCollection<TWrpr>(
-                    new ImitableCollection<TSrc, TWrpr>(SourceChildren ?? new ObservableCollection<TSrc>(), GenerateChild, null, IsImitating),
-                    Insert, Replace, Remove, Move, Clear);
+        //private CombinableChildWrapperCollection<TWrpr>? _wrappers;
+        //private protected CombinableChildWrapperCollection<TWrpr> InnerChildNodes{
+        //    get{
+        //        _wrappers ??= new CombinableChildWrapperCollection<TWrpr>(
+        //            //new ImitableCollection<TSrc, TWrpr>(SourceChildren ?? new ObservableCollection<TSrc>(), GenerateChild, null, IsImitating),
+        //            //ImitableCollection.Create(SourceChildren ?? new ObservableCollection<TSrc>(), GenerateChild, null, IsImitating),
+        //            (SourceChildren ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild,null,IsImitating),
+        //            Insert, Replace, Remove, Move, Clear);
+        //        return _wrappers;
+        //    }
+        //}
+        private CombinableChildrenProxyCollection<TWrpr>? _wrappers;
+        private protected CombinableChildrenProxyCollection<TWrpr> InnerChildNodes {
+            get {
+                _wrappers ??= new CombinableChildrenProxyCollection<TWrpr>(
+                    (SourceChildren ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild, null, IsImitating),
+                    SetupChild,
+                    _HandleRemovedChild);
                 return _wrappers;
             }
         }
@@ -109,10 +121,11 @@ namespace TreeStructures {
         private IEnumerable<TWrpr>? _children;
         /// <inheritdoc/>
         public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildNodes);
-		/// <summary>Sets the collection to be exposed externally.</summary>
-		/// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
-		protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildWrapperCollection<TWrpr> children)
-            => children.AsReadOnlyObservableCollection();
+        /// <summary>Sets the collection to be exposed externally.</summary>
+        /// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
+        protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)
+            => children;
+            //=> children.AsReadOnlyObservableCollection();
 
         /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
         /// <param name="sourceChildNode">Child node to be wrapped</param>
@@ -165,31 +178,44 @@ namespace TreeStructures {
 		/// <summary>
 		/// Provides a collection of wrappers for each child node in a state combinable with other collections.
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		public sealed class CombinableChildWrapperCollection<T> : CombinableObservableCollection<T> where T : class {
-		    ImitableCollection<T> _childNodes;
-		    internal CombinableChildWrapperCollection(ImitableCollection<T> childNodes,
-			    Action<ObservableCollection<T>,int,T> insertAction,
-			    Action<ObservableCollection<T>,int,T> replaceAction,
-			    Action<ObservableCollection<T>,int> removeAction,
-			    Action<ObservableCollection<T>,int,int> moveAction,
-			    Action<ObservableCollection<T>> clearAction) : base(){
-
-			    _childNodes = childNodes;
-                this.ListAligner = new ListAligner<T, ObservableCollection<T>>(
-                    editList:(this.Items as ObservableCollection<T>)!,insert: insertAction,replace: replaceAction,remove: removeAction,move: moveAction,clear: clearAction,comparer: Equality<T>.ReferenceComparer);
-			    this.AppendCollection(childNodes);
-		    }
-		    internal void Imitate(){ _childNodes.Imitate(); }
-
-            /// <inheritdoc/>
-		    protected override ListAligner<T, ObservableCollection<T>> ListAligner { get; }
-
-            /// <inheritdoc/>
+        /// <typeparam name="Twrpr">Type of the wrapper node</typeparam>
+        public sealed class CombinableChildrenProxyCollection<Twrpr> : ObservableCombinableProxyCollection<Twrpr> where Twrpr : class {
+            ImitableCollection<Twrpr> _childNodes;
+            internal CombinableChildrenProxyCollection(ImitableCollection<Twrpr> childNodes,Action<Twrpr> addOption,Action<Twrpr> removedOption):base(addOption,removedOption) {
+                _childNodes = childNodes;
+                this.AppendCollection(childNodes);
+            }
+            internal void Imitate() { _childNodes.Imitate(); }
 			protected override void Dispose(bool disposing) {
 				base.Dispose(disposing);
                 _childNodes.Dispose();
 			}
 		}
+		/// <typeparam name="T"></typeparam>
+		//public sealed class CombinableChildWrapperCollection<T> : CombinableObservableCollection<T> where T : class {
+		//    ImitableCollection<T> _childNodes;
+		//    internal CombinableChildWrapperCollection(ImitableCollection<T> childNodes,
+		//	    Action<ObservableCollection<T>,int,T> insertAction,
+		//	    Action<ObservableCollection<T>,int,T> replaceAction,
+		//	    Action<ObservableCollection<T>,int> removeAction,
+		//	    Action<ObservableCollection<T>,int,int> moveAction,
+		//	    Action<ObservableCollection<T>> clearAction) : base(){
+
+		//	    _childNodes = childNodes;
+  //              this.ListAligner = new ListAligner<T, ObservableCollection<T>>(
+  //                  editList:(this.Items as ObservableCollection<T>)!,insert: insertAction,replace: replaceAction,remove: removeAction,move: moveAction,clear: clearAction,comparer: Equality<T>.ReferenceComparer);
+		//	    this.AppendCollection(childNodes);
+		//    }
+		//    internal void Imitate(){ _childNodes.Imitate(); }
+
+  //          /// <inheritdoc/>
+		//    protected override ListAligner<T, ObservableCollection<T>> ListAligner { get; }
+
+  //          /// <inheritdoc/>
+		//	protected override void Dispose(bool disposing) {
+		//		base.Dispose(disposing);
+  //              _childNodes.Dispose();
+		//	}
+		//}
     }
 }

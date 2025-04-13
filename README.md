@@ -38,11 +38,21 @@ In `TreeNodeBase` derivatives, behavior can be customized by overriding `protect
 ## A Set of Tree Structure Classes and Their Versatility
 Depending on the use case, the following classes can be inherited and used:
 
-- **TreeNodeBase**: When fine-tuning method definitions is necessary
-- **GeneralTreeNode / ObservableTreeNode**: For use as a data structure or container
-- **NAryTreeNode**: For an N-ary tree where empty nodes are represented as `null`
-- **HierarchyWrapper / TreeNodeWrapper**: To wrap hierarchical structures
-- **BindableHierarchyWrapper / BindableTreeNodeWrapper**: For MVVM ViewModels that require observability and disposal
+- **TreeNodeBase**:  
+ When fine-tuning method definitions is necessary  
+
+- **GeneralTreeNode / ObservableTreeNode**:  
+ For use as a data structure or container  
+
+- **NAryTreeNode**:  
+ For an N-ary tree where empty nodes are represented as `null`  
+
+- **HierarchyWrapper / TreeNodeWrapper**:  
+ For wrapping an existing hierarchical structure. Use when the wrapper instance should be disposed together with the wrapped instance.  
+(If the child node collection exposed by `IEnumerable<TSrc>? HierarchyWrapper<TSrc, TWrpr>.SourceChildren { get; }` implements `INotifyCollectionChanged`, event subscription will occur. To avoid memory leaks, consider using `BindableHierarchyWrapper` or `BindableTreeNodeWrapper`.)  
+- **BindableHierarchyWrapper / BindableTreeNodeWrapper**:  
+ Suitable when the child node collection of the wrapped object might implement `INotifyCollectionChanged`, such as in MVVM view models that need to be observable and disposable.  
+
 
 In `TreeNodeBase` and its derivatives, the internal collection used and the collection exposed externally can be customized by overriding `Setup(Inner | Public)ChildCollection` methods.
 
@@ -59,14 +69,14 @@ Additionally, several other conversion methods are available, such as the extens
 Some classes used for internal implementation are also exposed.  
 
 - `ListAligner<T,TList>`  
-  Reorders a specified list through manipulation.
-- `ImitableCollection<TSrc,TConv>`  
-  A collection synchronized with a specified collection.
-- `CombinableObservableCollection<T>`  
+  Reorders a specified list through manipulation.  
+- `ImitableCollection<TSrc,TDst>`  
+  A collection synchronized with a specified collection.  
+- `ReadOnlyObservableTrackingCollection<T>`  
+  An observable collection that links with a specified collection and enables batch property observation of each element.  
+- `ObservableCombinableCollection<T>`  
   A collection that merges multiple observable collections.
-- `ReadOnlyObservableItemCollection<T>`  
-  An observable collection that links with a specified collection and enables batch property observation of each element.
-- `ReadOnlySortFilterObservableCollection<T>`  
+- `ReadOnlyObservableFilterSortCollection<T>`  
   An observable collection that links with a specified collection and adds sorting and filtering functionality.
 - `ListScroller<T>`  
   Provides navigation functionality within a collection.
