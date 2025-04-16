@@ -35,8 +35,8 @@ namespace TreeStructures.Collections {
 				a => removedAction?.Invoke(a.Dst),
 				isImitate);
 
-			((INotifyCollectionChanged)_SDPairList).CollectionChanged += (s, e) => RaiseCollectionChanged(ArgsConvert(e));
-			((INotifyPropertyChanged)_SDPairList).PropertyChanged += (s, e) => RaisePropertyChanged(e);
+			((INotifyCollectionChanged)_SDPairList).CollectionChanged += (s, e) => OnCollectionChanged(ArgsConvert(e));
+			((INotifyPropertyChanged)_SDPairList).PropertyChanged += (s, e) => OnPropertyChanged(e);
 		}
 		SDPairCollection _SDPairList;
 		//ReadOnlyObservableCollection<TDst>? _readOnly;
@@ -90,6 +90,10 @@ namespace TreeStructures.Collections {
 		public override void Imitate() {
 			ThrowExceptionIfDisposed();
 			_SDPairList.StartReflection();
+		}
+		/// <inheritdoc/>
+		public override void Pause() {
+			_SDPairList.StopReflection();
 		}
 		/// <inheritdoc/>
 		public override void ClearAndPause() {
@@ -158,9 +162,14 @@ namespace TreeStructures.Collections {
 				_alignItems?.Invoke();
 			}
 			public void ClearAndStopReflection() {
-				if (!switchConnection(false)) return;
+				//if (!switchConnection(false)) return;
+				switchConnection(false);
 				_disposables.Dispose();
 				_clearItems?.Invoke();
+			}
+			public void StopReflection() {
+				switchConnection(false);
+				_disposables.Dispose();
 			}
 		}
 	}

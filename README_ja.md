@@ -48,7 +48,7 @@
 空のノードを `null` とする N 分岐ツリーとして使用する場合  
 
 - **HierarchyWrapper / TreeNodeWrapper**:   
-階層構造をラップする。ラップされる側のインスタンスと同時に破棄される場合、またはラップされる側の子ノードのコレクションが`INotifyCollectionChanged`を実装していない場合。  
+階層構造をラップする。ラップされる側のインスタンスと同時に破棄される場合。    
 (`IEnumerable<TSrc>? HierarchyWrapper<TSrc,TWrpr>.SourceChildren{get;}`が示す子ノードのコレクションが`INotifyCollectionChanged`を実装していた場合、イベントを購読をします。メモリーリークとならないよう、`BindableHierarchyWrapper`,`BindableTreeNodeWrapper`を使用してください。)
 
 - **BindableHierarchyWrapper / BindableTreeNodeWrapper**:   

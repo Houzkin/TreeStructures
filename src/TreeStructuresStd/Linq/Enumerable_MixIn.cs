@@ -59,7 +59,7 @@ namespace TreeStructures.Linq {
 			var editer = new ListAligner<S, T, ObservableCollection<T>>(self, convert, equality, move: (list, ord, to) => list.Move(ord, to));
 			editer.AlignBy(sequence);
 		}
-		public static ImitableCollection<S> ToImitable<T, S>(this IEnumerable<T> self, Func<T, S> convert, Action<S>? removedAction = null, bool isImitate = true) {
+		public static ImitableCollection<U> ToImitable<T, U>(this IEnumerable<T> self, Func<T, U> convert, Action<U>? removedAction = null, bool isImitate = true) {
 			return ImitableCollection.CreateFrom(self, convert, removedAction, isImitate);
 		}
 		

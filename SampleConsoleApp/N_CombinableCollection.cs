@@ -47,24 +47,26 @@ public static partial class UseageSample {
 
 		var obs1 = new ObservableCollection<string>();
 		var obs2 = new ObservableCollection<string>("abc".Select(x=>x.ToString()));
-		var obs3 = new List<string>("123".Select(x=>x.ToString()));
+		var lst3 = new List<string>("123".Select(x=>x.ToString()));
 		var obs4 = new ObservableCollection<string>("qwerty".Select(x => x.ToString()));
 
-		var cmb = new ObservableCombinableProxyCollection<string>();
+		var cmb = new ObservableCombinableCollection<string>();
 		(cmb as INotifyCollectionChanged).CollectionChanged += (s, e) => {
 			Console.WriteLine($"action:{e.Action}, StartIndex:{e.NewStartingIndex}, NewItems:{string.Join(" ",e.NewItems?.OfType<string>() ?? Array.Empty<string>())}, OldIndex:{e.OldStartingIndex}, OldItems:{string.Join(" ",e.OldItems?.OfType<string>() ?? Array.Empty<string>())}");
 		};
 		cmb.AppendCollection(obs1);
 		cmb.AppendCollection(obs2);
-		cmb.AppendCollection(obs3);
+		cmb.AppendCollection(lst3);
 		cmb.AppendCollection(obs4);
 		Console.WriteLine(string.Join(", ", cmb));
 
-		obs1.Add("X");
+		obs1.Add("A");
 		Console.WriteLine(string.Join(", ", cmb));
 		obs2.Remove("b");
 		Console.WriteLine(string.Join(", ", cmb));
-		obs4[1] = "Y";
+		lst3.Add("100");
+		Console.WriteLine(string.Join(", ", cmb));
+		obs4[1] = "D";
 		Console.WriteLine(string.Join(", ", cmb));
 		obs4.Move(4, 0);
 		Console.WriteLine(string.Join(", ", cmb));
@@ -72,6 +74,14 @@ public static partial class UseageSample {
 		cmb.RemoveCollection(obs4);
 		Console.WriteLine(string.Join(", ", cmb));
 		cmb.InsertCollection(1, obs4);
+		Console.WriteLine(string.Join(", ", cmb));
+
+		cmb.RemoveCollection(lst3);
+		Console.WriteLine(string.Join(", ", cmb));
+		cmb.InsertCollection(0, lst3);
+		Console.WriteLine(string.Join(", ", cmb));
+
+		cmb.Dispose();
 		Console.WriteLine(string.Join(", ", cmb));
 
 	}

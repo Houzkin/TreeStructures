@@ -22,6 +22,7 @@ public class AdditionalObj : INotifyPropertyChanged {
 		proxy = new PropertyChangeProxy(this);
 	}
 	string title = string.Empty;
+	int number = 0;
 
 	public event PropertyChangedEventHandler? PropertyChanged {
 		add { proxy.PropertyChanged += value; }
@@ -31,16 +32,30 @@ public class AdditionalObj : INotifyPropertyChanged {
 		get { return title; }
 		set { proxy.SetWithNotify(ref title, value); }
 	}
+	public int Number {
+		get { return number; } 
+		set { proxy.SetWithNotify(ref number, value); }
+	}
+	public override string ToString() {
+		return "Title:" + title + ", Number:" + number.ToString();
+	}
 }
 public class ObservableItemNode : ObservableGeneralTreeNode<ObservableItemNode>{
 	public ObservableItemNode() {
 	}
 	AdditionalObj _info;
+	string name = string.Empty;
 	public AdditionalObj AdditionalInfo {
 		get => _info;
 		set => this.SetProperty(ref _info, value);
 	}
-	public string Name { get; set; }
+	public string Name {
+		get { return name; }
+		set {  this.SetProperty(ref name, value); }
+	}
+	public override string ToString() {
+		return Name;
+	}
 }
 public static partial class UseageSample{
 	public static void MethodH(){

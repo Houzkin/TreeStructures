@@ -22,8 +22,8 @@ namespace TreeStructures.Collections {
 			_observer = new ReadOnlyObservableTrackingCollection<T>(source);
 			_observer.TrackingPropertyChanged += (s, e) => Align();
 			//_observer.CollectionChanged += (s, e) => Align();// { if (e.Action != NotifyCollectionChangedAction.Move) Align(); };
-			_filterExps = _observer.AcquireNewTrackingList();
-			_comparExps = _observer.AcquireNewTrackingList();
+			_filterExps = _observer.CreateTrackingList();
+			_comparExps = _observer.CreateTrackingList();
 		}
 		ReadOnlyObservableTrackingCollection<T> _observer;
 
@@ -67,7 +67,7 @@ namespace TreeStructures.Collections {
 			_filterExps.Clear();
 			_filter = filterFunc;
 			var props = triggerProperties.Prepend(triggerProperty);
-			_filterExps.Add(props);
+			_filterExps.Register(props);
 			Align();
 		}
 		/// <summary>Clear filter.</summary>
@@ -110,7 +110,7 @@ namespace TreeStructures.Collections {
 		public void SortBy<TKey>(Func<T,TKey> getComparerKey,IComparer<TKey>? keyComparer =null,params Expression<Func<T, object>>[] triggerProperties) {
 			_comparExps.Clear();
 			_comparer = new CustomComparer<T,TKey>(getComparerKey,keyComparer);
-			_comparExps.Add(triggerProperties);
+			_comparExps.Register(triggerProperties);
 			Align();
 		}
 		/// <summary>Unsorts the collection.</summary>

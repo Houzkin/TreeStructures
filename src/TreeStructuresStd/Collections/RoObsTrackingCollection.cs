@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using TreeStructures.Events;
@@ -21,12 +22,11 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 	/// Provides a collection that allows subscribing to property change notifications for each element in bulk.  
 	/// The properties to be subscribed to can also be nested.  
 	/// To subscribe to nested properties, the nested objects must also implement <see cref="INotifyPropertyChanged"/>.  
-	/// After use, call <see cref="Dispose()"/> to unsubscribe from the collection change notifications.
+	/// After use, call <see cref="Dispose()"/> to unsubscribe from the collection and property change notifications.
 	/// </summary>
 	/// <typeparam name="T">The type of the elements in the collection. To receive property change notifications, the elements must implement <see cref="INotifyPropertyChanged"/>.</typeparam>
 	public class ReadOnlyObservableTrackingCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
 
-		//ImitableCollection<ObservedPropertyTree<T>> _trees;
 		ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>> _trees;
 		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dim3 = new();
 		IDisposable? listener;
@@ -53,7 +53,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 					}
 					return opt;
 				},
-				(x, y) => Equality.ValueOrReferenceComparer.Equals(x, y.Root.Source),// EqualityComparer<T>.Default.Equals(x, y.RootSource),
+				(itm, tree) => Equality.ValueOrReferenceComparer.Equals(itm, tree.Root.Source),// EqualityComparer<T>.Default.Equals(x, y.RootSource),
 				y => {
 					foreach (var d3 in dim3) {
 						foreach (var d2 in d3.Keys) {
@@ -98,11 +98,11 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// If the collection already contains the same <see cref="Expression{Func{T,object }}"/>, it will be excluded.  
 		/// If duplicates are allowed, a new collection should be acquired.
 		/// </summary>
-		/// <param name="exps">The collection of property expressions to subscribe to.</param>
+		/// <param name="properties">The collection of property expressions to subscribe to.</param>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
-		public TrackingPropertyList<T> AcquireNewTrackingList(IEnumerable<Expression<Func<T, object>>> exps) {
-			var esp = this.AcquireNewTrackingList();
-			esp.Add(exps);
+		public TrackingPropertyList<T> CreateTrackingList(IEnumerable<Expression<Func<T, object>>> properties) {
+			var esp = this.CreateTrackingList();
+			esp.Register(properties);
 			return esp;
 		}
 		/// <summary>
@@ -111,8 +111,9 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// If duplicates are allowed, a new collection should be acquired.
 		/// </summary>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
-		public TrackingPropertyList<T> AcquireNewTrackingList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
-			var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>();
+		public TrackingPropertyList<T> CreateTrackingList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
+			var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>(
+				Equality<Expression<Func<T, object>>>.ComparerBySequence(x => PropertyUtils.GetPropertyPath(x)));
 			dim3.Add(dic);
 			return new TrackingPropertyList<T>(this, dic, addExpressions, removeExpressions, clearExpressions, dispExpressions);
 		}
@@ -132,7 +133,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <remarks>
 		/// When overriding this method, be sure to call the base class method.  
 		/// The base class method invokes the delegate registered via the  
-		/// <see cref="Subscribe(Expression{Func{T, object}}, Action{T, ChainedPropertyChangedEventArgs{object}})"/> method  
+		/// <see cref="TrackHandler(Expression{Func{T, object}}, Action{T, ChainedPropertyChangedEventArgs{object}})"/> method  
 		/// and raises notifications to subscribers monitoring property changes within the collection.
 		/// </remarks>
 		protected virtual void OnTrackingPropertyChanged(T sender, ChainedPropertyChangedEventArgs<object> e) {
@@ -143,20 +144,23 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <summary>
 		/// Subscribes to notifications of changes to the specified property.
 		/// </summary>
-		/// <param name="expression">An expression that specifies the property to monitor for changes.</param>
+		/// <param name="property">An expression that specifies the property to monitor for changes.</param>
 		/// <param name="handle">An action that handles the event when a property change notification is received.</param>
 		/// <returns>An <see cref="IDisposable"/> that can be used to unsubscribe from the property change notifications.</returns>
-		public IDisposable Subscribe(Expression<Func<T, object>> expression, Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
-			var col = this.AcquireNewTrackingList(new Expression<Func<T, object>>[] { expression });
-			Action<T, ChainedPropertyChangedEventArgs<object>> action = (s, e) => {
-				if (PropertyUtils.GetPropertyPath(expression).SequenceEqual(e.ChainedProperties)) handle(s, e);
-			};
-			TrackingPropertyChanged += action;
-			var disp = new DisposableObject(() => {
-				col.Dispose();
-				TrackingPropertyChanged -= action;
-			});
-			return disp;
+		public IDisposable TrackHandler(Expression<Func<T, object>> property, Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
+			return this.TrackHandler(new[] { property }, handle);
+		}
+		/// <summary>
+		/// Subscribes to notifications of changes to the specified properties.
+		/// </summary>
+		/// <param name="properties">Property expressions that specifies the properties to monitor for changes.</param>
+		/// <param name="handle">An action that handles the event when the specified property change notification is received.</param>
+		/// <returns>An <see cref="IDisposable"/> that can be used to unsubscribe from the property change notifications.</returns>
+		public IDisposable TrackHandler(IEnumerable<Expression<Func<T, object>>> properties, Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
+			var props = properties.ToArray();
+			var trakings = this.CreateTrackingList(props);
+			trakings.AttachHandler(handle);
+			return new DisposableObject(() => trakings.Dispose());
 		}
 		/// <summary>Raise CollectionChanged event to any listeners.</summary>
 		/// <param name="e"></param>
@@ -258,11 +262,10 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// </summary>
 		/// <param name="handle">The handler to invoke when a tracked property's value changes.</param>
 		/// <returns>A disposable object used to unsubscribe from the notification.</returns>
-		public IDisposable Subscribe(Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
+		public IDisposable AttachHandler(Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
 			Action<T, ChainedPropertyChangedEventArgs<object>> action = (s, e) => {
-				if (this.Select(x => PropertyUtils.GetPropertyPath(x)).Any(y => y.SequenceEqual(e.ChainedProperties))) {
+				if (this.Select(x => PropertyUtils.GetPropertyPath(x)).Any(y => y.SequenceEqual(e.ChainedProperties))) 
 					handle(s, e);
-				}
 			};
 			_self.TrackingPropertyChanged += action;
 			var disp = new DisposableObject(() => {
@@ -276,7 +279,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// Duplicate <c>Expression&lt;Func&lt;T, object&gt;&gt;</c> instances are excluded from the collection.
 		/// </summary>
 		/// <param name="expressions">The collection of expressions representing the properties to be added to the subscription list.</param>
-		public void Add(IEnumerable<Expression<Func<T, object>>> expressions) {
+		public void Register(IEnumerable<Expression<Func<T, object>>> expressions) {
 			this.ThrowExceptionIfDisposed();
 			_addAction(_area, expressions);
 		}
@@ -287,9 +290,9 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// </summary>
 		/// <param name="expression">The first property expression to add.</param>
 		/// <param name="expressions">Additional property expressions to add.</param>
-		public void Add(Expression<Func<T, object>> expression, params Expression<Func<T, object>>[] expressions) {
+		public void Register(Expression<Func<T, object>> expression, params Expression<Func<T, object>>[] expressions) {
 			var exps = expressions.Prepend(expression);
-			this.Add(exps);
+			this.Register(exps);
 		}
 
 		/// <summary>

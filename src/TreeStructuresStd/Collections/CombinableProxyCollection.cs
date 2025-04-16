@@ -17,14 +17,14 @@ namespace TreeStructures.Collections {
 	/// After use, call <see cref="ReadOnlyObservableProxyCollection{T,U}.Dispose()"/> to unsubscribe from the collection change notifications.
 	/// </summary>
 	/// <typeparam name="T">The type of elements in the collection.</typeparam>
-	public class ObservableCombinableProxyCollection<T> : ReadOnlyObservableProxyCollection<T> {
+	public class ObservableCombinableCollection<T> : ReadOnlyObservableProxyCollection<T> {
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ObservableCombinableProxyCollection{T}"/> class.
+		/// Initializes a new instance of the <see cref="ObservableCombinableCollection{T}"/> class.
 		/// </summary>
 		/// <param name="addAction">An optional callback invoked just prior to adding an item to the collection.</param>
 		/// <param name="removedAction">An optional callback invoked when an item is removed.</param>
 		/// <param name="equality">An optional equality comparer used to detect duplicate items.</param>
-		public ObservableCombinableProxyCollection(Action<T>? addAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null) 
+		public ObservableCombinableCollection(Action<T>? addAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null) 
 			: base(Enumerable.Empty<T>(), addAction, removedAction, equality) { }
 
 		List<Tuple<IEnumerable,ImitableCollection<T>,IDisposable>> _combines = new();
@@ -65,12 +65,9 @@ namespace TreeStructures.Collections {
 			if (s is not ImitableCollection<T> || s is null) return;
 			var imit  = s as ImitableCollection<T>;
 			//baseIdx + curIdx = コレクション全体におけるindexとなる
-			var baseIdx = getBaseIndex(imit!);
-			this.ApplyCollectionChange(adjEventArgs(e, baseIdx));
-		}
-		int getBaseIndex(ImitableCollection<T> imit) {
 			var curTpl = _combines.Select((Tpl, Idx) => new { Tpl, Idx }).First(x => x.Tpl.Item2 == imit);
-			return _combines.Take(curTpl.Idx).SelectMany(x => x.Item2).Count();
+			var baseIdx = _combines.Take(curTpl.Idx).SelectMany(x => x.Item2).Count();
+			this.ApplyCollectionChange(adjEventArgs(e, baseIdx));
 		}
 		NotifyCollectionChangedEventArgs adjEventArgs(NotifyCollectionChangedEventArgs e,int baseIdx) {
 			Func<int, int> toInnerIndex = eachIdx => eachIdx < 0 ? eachIdx : baseIdx + eachIdx;
@@ -88,7 +85,6 @@ namespace TreeStructures.Collections {
 				var rmvCnt = Items.Count - _combines.SelectMany(x => x.Item2).Count();
 				var rmvItms= Items.Skip(baseIdx).Take(rmvCnt);
 				return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, rmvItms.ToList(), baseIdx);
-				//return new NotifyCollectionChangedEventArgs(e.Action);
 			default:
 				throw new NotSupportedException($"Unknown collection change action: {e.Action}");
 			}

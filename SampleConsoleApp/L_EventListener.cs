@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
 using TreeStructures.Events;
+using TreeStructures.Linq;
 using TreeStructures.Utilities;
 
 namespace SampleConsoleApp;
@@ -37,7 +38,9 @@ public static partial class  UseageSample {
 			h => (s, e) => h(s, new PropertyChangedEventArgs(e.Target.Name)),
 			propchanged);
 
-		var listeners = new LumpedDisopsables(new IDisposable[] { listener1, listener2, listener3, listener4 });
+		var listeners = new LumpedDisopsables(listener1, listener2, listener3, listener4);
+		//var listeners = new IDisposable[] { listener1, listener2, listener3, listener4 }.CombineDisposables();
+
 		// Unsbscribe
 		listeners.Dispose();
 		

@@ -6,13 +6,15 @@ using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!\n\n");
 
-//MethodN();
-//MethodMM();
-//MethodM();
-//MethodAAA();
-//MethodAA();
+MethodO();
+MethodN();
+MethodMM();
+MethodMMM();
+MethodM();
+MethodAAA();
+MethodAA();
 ExtensionSample.EnumerableSample();
-//ExtensionSample.TreeNodeSample();
+ExtensionSample.TreeNodeSample();
 MethodK();
 MethodJJJ();
 MethodJJ();

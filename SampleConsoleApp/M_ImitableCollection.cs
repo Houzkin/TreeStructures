@@ -99,4 +99,29 @@ public static partial class UseageSample {
 		//Reset,
 
 	}
+	public static void MethodMMM() {
+		var rnd = new RandomDateTime(new DateTime(2001,1,1),new DateTime(2100,12,31));
+		var collection = new ObservableCollection<char>("abcd");
+		var imit = collection.ToImitable(x => rnd.Next().Year);
+
+		Console.WriteLine(string.Join("   , ", collection));
+		Console.WriteLine(string.Join(", ", imit.Select(x => x.ToString())));
+		//a   , b   , c   , d
+		//2094, 2044, 2005, 2002
+
+		collection.Insert(2, 'a');
+		collection.Insert(4, 'c');
+		Console.WriteLine(string.Join("   , ", collection));
+		Console.WriteLine(string.Join(", ", imit.Select(x => x.ToString())));
+		//a   , b   , a   , c   , c   , d
+		//2094, 2044, 2008, 2005, 2096, 2002
+
+		collection[3] = 'f';
+		collection.Move(2, 0);
+		Console.WriteLine(string.Join("   , ", collection));
+		Console.WriteLine(string.Join(", ", imit.Select(x => x.ToString())));
+		//a   , a   , b   , f   , c   , d
+		//2008, 2094, 2044, 2029, 2096, 2002
+
+	}
 }

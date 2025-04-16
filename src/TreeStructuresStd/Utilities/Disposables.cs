@@ -30,6 +30,7 @@ public class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
     public LumpedDisopsables(IEnumerable<IDisposable> disposables) {
         foreach(var dsp in disposables) this.Add(dsp);
     }
+    public LumpedDisopsables(params IDisposable[] disposables) : this(disposables.AsEnumerable()) { }
     public LumpedDisopsables() { }
     public void Dispose() {
         foreach (var disposable in _disposings) { disposable.Dispose(); }

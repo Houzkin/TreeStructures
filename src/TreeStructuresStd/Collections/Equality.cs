@@ -46,9 +46,18 @@ namespace TreeStructures.Collections {
         /// <summary>Selects the key for performing equality comparison.</summary>
         /// <typeparam name="TKey"></typeparam>
         /// <param name="selector"></param>
+        /// <param name="keyComparer"></param>
         /// <returns></returns>
-        public static EqualityComparer<T> ComparerBy<TKey>(Func<T, TKey> selector) {
-            return new AnonymousEqualityComparer<T, TKey>(selector);
+        public static EqualityComparer<T> ComparerBy<TKey>(Func<T, TKey> selector, IEqualityComparer<TKey>? keyComparer = null) {
+            return new AnonymousEqualityComparer<T, TKey>(selector, keyComparer);
+        }
+        /// <summary>Selects the sequence for performing equality comparison.</summary>
+        /// <typeparam name="U">The type of elements in the sequence.</typeparam>
+        /// <param name="sequence"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
+        public static EqualityComparer<T> ComparerBySequence<U>(Func<T,IEnumerable<U>> sequence, IEqualityComparer<U>? comparer = null)  {
+            return new AnonymousEqualityComparer<T, IEnumerable<U>>(sequence, new SequenceEqualityComparer<IEnumerable<U>,U>(comparer));
         }
         /// <summary>
         /// Returns a reference equality comparer for the type specified by generic argument.
@@ -61,6 +70,25 @@ namespace TreeStructures.Collections {
 		public static EqualityComparer<T> ValueOrReferenceComparer { get; } = new AnonymousEqualityComparer<T>(
             (a, b) => typeof(T).IsValueType ? EqualityComparer<T>.Default.Equals(a, b) : ReferenceEquals(a, b));
     }
+    public class SequenceEqualityComparer<TSeq,TItm> :EqualityComparer<TSeq> where TSeq : IEnumerable<TItm> {
+        readonly IEqualityComparer<TItm> comparer;
+        public SequenceEqualityComparer(IEqualityComparer<TItm>? itemEquality = null) {
+            comparer = itemEquality ?? EqualityComparer<TItm>.Default;
+        }
+		///<inheritdoc/> 
+		public override bool Equals(TSeq? x, TSeq? y) {
+			if (x == null && y == null) { return true; }
+			if (x == null || y == null) { return false; }
+            return x.SequenceEqual(y, comparer);
+		}
+		///<inheritdoc/> 
+		public override int GetHashCode(TSeq obj) {
+			if (obj == null) return 0;
+            var hash = new HashCode();
+            foreach (var itm in obj) hash.Add(itm);
+            return hash.ToHashCode();
+		}
+	}
     /// <summary>An object that supports equality comparison.</summary>
     public class AnonymousEqualityComparer<T> : EqualityComparer<T> {
         Func<T, T, bool> _equality;
@@ -115,7 +143,7 @@ namespace TreeStructures.Collections {
         ///<inheritdoc/> 
 		public override int GetHashCode(TSource obj) {
             if (obj == null) {
-                throw new ArgumentNullException(nameof(obj));
+                return 0;
             }
             return comparer.GetHashCode(selector(obj));
         }

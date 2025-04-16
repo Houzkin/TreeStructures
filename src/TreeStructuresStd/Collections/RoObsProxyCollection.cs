@@ -33,19 +33,20 @@ namespace TreeStructures.Collections {
 		/// <param name="convert">A function that converts <typeparamref name="T"/> elements to <typeparamref name="U"/>.</param>
 		/// <param name="equality">A function that determines whether a given <typeparamref name="T"/> element corresponds to a given <typeparamref name="U"/> element.</param>
 		/// <param name="removedHandler">An optional callback invoked when an item is removed.</param>
-		public ReadOnlyObservableProxyCollection(IEnumerable<T> collection,Func<T,U> convert,Func<T,U,bool> equality, Action<U>? removedHandler = null)
+		public ReadOnlyObservableProxyCollection(IEnumerable<T> collection, Func<T, U> convert, Func<T, U, bool> equality, Action<U>? removedHandler = null)
 			: base(new ObservableCollection<U>()) {
 			_collection = collection;
 			_converter = convert;
 			_equality = equality;
 			_removedHandler = removedHandler;
-			if(SourceItems is INotifyCollectionChanged ncc) {
+			if (SourceItems is INotifyCollectionChanged ncc) {
 				_collectionChangedListener = new EventListener<NotifyCollectionChangedEventHandler>(
-					h=>ncc.CollectionChanged+=h,
-					h=>ncc.CollectionChanged-=h,
-					(s,e)=>_SourceCollectionChanged(s,e));
+					h => ncc.CollectionChanged += h,
+					h => ncc.CollectionChanged -= h,
+					(s, e) => ApplyCollectionChange(e));
+				//(s,e)=>_SourceCollectionChanged(s,e));
 			}
-			Items.AlignBy(SourceItems ?? Enumerable.Empty<T>(),_converter,_equality);
+			Items.AlignBy(SourceItems ?? Enumerable.Empty<T>(), _converter, _equality);
 		}
 		/// <summary>
 		/// Returns the <see cref="ObservableCollection{U}"/> that the <see cref="ReadOnlyObservableCollection{U}"/> wraps.
@@ -61,9 +62,6 @@ namespace TreeStructures.Collections {
 		/// </remarks>
 		protected virtual IEnumerable<T> SourceItems => _collection;
 
-		private void _SourceCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-			ApplyCollectionChange(e);
-		}
 		/// <summary>
 		/// Applies the specified collection change event to the internal <see cref="Items"/> collection,
 		/// synchronizing it with the source collection by adding, removing, replacing, or moving items as needed.
@@ -134,11 +132,11 @@ namespace TreeStructures.Collections {
 
 		}
 
-        /// <summary>Prevents operations on an already disposed instance.</summary>
-        /// <exception cref="ObjectDisposedException"></exception>
-        protected void ThrowExceptionIfDisposed() {
-            if(isDisposed) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
-        }
+		/// <summary>Prevents operations on an already disposed instance.</summary>
+		/// <exception cref="ObjectDisposedException"></exception>
+		protected void ThrowExceptionIfDisposed() {
+			if (isDisposed) throw new ObjectDisposedException(GetType().FullName, "The instance has already been disposed and cannot be operated on.");
+		}
 		/// <summary>Releases the resources used by the collection.</summary>
 		/// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
 		protected virtual void Dispose(bool disposing) {
@@ -183,6 +181,7 @@ namespace TreeStructures.Collections {
 			: base(source,
 				  addAction is null ? (x => x) : (x => { addAction.Invoke(x); return x; }),
 				  (x, y) => equality?.Equals(x, y) ?? Equality<T>.ValueOrReferenceComparer.Equals(x, y),
-				  removedAction) { }
+				  removedAction) {
+		}
 	}
 }

@@ -28,12 +28,12 @@ namespace TreeStructures.Collections {
         public event NotifyCollectionChangedEventHandler? CollectionChanged;
         /// <summary>Raises property change notifications.</summary>
         /// <param name="e"></param>
-        protected void RaisePropertyChanged(PropertyChangedEventArgs e) {
+        protected void OnPropertyChanged(PropertyChangedEventArgs e) {
             PropertyChanged?.Invoke(this, e);
         }
         /// <summary>Raises collection change notifications.</summary>
         /// <param name="e"></param>
-        protected void RaiseCollectionChanged(NotifyCollectionChangedEventArgs e) {
+        protected void OnCollectionChanged(NotifyCollectionChangedEventArgs e) {
             CollectionChanged?.Invoke(this, e);
         }
         #region static methods
@@ -85,6 +85,9 @@ namespace TreeStructures.Collections {
         public abstract bool IsImitating { get; }
         /// <summary>If not in synchronization state, starts synchronization.</summary>
         public abstract void Imitate();
+
+        /// <summary>Stops synchronization.</summary>
+        public abstract void Pause();
         /// <summary>Stops synchronization and clears the imitable collection.</summary>
         public abstract void ClearAndPause();
 
