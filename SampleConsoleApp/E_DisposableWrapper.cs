@@ -26,7 +26,7 @@ public class ObservableMemberNode : ObservableGeneralTreeNode<ObservableMemberNo
 
 	private void Member_StructureChanged(object? sender, StructureChangedEventArgs<ObservableMemberNode> e) {
 		if(e.IsDescendantChanged && e.DescendantInfo!.SubTreeAction != TreeNodeChangedAction.Move){
-			this.RaisePropertyChanged(nameof(Followers));
+			this.OnPropertyChanged(nameof(Followers));
 		}
 	}
 

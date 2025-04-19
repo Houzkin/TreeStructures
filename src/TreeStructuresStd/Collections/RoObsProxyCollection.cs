@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
@@ -110,12 +111,18 @@ namespace TreeStructures.Collections {
 				break;
 
 			case NotifyCollectionChangedAction.Move:
-				for (int i = 0; i < e.NewItems?.Count; i++) {
-					int oldIndex = e.OldStartingIndex + i;
-					int newIndex = e.NewStartingIndex + i;
-					if (oldIndex == newIndex) continue;
-
-					Items.Move(oldIndex, newIndex);
+				if (e.NewStartingIndex < e.OldStartingIndex) {
+					for (int i = 0; i < e.NewItems?.Count; i++) {
+						int oldIndex = e.OldStartingIndex + i;
+						int newIndex = e.NewStartingIndex + i;
+						Items.Move(oldIndex, newIndex);
+					}
+				}else if(e.OldStartingIndex < e.NewStartingIndex) {
+					for(int i = (e.NewItems?.Count ?? 0) - 1; i >= 0; i--) {
+						int oldIndex = e.OldStartingIndex + i;
+						int newIndex = e.NewStartingIndex + i;
+						Items.Move(oldIndex, newIndex);
+					}
 				}
 				break;
 

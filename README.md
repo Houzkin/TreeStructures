@@ -48,11 +48,14 @@ Depending on the use case, the following classes can be inherited and used:
  For an N-ary tree where empty nodes are represented as `null`  
 
 - **HierarchyWrapper / TreeNodeWrapper**:  
- For wrapping an existing hierarchical structure. Use when the wrapper instance should be disposed together with the wrapped instance.  
-(If the child node collection exposed by `IEnumerable<TSrc>? HierarchyWrapper<TSrc, TWrpr>.SourceChildren { get; }` implements `INotifyCollectionChanged`, event subscription will occur. To avoid memory leaks, consider using `BindableHierarchyWrapper` or `BindableTreeNodeWrapper`.)  
-- **BindableHierarchyWrapper / BindableTreeNodeWrapper**:  
- Suitable when the child node collection of the wrapped object might implement `INotifyCollectionChanged`, such as in MVVM view models that need to be observable and disposable.  
+ For wrapping an existing hierarchical structure.  
+ When the child node collection of the wrapped node is modified, the `Wrapper.Children` property will be refreshed the next time it is accessed.  
+ To reflect changes in the child collection automatically, inherit from `Bindable(Hierarchy|TreeNode)Wrapper`.
 
+- **BindableHierarchyWrapper / BindableTreeNodeWrapper**:  
+ Automatically receives change notifications from the child node collection of the wrapped node and updates accordingly.  
+ These classes also implement `IDisposable`, which disposes of the target node and all its descendants.  
+ Intended for scenarios such as MVVM ViewModels, where observability and disposal are required.
 
 In `TreeNodeBase` and its derivatives, the internal collection used and the collection exposed externally can be customized by overriding `Setup(Inner | Public)ChildCollection` methods.
 

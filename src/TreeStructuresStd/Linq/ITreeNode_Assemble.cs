@@ -298,20 +298,17 @@ namespace TreeStructures.Linq {
         #endregion
 
         #region IEnumerableからN分木を生成
-        /// <summary>
-        /// Creates an N-ary tree starting from the first element.
-        /// </summary>
-        /// <remarks>
-        /// Each node is added in level order.
-        /// </remarks>
+        /// <summary>Creates an N-ary tree starting from the first element.</summary>
+        /// <remarks>Each node is added in level order.</remarks>
         /// <typeparam name="T">Type of the elements.</typeparam>
         /// <typeparam name="U">Type of the nodes.</typeparam>
         /// <param name="self">Current object.</param>
         /// <param name="nary">Upper limit on the number of child nodes that a parent node can have.</param>
         /// <param name="conv">Function to convert elements to nodes.</param>
+        /// <param name="nests">Function to select nested collection.</param>
         /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
         /// <returns>The node converted from the first element that serves as the root.</returns>
-        public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
+        public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Func<U,IEnumerable<U>> nests, Action<U, U> addAction) /*where U : ITreeNode<U> */{
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (!self.Any()) throw new InvalidOperationException(nameof(self));
             var nds = self.Select(a => conv(a)).SkipWhile(a=>a==null);
@@ -326,7 +323,8 @@ namespace TreeStructures.Linq {
                 while (tgt != null && cnt < nary && items.Any()) {
                     var item = items.Dequeue();
                     addAction(tgt, item);
-                    if (item != null && tgt.Children.Contains(item)) {
+                    //if (item != null && tgt.Children.Contains(item)) {
+                    if (item != null && (nests(tgt) ?? Enumerable.Empty<U>()).Contains(item)) { //tgt.Children.Contains(item)) {
                         queue.Enqueue(item);
                         cnt++;
                     }
@@ -334,12 +332,41 @@ namespace TreeStructures.Linq {
             }
             return root;
         }
-        /// <summary>
-        /// Creates an N-ary tree starting from the first element.
-        /// </summary>
-        /// <remarks>
-        /// Each node is added in level order.
-        /// </remarks>
+        /// <summary>Creates an N-ary tree starting from the first element.</summary>
+        /// <remarks>Each node is added in level order.</remarks>
+        /// <typeparam name="T">Type of the elements.</typeparam>
+        /// <typeparam name="U">Type of the nodes.</typeparam>
+        /// <param name="self">Current object.</param>
+        /// <param name="nary">Upper limit on the number of child nodes that a parent node can have.</param>
+        /// <param name="conv">Function to convert elements to nodes.</param>
+        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
+        /// <returns>The node converted from the first element that serves as the root.</returns>
+        public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
+            return AssembleAsNAryTree(self, nary, conv, x => x.Children, addAction);
+            //if (self == null) throw new ArgumentNullException(nameof(self));
+            //if (!self.Any()) throw new InvalidOperationException(nameof(self));
+            //var nds = self.Select(a => conv(a)).SkipWhile(a=>a==null);
+            //U? root = nds.FirstOrDefault();
+            //if (root == null) throw new InvalidOperationException(nameof(conv));
+            //Queue<U> items = new Queue<U>(nds.Skip(1));//ルート以外のノードを格納
+            //Queue<U> queue = new Queue<U>();//追加待ちのノード
+            //queue.Enqueue(root);
+            //while (items.Any() && queue.Any()) {
+            //    int cnt = 0;
+            //    var tgt = queue.Dequeue();
+            //    while (tgt != null && cnt < nary && items.Any()) {
+            //        var item = items.Dequeue();
+            //        addAction(tgt, item);
+            //        if (item != null && tgt.Children.Contains(item)) {
+            //            queue.Enqueue(item);
+            //            cnt++;
+            //        }
+            //    }
+            //}
+            //return root;
+        }
+        /// <summary>Creates an N-ary tree starting from the first element.</summary>
+        /// <remarks>Each node is added in level order.</remarks>
         /// <typeparam name="T">Type of the elements.</typeparam>
         /// <typeparam name="U">Type of the nodes.</typeparam>
         /// <param name="self">Current object.</param>
@@ -347,21 +374,17 @@ namespace TreeStructures.Linq {
         /// <param name="conv">Function to convert elements to nodes.</param>
         /// <returns>The node converted from the first element that serves as the root.</returns>
         public static U AssembleAsNAryTree<T,U>(this IEnumerable<T> self,int nary,Func<T,U> conv) where U : IMutableTreeNode<U> {
-            return self.AssembleAsNAryTree(nary, conv, (a, b) => a.AddChild(b));
+            return self.AssembleAsNAryTree(nary, conv, x => x.Children, (a, b) => a.AddChild(b));
         }
 
-        /// <summary>
-        /// Creates an N-ary tree starting from the first element.
-        /// </summary>
-        /// <remarks>
-        /// Each node is added in level order.
-        /// </remarks>
+        /// <summary>Creates an N-ary tree starting from the first element.</summary>
+        /// <remarks>Each node is added in level order.</remarks>
         /// <typeparam name="T">Type of the nodes.</typeparam>
         /// <param name="self">Current object.</param>
         /// <param name="nary">Upper limit on the number of child nodes that a parent node can have.</param>
         /// <returns>The root node.</returns>
         public static T AssembleAsNAryTree<T>(this IEnumerable<T> self,int nary) where T : IMutableTreeNode<T> {
-            return self.AssembleAsNAryTree(nary, a => a)!;
+            return self.AssembleAsNAryTree(nary, a => a, a => a.Children, (a, b) => a.AddChild(b));
         }
         #endregion
     }

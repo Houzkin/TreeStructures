@@ -48,11 +48,14 @@
 空のノードを `null` とする N 分岐ツリーとして使用する場合  
 
 - **HierarchyWrapper / TreeNodeWrapper**:   
-階層構造をラップする。ラップされる側のインスタンスと同時に破棄される場合。    
-(`IEnumerable<TSrc>? HierarchyWrapper<TSrc,TWrpr>.SourceChildren{get;}`が示す子ノードのコレクションが`INotifyCollectionChanged`を実装していた場合、イベントを購読をします。メモリーリークとならないよう、`BindableHierarchyWrapper`,`BindableTreeNodeWrapper`を使用してください。)
+階層構造をラップする。  
+ラップされるノードの子ノードコレクションに変更があった場合は、`Wrapper.Children`プロパティにアクセス時に更新されます。  
+子ノードコレクションの変更通知を反映させるためには`Bindable(Hierarchy|TreeNode)Wrapper`を継承してください。
 
 - **BindableHierarchyWrapper / BindableTreeNodeWrapper**:   
-ラップされる側の子ノードのコレクションが`INotifyCollectionChanged`を実装している可能性がある場合。MVVM の ViewModel など、観測可能で破棄が必要な場合
+ラップされるノードの子ノードコレクションの変更通知を受け取り、随時更新されます。  
+Disposeメソッドも定義されており、Disposeによって対象ノードと子孫ノードが破棄されます。  
+MVVM の ViewModel など、観測可能で破棄が必要な場合を想定しています。
 
 `TreeNodeBase`とその派生型では、`Setup(Inner | Public)ChildCollection` メソッドをオーバーライドすることで、  
 内部で使用するコレクションや外部に公開するコレクションをカスタマイズできます。

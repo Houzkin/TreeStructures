@@ -53,18 +53,33 @@ namespace TreeStructures {
         }
         /// <summary>Specifies a reference to the source's child node collection. Implementing <see cref="INotifyCollectionChanged"/> is not required if synchronization is not intended.</summary>
         protected abstract IEnumerable<TSrc>? SourceChildren { get; }
+        private protected virtual IEnumerable<TSrc>? getSourceChildren {
+            get {
+                var src = SourceChildren;
+                if (src is INotifyCollectionChanged) return src.AsReadOnly();
+                return src;
+            }
+        }
 
         private CombinableChildrenProxyCollection<TWrpr>? _wrappers;
         private protected CombinableChildrenProxyCollection<TWrpr> InnerChildNodes {
             get {
-                _wrappers ??= new CombinableChildrenProxyCollection<TWrpr>(
-                    (SourceChildren ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild, null, IsImitating),
-                    SetupChild,
-                    _HandleRemovedChild);
+                //_wrappers ??= new CombinableChildrenProxyCollection<TWrpr>(
+                //    (getSourceChildren ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild, null, IsImitating),
+                //    SetupChildNode,
+                //    HandleRemovedChildNode);
+                if(_wrappers is null) {
+                    var srccn = getSourceChildren;
+                    _wrappers = new CombinableChildrenProxyCollection<TWrpr>(
+                        (srccn ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild, null, IsImitating),
+                        srccn is INotifyCollectionChanged,
+                        SetupChildNode,
+                        HandleRemovedChildNode);
+                }
                 return _wrappers;
             }
         }
-        private protected virtual void SetupChild(TWrpr child) {
+        private protected virtual void SetupChildNode(TWrpr child) {
             if(child != null){
                 child.SetParent(this as TWrpr);
                 child.IsImitating = true;
@@ -74,18 +89,31 @@ namespace TreeStructures {
 
         private IEnumerable<TWrpr>? _children;
         /// <inheritdoc/>
-        public IEnumerable<TWrpr> Children => _children ??= SetupPublicChildCollection(InnerChildNodes);
+        public IEnumerable<TWrpr> Children {
+            get {
+                _children ??= SetupPublicChildCollection(InnerChildNodes);
+				if (this.IsImitating && !InnerChildNodes.SourceChildrenIsObservable) {
+					InnerChildNodes.Pause();
+					InnerChildNodes.Imitate();
+				}
+                return _children;
+            }
+        }// => _Children;//_children ??= SetupPublicChildCollection(InnerChildNodes);
         /// <summary>Sets the collection to be exposed externally.</summary>
         /// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
         protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)
             => children;
-            //=> children.AsReadOnlyObservableCollection();
+        //=> children.AsReadOnlyObservableCollection();
+        //private protected virtual IEnumerable<TWrpr> getSetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children) {
+        //    var spcc = SetupPublicChildCollection(children);
+        //    return (spcc is INotifyCollectionChanged) ? spcc.AsReadOnly() : spcc;
+        //}
 
         /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
         /// <param name="sourceChildNode">Child node to be wrapped</param>
         /// <returns>Wrapped child node</returns>
         protected abstract TWrpr GenerateChild(TSrc sourceChildNode);
-        private protected virtual void _HandleRemovedChild(TWrpr removeNode){
+        private protected virtual void HandleRemovedChildNode(TWrpr removeNode){
             if (removeNode != null) {
                 removeNode.SetParent(null);
                 HandleRemovedChild(removeNode);
@@ -135,11 +163,15 @@ namespace TreeStructures {
         /// <typeparam name="Twrpr">Type of the wrapper node</typeparam>
         public sealed class CombinableChildrenProxyCollection<Twrpr> : ObservableCombinableCollection<Twrpr> where Twrpr : class {
             ImitableCollection<Twrpr> _childNodes;
-            internal CombinableChildrenProxyCollection(ImitableCollection<Twrpr> childNodes,Action<Twrpr> addOption,Action<Twrpr> removedOption):base(addOption,removedOption) {
+            bool _isObserving;
+            internal CombinableChildrenProxyCollection(ImitableCollection<Twrpr> childNodes,bool isObservable ,Action<Twrpr> addOption,Action<Twrpr> removedOption):base(addOption,removedOption) {
                 _childNodes = childNodes;
+                _isObserving = isObservable;
                 this.AppendCollection(childNodes);
             }
+            internal bool SourceChildrenIsObservable => _isObserving;
             internal void Imitate() { _childNodes.Imitate(); }
+            internal void Pause() {  _childNodes.Pause(); }
             /// <inheritdoc/>
 			protected override void Dispose(bool disposing) {
 				base.Dispose(disposing);

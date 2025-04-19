@@ -32,22 +32,27 @@ namespace TreeStructures {
 		//          this.ThrowExceptionIfDisposed();
 		//	return base.GenerateAndSetupChild(sourceChildNode);
 		//}
-		private protected override void _HandleRemovedChild(TWrpr removeNode) {
+		private protected override void HandleRemovedChildNode(TWrpr removeNode) {
 			if(removeNode != null && !removeNode.isDisposed){
-				base._HandleRemovedChild(removeNode);
+				base.HandleRemovedChildNode(removeNode);
 			}
 		}
-		private protected override void SetupChild(TWrpr child) {
+		//private protected override IEnumerable<TWrpr> getSetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)
+		//	=> SetupPublicChildCollection(children);
+
+		private protected override void SetupChildNode(TWrpr child) {
 			this.ThrowExceptionIfDisposed();
-			base.SetupChild(child);
+			base.SetupChildNode(child);
 		}
 		private protected override bool SetParent(TWrpr? parent) {
 			if(base.SetParent(parent)){
-				this.RaisePropertyChanged(nameof(Parent));
+				this.OnPropertyChanged(nameof(Parent));
 				return true;
 			}
 			return false;
 		}
+		private protected override IEnumerable<TSrc>? getSourceChildren => this.SourceChildren;
+
 		#region NotifyPropertyChanged
 		PropertyChangeProxy? _propChangeProxy;
         PropertyChangeProxy PropChangeProxy => _propChangeProxy ??= new PropertyChangeProxy(this);
@@ -65,7 +70,7 @@ namespace TreeStructures {
         ///  Issues a property change notification.
         /// </summary>
         /// <param name="propertyName"></param>
-        protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null) =>
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
             PropChangeProxy.Notify(propertyName);
         #endregion
 
@@ -123,13 +128,10 @@ namespace TreeStructures {
 				var nd = this
 					.Traverse(a => {
 						a.IsImitating = false;
-						//return a.InnerChildren;
 						return a.InnerChildNodes;
 					}, (a, b, c) => c.Prepend(a).Concat(b))// b.Prepend(a).Concat(c))
                     .Skip(1).Reverse().OfType<IDisposable>();
                 foreach (var n in nd) n.Dispose();
-				//InnerChildNodes.ClearCollection();
-				//InnerChildNodes.Dispose();
 				foreach(var n in InnerChildNodes.OfType<IDisposable>()) n.Dispose();
 				InnerChildNodes.Dispose();
             }

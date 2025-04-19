@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,16 @@ public class OtherHierarchyWrapper : HierarchyWrapper<OtherHierarchy, OtherHiera
 
 	protected override OtherHierarchyWrapper GenerateChild(OtherHierarchy sourceChildNode) {
 		return new OtherHierarchyWrapper(sourceChildNode);
+	}
+	public string SourceName => Source.Name;
+}
+public class BindableOtherHierarchyWrapper : BindableHierarchyWrapper<OtherHierarchy, BindableOtherHierarchyWrapper> {
+	public BindableOtherHierarchyWrapper(OtherHierarchy source) : base(source) { }
+
+	protected override IEnumerable<OtherHierarchy>? SourceChildren => Source.Nests;
+
+	protected override BindableOtherHierarchyWrapper GenerateChild(OtherHierarchy sourceChildNode) {
+		return new BindableOtherHierarchyWrapper(sourceChildNode);
 	}
 	public string SourceName => Source.Name;
 }
@@ -95,6 +106,47 @@ public static partial class UseageSample {
 		nodeD.Nests.Add(nodeC);
 
 		var node_a = nodeA.AsValuedTreeNode<OtherHierarchy, string>(p => p.Nests, x => x.Name);
+	}
+
+	public static void MethodDDD() {
+		var tree = "ABCDEFG".ToCharArray().Select(x => x.ToString()).AssembleAsNAryTree(2,
+			x => new ObservableOtherHierarchy(x) as OtherHierarchy,
+			x => x.Nests,
+			(p, c) => p.Nests.Add(c));
+
+		var Wrpr = new OtherHierarchyWrapper(tree);
+		var BWrpr = new BindableOtherHierarchyWrapper(tree);
+		((INotifyCollectionChanged)Wrpr.Children).CollectionChanged += (s, e) => Console.WriteLine("Wrpr.Children collection changed"); 
+		((INotifyCollectionChanged)BWrpr.Children).CollectionChanged += (s, e) =>  Console.WriteLine("BWrpr.Children collection changed");
+
+		tree.Nests.Add(new OtherHierarchy("H"));
+		//BWrpr.Children collection changed
+
+		Console.WriteLine(BWrpr.ToTreeDiagram(x => x.SourceName));
+		/*
+		A
+		├ B
+		│ ├ D
+		│ └ E
+		├ C
+		│ ├ F
+		│ └ G
+		└ H
+		 * */
+
+		Console.WriteLine(Wrpr.ToTreeDiagram(x => x.SourceName));
+		/*
+		//Wrpr.Children collection changed
+		A
+		├ B
+		│ ├ D
+		│ └ E
+		├ C
+		│ ├ F
+		│ └ G
+		└ H 
+		 * */
+
 	}
 }
 

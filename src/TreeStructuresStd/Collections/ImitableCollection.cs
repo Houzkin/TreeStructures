@@ -24,8 +24,6 @@ namespace TreeStructures.Collections {
 		/// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
 		/// <param name="isImitate">Specifies whether to initialize in a synchronized state.</param>
 		public ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TDst> convert, Action<TDst>? removedAction = null, bool isImitate = true)
-		//	: this(collection, new Func<TSrc, SDPair>(src => new SDPair(src, convert(src))), removedAction, isImitate) { }
-		//private ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, SDPair> toPair, Action<TDst>? removedAction = null, bool isImitate = true)
 			: base() {
 
 			_SDPairList = new SDPairCollection(
@@ -42,37 +40,37 @@ namespace TreeStructures.Collections {
 		//ReadOnlyObservableCollection<TDst>? _readOnly;
 
 		private NotifyCollectionChangedEventArgs ArgsConvert(NotifyCollectionChangedEventArgs e) {
-			Func<SDPair,TDst> _converter = a => a.Dst;
+			Func<SDPair,TDst> toDst = a => a.Dst;
 			switch (e.Action) {
 			case NotifyCollectionChangedAction.Add:
 				var newItems = e.NewItems?
 					.OfType<SDPair>()
-					.Select(item => _converter(item))
+					.Select(item => toDst(item))
 					.ToList();
 				return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newItems, e.NewStartingIndex);
 
 			case NotifyCollectionChangedAction.Remove:
 				var oldItems = e.OldItems?
 					.OfType<SDPair>()
-					.Select(item => _converter(item))
+					.Select(item => toDst(item))
 					.ToList();
 				return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItems, e.OldStartingIndex);
 
 			case NotifyCollectionChangedAction.Replace:
 				var replacedNewItems = e.NewItems?
 					.OfType<SDPair>()
-					.Select(item => _converter(item))
+					.Select(item => toDst(item))
 					.ToList();
 				var replacedOldItems = e.OldItems?
 					.OfType<SDPair>()
-					.Select(item => _converter(item))
+					.Select(item => toDst(item))
 					.ToList();
 				return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, replacedNewItems, replacedOldItems, e.NewStartingIndex);
 
 			case NotifyCollectionChangedAction.Move:
 				var movedItems = e.NewItems?
 					.OfType<SDPair>()
-					.Select(item => _converter(item))
+					.Select(item => toDst(item))
 					.ToList();
 				return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, movedItems, e.NewStartingIndex, e.OldStartingIndex);
 
@@ -85,19 +83,19 @@ namespace TreeStructures.Collections {
 		}
 
 		/// <inheritdoc/>
-		public override bool IsImitating => _SDPairList.IsReflecting;
+		public override bool IsImitating => _SDPairList.IsImitating;
 		/// <inheritdoc/>
 		public override void Imitate() {
 			ThrowExceptionIfDisposed();
-			_SDPairList.StartReflection();
+			_SDPairList.Start();
 		}
 		/// <inheritdoc/>
 		public override void Pause() {
-			_SDPairList.StopReflection();
+			_SDPairList.Stop();
 		}
 		/// <inheritdoc/>
 		public override void ClearAndPause() {
-			_SDPairList.ClearAndStopReflection();
+			_SDPairList.ClearAndStop();
 		}
 		/// <inheritdoc/>
 		protected override void Dispose(bool disposing) {
@@ -128,7 +126,7 @@ namespace TreeStructures.Collections {
 			public TDst Dst { get; private set; }
 		}
 		private class SDPairCollection: ReadOnlyObservableProxyCollection<TSrc, SDPair> {
-			public SDPairCollection(IEnumerable<TSrc> source, Func<TSrc, SDPair> convert, Func<TSrc, SDPair, bool> equality, Action<SDPair>? removedAction = null, bool isReflecting = true)
+			public SDPairCollection(IEnumerable<TSrc> source, Func<TSrc, SDPair> convert, Func<TSrc, SDPair, bool> equality, Action<SDPair>? removedAction = null, bool isImitating = true)
 				: base(source, convert, equality, removedAction) {
 				_src = source;
 				_alignItems = () => Items.AlignBy(this.SourceItems, convert, equality);
@@ -137,21 +135,22 @@ namespace TreeStructures.Collections {
 					Items.Clear();
 					foreach (var rm in lst) removedAction?.Invoke(rm);
 				};
-				if (isReflecting) StartReflection();
+				if (isImitating) Start();
 			}
 			IEnumerable<TSrc> _src;
 			Action _alignItems;
 			Action _clearItems;
-			bool _isReflecting = false;
+			bool _isImitating = false;
 			LumpedDisopsables _disposables = new LumpedDisopsables();
 			protected override IEnumerable<TSrc> SourceItems => _src;
-			bool switchConnection(bool reflect) {
-				if (_isReflecting == reflect) return false;
-				_isReflecting = reflect;
+			bool switchConnection(bool imitate) {
+				if (_isImitating == imitate) return false;
+				_isImitating = imitate;
+				this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsImitating)));
 				return true;
 			}
-			public bool IsReflecting => _isReflecting;
-			public void StartReflection() {
+			public bool IsImitating => _isImitating;
+			public void Start() {
 				if (!switchConnection(true)) return;
 				if (SourceItems is INotifyCollectionChanged ncc) {
 					this._disposables.Add(new EventListener<NotifyCollectionChangedEventHandler>(
@@ -161,13 +160,12 @@ namespace TreeStructures.Collections {
 				}
 				_alignItems?.Invoke();
 			}
-			public void ClearAndStopReflection() {
-				//if (!switchConnection(false)) return;
+			public void ClearAndStop() {
+				_clearItems?.Invoke();
 				switchConnection(false);
 				_disposables.Dispose();
-				_clearItems?.Invoke();
 			}
-			public void StopReflection() {
+			public void Stop() {
 				switchConnection(false);
 				_disposables.Dispose();
 			}

@@ -189,7 +189,7 @@ namespace TreeStructures.Tree {
             }
         }
         /// <summary>Represents a node with classification or value.</summary>
-        public class Node : TreeNodeWrapper<InnerNodeBase, Node> {
+        public class Node : BindableTreeNodeWrapper<InnerNodeBase, Node> {
             /// <inheritdoc/>
             protected internal Node(InnerNodeBase sourceNode) : base(sourceNode) { }
             readonly IComparer<Node> comparer = Comparer<Node>.Create((a, b) => {

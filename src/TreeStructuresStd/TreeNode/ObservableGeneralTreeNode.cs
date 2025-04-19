@@ -49,7 +49,7 @@ namespace TreeStructures {
                 if(_uniqueExcutor == null) {
                     _uniqueExcutor = new StructureChangedEventExecutor<TNode>(Self);
                     _uniqueExcutor.Register(disposedeventkey, () => Disposed?.Invoke(Self,EventArgs.Empty));
-                    _uniqueExcutor.Register(parentchangedeventkey, () => RaisePropertyChanged(nameof(Parent)));
+                    _uniqueExcutor.Register(parentchangedeventkey, () => OnPropertyChanged(nameof(Parent)));
                 }
                 return _uniqueExcutor;
             }
@@ -58,7 +58,7 @@ namespace TreeStructures {
         PropertyChangeProxy PropertyChangeProxy;
         /// <summary>Raises the property changed notification.</summary>
         /// <param name="propName">The property name.</param>
-        protected void RaisePropertyChanged([CallerMemberName] string? propName = null) {
+        protected void OnPropertyChanged([CallerMemberName] string? propName = null) {
             PropertyChangeProxy.Notify(propName);
         }
 
