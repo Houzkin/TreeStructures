@@ -60,15 +60,15 @@ namespace TreeStructures.Linq {
 
         /// <summary>Generates a sequence in preorder starting from the current node.</summary>
         public static IEnumerable<T> PreOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Traverse(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//a b c
+            return self.Traverse(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//a b[] c[]
         }
         /// <summary>Generates a sequence in postorder starting from the current node.</summary>
         public static IEnumerable<T> PostOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Traverse(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//b a c
+            return self.Traverse(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//b[] a c[]
         }
         /// <summary>Generates a sequence in level order starting from the current node.</summary>
         public static IEnumerable<T> LevelOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Traverse(a => a.Children, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b));//a c b
+            return self.Traverse(a => a.Children, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b));//a c[] b[]
         }
         /// <summary>Generates a sequence in inorder starting from the current node.</summary>
         public static IEnumerable<T> InOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
@@ -76,7 +76,7 @@ namespace TreeStructures.Linq {
                 var lst = new List<T?>(b);
                 if (lst.Any()) lst.Insert(1, a); else lst.Add(a);
                 return lst.Concat(c);
-            });
+            });//b[0] a b[1] c[]
         }
         /// <summary>Generates a sequence in the ancestor direction starting from the current node, with the root as the last element.</summary>
         public static IEnumerable<T> Upstream<T>(this ITreeNode<T> self) where T : ITreeNode<T> {

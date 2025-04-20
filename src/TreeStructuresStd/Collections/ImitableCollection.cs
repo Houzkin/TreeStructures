@@ -151,7 +151,10 @@ namespace TreeStructures.Collections {
 			}
 			public bool IsImitating => _isImitating;
 			public void Start() {
-				if (!switchConnection(true)) return;
+				if (!switchConnection(true)) {
+					if(SourceItems is not INotifyCollectionChanged) _alignItems?.Invoke();
+					return;
+				}
 				if (SourceItems is INotifyCollectionChanged ncc) {
 					this._disposables.Add(new EventListener<NotifyCollectionChangedEventHandler>(
 						h => ncc.CollectionChanged += h,
