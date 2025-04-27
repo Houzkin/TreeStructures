@@ -40,10 +40,27 @@ public class ClassC : ClassB {
 	}
 	public override string PropA { get; }
 }
+public class BaseClass {
+	public BaseClass(string propA) {
+		_propA = propA;
+		Console.WriteLine(this.PropValue ?? "null in baseClass");
+	}
+	string _propA;
+	public virtual string PropValue => _propA;
+}
+public class SubClass : BaseClass {
+	public SubClass(string propB) : base("dummy") {
+		_propB = propB;
+		Console.WriteLine(this.PropValue ?? "null in subClass");
+	}
+	string _propB;
+	public override string PropValue => _propB;
+}
 public static partial class UseageSample {
 	public static void MethodN() {
-		//var test = new ClassC();
-		//test.OnRise();
+		var tt = new SubClass("subclass");
+		var test = new ClassC();
+		test.OnRise();
 
 		var obs1 = new ObservableCollection<string>();
 		var obs2 = new ObservableCollection<string>("abc".Select(x=>x.ToString()));

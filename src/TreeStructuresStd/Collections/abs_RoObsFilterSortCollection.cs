@@ -116,7 +116,7 @@ namespace TreeStructures.Collections {
 	//	public void FilterBy(Func<T,bool> filterFunc,Expression<Func<T,object>> triggerProperty, params Expression<Func<T,object>>[] triggerProperties){
 	//		filterExps.Clear();
 	//		_filter = filterFunc;
-	//		IEnumerable<Expression<Func<T, object>>> obs = triggerProperties.Prepend(triggerProperty);
+	//		IEnumerable<Expression<Func<T, object>>> obs = triggerProperties.AddHead(triggerProperty);
 	//		filterExps.Add(obs);
 	//		Align();
 	//	}

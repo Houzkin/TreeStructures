@@ -228,12 +228,28 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 			return ((IEnumerable)Items).GetEnumerator();
 		}
 	}
+	public class ExpressionList<T> : IEnumerable<Expression<Func<T, object>>> {
+		List<Expression<Func<T, object>>> _list = new List<Expression<Func<T, object>>>();
+		protected ExpressionList() { }
+		public ExpressionList(Expression<Func<T, object>> property,params Expression<Func<T, object>>[] properties) {
+			_list.Add(property);
+			_list.AddRange(properties);
+		}
+
+		public virtual IEnumerator<Expression<Func<T, object>>> GetEnumerator() {
+			return _list.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return GetEnumerator();
+		}
+	}
 
 	/// <summary>
 	/// Represents a collection used to edit the list of properties to be subscribed to.  
 	/// Duplicate <see cref="Expression"/> instances are excluded from the collection.
 	/// </summary>
-	public class TrackingPropertyList<T> : IEnumerable<Expression<Func<T, object>>>, IDisposable {
+	public class TrackingPropertyList<T> : ExpressionList<T>, IDisposable {
 		ReadOnlyObservableTrackingCollection<T> _self;
 		Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area;
 		Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _addAction;
@@ -291,7 +307,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <param name="expression">The first property expression to add.</param>
 		/// <param name="expressions">Additional property expressions to add.</param>
 		public void Register(Expression<Func<T, object>> expression, params Expression<Func<T, object>>[] expressions) {
-			var exps = expressions.Prepend(expression);
+			var exps = expressions .AddHead(expression);
 			this.Register(exps);
 		}
 
@@ -310,7 +326,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <param name="expression">The first property expression to remove.</param>
 		/// <param name="expressions">Additional property expressions to remove.</param>
 		public void Remove(Expression<Func<T, object>> expression, params Expression<Func<T, object>>[] expressions) {
-			var exps = expressions.Prepend(expression);
+			var exps = expressions .AddHead (expression); 
 			this.Remove(exps);
 		}
 
@@ -337,8 +353,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		}
 
 		/// <inheritdoc/>
-		public IEnumerator<Expression<Func<T, object>>> GetEnumerator() => _area.Keys.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => _area.Keys.GetEnumerator();
+		public override IEnumerator<Expression<Func<T, object>>> GetEnumerator() => _area.Keys.GetEnumerator();
 	}
 
 }

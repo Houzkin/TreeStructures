@@ -85,7 +85,7 @@ namespace TreeStructures.Collections {
 		/// <param name="order">A collection defining the desired order of elements in the list.</param>
 		public void AlignBy(IEnumerable<S> order) {
 			if (!order.Any() && 0 < _editList.Count) { _clear(); return; }
-			var orders = order.ToListScroller();
+			var orders = order.ToListScroller();//.First();
 
 			orders.MoveForEach(odrCurItm => {
 

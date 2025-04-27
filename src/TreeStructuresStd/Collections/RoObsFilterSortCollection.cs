@@ -66,7 +66,7 @@ namespace TreeStructures.Collections {
 		public void FilterBy(Func<T,bool> filterFunc,Expression<Func<T,object>> triggerProperty,params Expression<Func<T, object>>[] triggerProperties) {
 			_filterExps.Clear();
 			_filter = filterFunc;
-			var props = triggerProperties.Prepend(triggerProperty);
+			var props = triggerProperties.AddHead(triggerProperty);
 			_filterExps.Register(props);
 			Align();
 		}
@@ -96,7 +96,7 @@ namespace TreeStructures.Collections {
 		/// <param name="triggerProperty">The properties to trigger re-evaluation when the element's properties change. (Nesting is allowed)</param>
 		/// <param name="triggerProperties">Additional properties to specify for reevaluation when an element's property changes. (Nesting is allowed)</param>
 		public void SortBy<TKey>(Func<T, TKey> getCompareKey,Expression<Func<T,object>> triggerProperty, params Expression<Func<T, object>>[] triggerProperties) where TKey : IComparable<TKey> {
-			var tps = triggerProperties.Prepend(triggerProperty).ToArray();
+			var tps = triggerProperties.AddHead(triggerProperty).ToArray();
 			this.SortBy(getCompareKey, keyComparer: null, tps);
 		}
 

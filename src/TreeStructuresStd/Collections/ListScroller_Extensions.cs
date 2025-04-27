@@ -190,7 +190,7 @@ namespace TreeStructures.Collections {
 		/// <typeparam name="T">The type of elements in the scroller.</typeparam>
 		/// <typeparam name="TList">The scroller type.</typeparam>
 		public static TList MoveForEach<T,TList>(this IListScroller<T,TList> list,Action<T> currentAction) where TList: IListScroller<T, TList> {
-			list.Reset();
+			list.Reset();//.First();
 			if (list.CurrentIndex < 0) return list.asTList();
 			return list.DoWhile(
 				lst => { 

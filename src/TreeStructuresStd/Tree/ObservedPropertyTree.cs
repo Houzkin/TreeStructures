@@ -216,7 +216,7 @@ namespace TreeStructures.Tree {
             }
         }
         private class PropertyChainRoot : PropertyChainNode {
-            HashSet<ChainStatus> chainStatuses = new(Equality<ChainStatus>.ComparerBy(a => string.Join(".", a.Key.Prepend(a.PropertyValueType))));
+            HashSet<ChainStatus> chainStatuses = new(Equality<ChainStatus>.ComparerBy(a => string.Join(".", a.Key.AddHead(a.PropertyValueType))));
             public PropertyChainRoot(TSrc target) : base(target) { }
             public bool IsEvaluateTargetChanged { get; set; } = true;
             public void ChangeTarget(TSrc target) {
@@ -248,12 +248,12 @@ namespace TreeStructures.Tree {
             }
             
             public IDisposable Subscribe<TValue>(Expression<Func<TSrc, TValue>> expression, EventHandler<ChainedPropertyChangedEventArgs<TValue>> changedAction) {
-                var propChain = PropertyUtils.GetPropertyPath(expression).Prepend(string.Empty);
+                var propChain = PropertyUtils.GetPropertyPath(expression).AddHead(string.Empty);
                 var status = addChainStatus<TValue, object>(propChain);
                 return getListener(status, changedAction);
             }
             public NotifyObject<TValue> ToNotifyObject<TValue>(Expression<Func<TSrc,TValue>> expression) {
-                var propChain = PropertyUtils.GetPropertyPath(expression).Prepend(string.Empty);
+                var propChain = PropertyUtils.GetPropertyPath(expression).AddHead(string.Empty);
                 return new NotifyObject<TValue>(propChain, addChainStatus<TValue,TValue>, getListener);
             }
             ChainStatus<TValue> addChainStatus<TValue, TProp>(IEnumerable<string> propChain) {
@@ -261,7 +261,7 @@ namespace TreeStructures.Tree {
                 //propChain = propChain.Where(x => x != string.Empty);
                 this.AddSubscribeProperty(propChain.Where(x => x != string.Empty));
                 //if(propChain.Any() && propChain.ElementAt(0) == string.Empty){
-                //    propChain = propChain.Prepend(string.Empty).ToList();
+                //    propChain = propChain.AddHead(string.Empty).ToList();
                 //}
                 Func<TValue> getvalue = () => {
                     try {

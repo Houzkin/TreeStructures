@@ -19,11 +19,6 @@ namespace TreeStructures.Linq {
         public static IEnumerable<T> AsReadOnly<T>(this IEnumerable<T> enumerable) {
             return new EnumerableCollection<T>(enumerable);
         }
-		//public static ReadOnlyObservableCollection<T> AsReadOnlyObservable<T,TList>(this TList self) where TList:IEnumerable<T>,INotifyCollectionChanged {
-		//	return new ReadOnlyNotifierCollection<T,TList>(self);
-		//}
-        
-
         /// <summary>Combines disposable collections.</summary>
         public static IDisposable CombineDisposables<T>(this IEnumerable<T> enumerable) where T:IDisposable {
             return new LumpedDisopsables(enumerable.OfType<IDisposable>());
@@ -78,6 +73,17 @@ namespace TreeStructures.Linq {
 
 		/// <summary>
 		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// To reflect changes in the collections, the target collections must implement <see cref="INotifyCollectionChanged"/>.
+		/// </summary>
+		/// <typeparam name="T">The type of elements in the collection.</typeparam>
+		/// <param name="self">The current observable collection.</param>
+		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
+		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
+		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this IEnumerable<T> self, IEqualityComparer<T>? equality=null) { 
+			return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
+		}
+		/// <summary>
+		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
@@ -98,23 +104,30 @@ namespace TreeStructures.Linq {
 			//return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
 			return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
 		}
+
+
+	}
 #if NETSTANDARD2_0
+	internal static class EnumerableCompatExtensions {
+			/// <summary>compat</summary>
 		internal static IEnumerable<TSource> SkipLast<TSource>(this IEnumerable<TSource> source, int count) {
 			var q = new Queue<TSource>();
-			foreach (var x in source) { 
+			foreach (var x in source) {
 				q.Enqueue(x);
 				if (q.Count > count) {
 					yield return q.Dequeue();
 				}
 			}
 		}
-		internal static bool Remove<TKey,T>(this Dictionary<TKey,T> dictionary,TKey key,out T result) {
-			if(dictionary.ContainsKey(key)) {
+		/// <summary>compat</summary>
+		internal static bool Remove<TKey, T>(this Dictionary<TKey, T> dictionary, TKey key, out T result) {
+			if (dictionary.ContainsKey(key)) {
 				result = dictionary[key];
 			} else { result = default(T); }
 			return dictionary.Remove(key);
 		}
 
+		/// <summary>compat</summary>
 		internal static bool TryPop<T>(this Stack<T> stack, out T result) {
 			result = default(T);
 
@@ -126,6 +139,7 @@ namespace TreeStructures.Linq {
 			return false;
 		}
 
+		/// <summary>compat</summary>
 		internal static bool TryPeek<T>(this Stack<T> stack, out T result) {
 			result = default(T);
 
@@ -136,9 +150,7 @@ namespace TreeStructures.Linq {
 
 			return false;
 		}
-#endif
-
 
 	}
-
+#endif
 }

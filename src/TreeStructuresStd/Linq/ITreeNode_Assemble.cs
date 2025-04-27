@@ -204,7 +204,7 @@ namespace TreeStructures.Linq {
         private static IEnumerable<NodePath<T>> _scan<T>(this NodePath<T> self){
             var enme= Enumerable.Empty<T>();
             foreach(var i in self){
-                enme = enme.Append(i);
+                enme = enme.AddTail(i);
                 yield return new NodePath<T>(enme);
             }
         }

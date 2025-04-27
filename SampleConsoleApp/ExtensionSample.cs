@@ -37,9 +37,9 @@ public static partial class ExtensionSample{
 		Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
 		// 11, 11, 8, 9, 10, 11, 10, 11
 
-		//list.AlignBy(Enumerable.Empty<int>());
-		//list.AlignBy(list.SkipLast(1));
-		//Console.WriteLine(string.Join(", ", list)+"  ---compleate\n");
+		list.AlignBy(Enumerable.Empty<int>());
+		list.AlignBy(list.SkipLast(1));
+		Console.WriteLine(string.Join(", ", list) + "  ---compleate\n");
 		//
 
 		list.AlignBy(Enumerable.Range(8, 4));

@@ -69,6 +69,8 @@ namespace TreeStructures.Collections {
 		/// </summary>
 		public static EqualityComparer<T> ValueOrReferenceComparer { get; } = new AnonymousEqualityComparer<T>(
             (a, b) => typeof(T).IsValueType ? EqualityComparer<T>.Default.Equals(a, b) : ReferenceEquals(a, b));
+
+        //public static EqualityComparer<T> Sequence
     }
     public class SequenceEqualityComparer<TSeq,TItm> :EqualityComparer<TSeq> where TSeq : IEnumerable<TItm> {
         readonly IEqualityComparer<TItm> comparer;

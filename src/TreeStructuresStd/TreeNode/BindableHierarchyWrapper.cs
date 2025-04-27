@@ -80,7 +80,7 @@ namespace TreeStructures {
 		//        .Evolve(a => {
 		//            a.IsImitating = false;
 		//            return a.InnerChildren; 
-		//        }, (a, b, c) => b.Prepend(a).Concat(c))
+		//        }, (a, b, c) => b.AddHead(a).Concat(c))
 		//        .Skip(1).Reverse().ToList();
 		//    foreach (var item in lst) { 
 		//        item.StopImitateProcess();
@@ -129,7 +129,7 @@ namespace TreeStructures {
 					.Traverse(a => {
 						a.IsImitating = false;
 						return a.InnerChildNodes;
-					}, (a, b, c) => c.Prepend(a).Concat(b))// b.Prepend(a).Concat(c))
+					}, (a, b, c) => c.AddHead(a).Concat(b))// b.AddHead(a).Concat(c))
                     .Skip(1).Reverse().OfType<IDisposable>();
                 foreach (var n in nd) n.Dispose();
 				foreach(var n in InnerChildNodes.OfType<IDisposable>()) n.Dispose();

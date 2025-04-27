@@ -60,11 +60,11 @@ namespace TreeStructures.Linq {
 
         /// <summary>Generates a sequence in preorder starting from the current node.</summary>
         public static IEnumerable<T> PreOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Traverse(a => a.Children, (a, b, c) => b.Prepend(a).Concat(c));//a b[] c[]
+            return self.Traverse(a => a.Children, (a, b, c) => b.AddHead(a).Concat(c));//a b[] c[]
         }
         /// <summary>Generates a sequence in postorder starting from the current node.</summary>
         public static IEnumerable<T> PostOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
-            return self.Traverse(a => a.Children, (a, b, c) => b.Append(a).Concat(c));//b[] a c[]
+            return self.Traverse(a => a.Children, (a, b, c) => b.AddTail(a).Concat(c));//b[] a c[]
         }
         /// <summary>Generates a sequence in level order starting from the current node.</summary>
         public static IEnumerable<T> LevelOrder<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
@@ -284,7 +284,7 @@ namespace TreeStructures.Linq {
                 if (predicate(cur) && clds.OfType<T>().Any(predicate))
                     return seeds.Concat(clds);
                 else if (predicate(cur))
-                    return seeds.Append(cur);
+                    return seeds.AddTail(cur);
                 else
                     return seeds;
             });
@@ -303,7 +303,8 @@ namespace TreeStructures.Linq {
         public static IEnumerable<T> DescendArrivals<T, Trc>(this ITreeNode<T> self, Func<T, Trc> selector, IEnumerable<Trc> trace, IEqualityComparer<Trc>? comparer = null) where T : ITreeNode<T> {
             if(!trace.Any()) return Enumerable.Empty<T>();
             comparer ??= EqualityComparer<Trc>.Default;
-            var matchs = new ListScroller<Trc>(trace);
+            //var matchs = new ListScroller<Trc>(trace);
+            var matchs = trace.ToListScroller();//.First();
             var startdpth = self.Depth();
             return self.Traverse(cur => {
                 int curlv = cur.Depth() - startdpth;
@@ -318,7 +319,7 @@ namespace TreeStructures.Linq {
                 int curlv = cur.Depth() - startdpth;
                 return matchs.TryMoveTo(curlv + 1).When(
                     o => clds.Concat(seeds),
-                    x => seeds.Prepend(cur));
+                    x => seeds.AddHead(cur));
             });
         }
 		/// <summary>
@@ -332,7 +333,7 @@ namespace TreeStructures.Linq {
             var tmls = self.DescendArrivals(predicate);
             var lst = new List<IEnumerable<T>>();
             foreach(var tml in tmls){
-                lst.Add(tml.Upstream().TakeWhile(a => !object.ReferenceEquals(a, self)).Append((T)self).Reverse().ToArray());
+                lst.Add(tml.Upstream().TakeWhile(a => !object.ReferenceEquals(a, self)).AddTail((T)self).Reverse().ToArray());
             }
             return lst.AsReadOnly();
         }
@@ -351,7 +352,7 @@ namespace TreeStructures.Linq {
             var peak = self.DescendArrivals(selector,trace, comparer);
             var lst = new List<IEnumerable<T>>();
             foreach(var pk in peak) {
-                lst.Add(pk.Upstream().TakeWhile(a=>!object.ReferenceEquals(a, self)).Append((T)self).Reverse().ToArray());
+                lst.Add(pk.Upstream().TakeWhile(a=>!object.ReferenceEquals(a, self)).AddTail((T)self).Reverse().ToArray());
             }
             return lst.AsReadOnly();
         }
@@ -373,7 +374,7 @@ namespace TreeStructures.Linq {
 		public static IEnumerable<T> DescendFirstMatches<T>(this ITreeNode<T> self, Func<T, bool> predicate) where T : ITreeNode<T> {
             return self.Traverse(
                 cur => !predicate(cur) ? cur.Children : Array.Empty<T>(), 
-                (cur, clds, seeds) => predicate(cur) ? seeds.Prepend(cur) : seeds.Concat(clds));
+                (cur, clds, seeds) => predicate(cur) ? seeds.AddHead(cur) : seeds.Concat(clds));
         }
         #endregion
     }
