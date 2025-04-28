@@ -42,24 +42,24 @@ public static partial class UseageSample {
 
 
 		#endregion
-		var rmd = new RandomDateTime(new DateTime(2021, 1, 1), new DateTime(2022, 1, 1));
-		var Anniversarys = new ObservableCollection<Anniversary>();
-		var anys = "ABCDEF".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmd.Next() });
+		//var rmd = new RandomDateTime(new DateTime(2021, 1, 1), new DateTime(2022, 1, 1));
+		//var Anniversarys = new ObservableCollection<Anniversary>();
+		//var anys = "ABCDEF".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmd.Next() });
 
-		foreach (var item in anys) Anniversarys.Add(item);
-		var tree = new DateTimeTree<Anniversary>(Anniversarys,
-			x => x.Date, d => d.Month < 4 ? d.Year - 1 : d.Year,
-			d => d.Month < 4 ? d.Month + 12 : d.Month, d => d.Day);
-		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
+		//foreach (var item in anys) Anniversarys.Add(item);
+		//var tree = new DateTimeTree<Anniversary>(Anniversarys,
+		//	x => x.Date, d => d.Month < 4 ? d.Year - 1 : d.Year,
+		//	d => d.Month < 4 ? d.Month + 12 : d.Month, d => d.Day);
+		//Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
 
-		var DispTree = new AnnivWrapper(tree.Root);
-		Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
+		//var DispTree = new AnnivWrapper(tree.Root);
+		//Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
 
-		//Anniversarys.RemoveAt(0);
-		Anniversarys.Add(new Anniversary() { Name = "X", Date = rmd.Next() });
-		Anniversarys.Move(1, 0);
-		Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
-		Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
+		////Anniversarys.RemoveAt(0);
+		//Anniversarys.Add(new Anniversary() { Name = "X", Date = rmd.Next() });
+		//Anniversarys.Move(1, 0);
+		//Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
+		//Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
 
 	}
 
@@ -86,42 +86,42 @@ public class Anniversary {
 	}
 	public bool IsHoliday { get; set; }
 }
-public class AnnivWrapper : TreeNodeWrapper<DateTimeTree<Anniversary>.Node, AnnivWrapper> {
-	public AnnivWrapper(DateTimeTree<Anniversary>.Node node) : base(node) { }
-	protected override AnnivWrapper GenerateChild(DateTimeTree<Anniversary>.Node sourceChildNode) {
-		return new AnnivWrapper(sourceChildNode);
-	}
-	public string HeaderString {
-		get{
-			if(this.Source.HasItemAndValue){
-				return this.Source.Item.ToString();
-			}
-			var str = this.Source.Depth() switch {
-				0 => string.Empty,
-				1 => $"FY{Source.NodeClass}",
-				2 => toMonth(Source.NodeClass > 12 ? Source.NodeClass - 12 : Source.NodeClass),
-				3 => Source.NodeClass.ToString()+"th",
-				_ => this.Source.ToString()
-			}; ;
-			return str;
-		}
-	}
-	private string toMonth(int month){
-		string str = month switch {
-			1 => "Jan.",
-			2 => "Feb.",
-			3 => "Mar.",
-			4 => "Apr.",
-			5 => "May ",
-			6 => "Jun.",
-			7 => "Jul.",
-			8 => "Aug.",
-			9 => "Sep.",
-			10 => "Oct.",
-			11 => "Nov.",
-			12 => "Dec.",
-			_ => string.Empty,
-		};
-		return str;
-	}
-}
+//public class AnnivWrapper : TreeNodeWrapper<DateTimeTree<Anniversary>.Node, AnnivWrapper> {
+//	public AnnivWrapper(DateTimeTree<Anniversary>.Node node) : base(node) { }
+//	protected override AnnivWrapper GenerateChild(DateTimeTree<Anniversary>.Node sourceChildNode) {
+//		return new AnnivWrapper(sourceChildNode);
+//	}
+//	public string HeaderString {
+//		get{
+//			if(this.Source.HasItemAndValue){
+//				return this.Source.Item.ToString();
+//			}
+//			var str = this.Source.Depth() switch {
+//				0 => string.Empty,
+//				1 => $"FY{Source.NodeClass}",
+//				2 => toMonth(Source.NodeClass > 12 ? Source.NodeClass - 12 : Source.NodeClass),
+//				3 => Source.NodeClass.ToString()+"th",
+//				_ => this.Source.ToString()
+//			}; ;
+//			return str;
+//		}
+//	}
+//	private string toMonth(int month){
+//		string str = month switch {
+//			1 => "Jan.",
+//			2 => "Feb.",
+//			3 => "Mar.",
+//			4 => "Apr.",
+//			5 => "May ",
+//			6 => "Jun.",
+//			7 => "Jul.",
+//			8 => "Aug.",
+//			9 => "Sep.",
+//			10 => "Oct.",
+//			11 => "Nov.",
+//			12 => "Dec.",
+//			_ => string.Empty,
+//		};
+//		return str;
+//	}
+//}

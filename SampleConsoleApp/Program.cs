@@ -6,7 +6,7 @@ using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!\n\n");
 
-//MethodP();
+MethodP();
 MethodPPP();
 MethodPP();
 MethodO();

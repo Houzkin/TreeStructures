@@ -69,6 +69,11 @@ public static partial class UseageSample {
 		heads[0].State = "Gibli";
 		heads[1].State = "Gibli";
 		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
+		ctgTree.Remove(new HeadOfState[] { heads[6], heads[7] });
+		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
+
+		//after use
+		ctgTree.Dispose();
 	}
 }
 public class DateCategoryWrapper : TreeNodeWrapper<CategoryTree<Anniversary, int>.Node, DateCategoryWrapper> {
