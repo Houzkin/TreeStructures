@@ -12,6 +12,38 @@ using TreeStructures.Collections;
 using System.Reactive.Linq;
 
 namespace SampleConsoleApp;
+public class NotificationObj1 : INotifyPropertyChanged {
+	protected readonly PropChangeProxy PcProxy;
+	public NotificationObj1() {
+		PcProxy = new PropChangeProxy(this, () => PropertyChanged);
+	}
+	public event PropertyChangedEventHandler? PropertyChanged;
+}
+public class NotificationObj2 : INotifyPropertyChanged {
+	protected readonly PropChangeProxy PcProxy;
+	public NotificationObj2() {
+		PcProxy = new PropChangeProxy(RaisePropertyChanged);
+	}
+	protected virtual void RaisePropertyChanged(PropertyChangedEventArgs e) {
+		PropertyChanged?.Invoke(this, e);
+	}
+	public event PropertyChangedEventHandler? PropertyChanged;
+}
+public class NotificationObje3 : INotifyPropertyChanged {
+	private PropChangeProxy _proxy;
+	public NotificationObje3() {
+		_proxy = new PropChangeProxy(OnPropertyChanged);
+	}
+	protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+		if (string.IsNullOrEmpty(propertyName)) return;
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
+	protected bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
+		return _proxy.SetWithNotify(ref strage, value);
+	}
+	public event PropertyChangedEventHandler? PropertyChanged;
+}
+
 public abstract class NotificationObject : INotifyPropertyChanged {
 	protected NotificationObject() {
 		PropChangeProxy = new PropertyChangeProxy(this);
@@ -19,8 +51,8 @@ public abstract class NotificationObject : INotifyPropertyChanged {
 	readonly PropertyChangeProxy PropChangeProxy;
 
 	public event PropertyChangedEventHandler? PropertyChanged {
-		add { this.PropChangeProxy.PropertyChanged += value; }
-		remove { this.PropChangeProxy.PropertyChanged -= value; }
+		add { this.PropChangeProxy.Changed += value; }
+		remove { this.PropChangeProxy.Changed -= value; }
 	}
 	protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
 		=> PropChangeProxy.SetWithNotify(ref storage, value, propertyName);

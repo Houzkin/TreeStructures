@@ -102,10 +102,6 @@ namespace TreeStructures.Collections {
 			if (disposing) this.ClearAndPause();
 			base.Dispose(disposing);
 		}
-		///// <inheritdoc/>
-		//public override ReadOnlyObservableCollection<TDst> AsReadOnlyObservableCollection() {
-		//	return _readOnly ??= new ReadOnlyObservableProxyCollection<SDPair, TDst>(_SDPairList, x => x.Dst, (p, d) => Equality<TDst>.ValueOrReferenceComparer.Equals(p.Dst, d));// EqualityComparer<TDst>.Default.Equals(p.Dst, d));
-		//}
 		#region ReadOnlyMembers
 
 		/// <inheritdoc/>
@@ -129,8 +125,6 @@ namespace TreeStructures.Collections {
 			public SDPairCollection(IEnumerable<TSrc> source, Func<TSrc, SDPair> convert, Func<TSrc, SDPair, bool> equality, Action<SDPair>? removedAction = null, bool isImitating = true)
 				: base(source, convert, equality, removedAction) {
 				_src = source;
-				//_equality = equality;
-				//_convert = convert;
 				_alignItems = () => Items.AlignBy(this.SourceItems, convert, equality);
 				_clearItems = () => {
 					var lst = removedAction != null ? Items.ToArray() : Array.Empty<SDPair>();
@@ -152,11 +146,6 @@ namespace TreeStructures.Collections {
 				return true;
 			}
 			public bool IsImitating => _isImitating;
-			//Func<TSrc, SDPair> _convert;
-			//Func<TSrc,SDPair,bool> _equality;
-			//private void AlignItems() {
-			//	Items.AlignBy(this.SourceItems, _convert, _equality);
-			//}
 			public void Start() {
 				if (!switchConnection(true)) {
 					if (SourceItems is not INotifyCollectionChanged)  _alignItems?.Invoke();
@@ -168,7 +157,6 @@ namespace TreeStructures.Collections {
 						h => ncc.CollectionChanged -= h,
 						(s, e) => this.ApplyCollectionChange(e)));
 				}
-				//AlignItems();
 				_alignItems?.Invoke();
 			}
 			public void ClearAndStop() {

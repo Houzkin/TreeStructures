@@ -13,6 +13,11 @@ using TreeStructures.Tree;
 namespace SampleConsoleApp;
 public static partial class UseageSample {
 	public static void MethodP() {
+
+		var numbersTree = new CategoryTree<int, int>(x => x == 0 ? 1 : ((int)MathF.Log10(x) + 1), x => x % 2);
+		numbersTree.Add(new int[] { 61, 8, 3, 9, 50, 75, 300, 502 });
+		Console.WriteLine(numbersTree.Root.ToTreeDiagram(x=>x.HasItem ? x.Item.ToString(): x.Category.ToString()));
+
 		var ctmAnys = new List<Anniversary>() {
 			new Anniversary() { Name = "A", Date = new DateTime(2020, 2, 4) },
 			new Anniversary() { Name = "B", Date = new DateTime(2020, 9, 15) },
@@ -34,9 +39,9 @@ public static partial class UseageSample {
 		//var adpTree = new ReactiveCategoryTree<Anniversary, int>(ctmAnys, new Expression<Func<Anniversary,object>>[] {x=>x.Date}, EqualityComparer<int>.Default, x => x.Date.Year, x => x.Date.Month);
 
 		//var adpTree = new ReactiveCategoryTree<Anniversary, int>(ctmAnys, PropertyHelper.ToExpression<Anniversary>(x=>x.Date), EqualityComparer<int>.Default, x => x.Date.Year, x => x.Date.Month);
-		var adpTree = new ReactiveCategoryTree<Anniversary, int>(ctmAnys, new ExpressionList<Anniversary>(x => x.Date), EqualityComparer<int>.Default, x => x.Date.Year);
-		var adpTree2 = new ReactiveCategoryTree<Anniversary, int>(new(x => x.Date), x => x.IsHoliday ? 0 : 1, x => x.Date.Year);
-		var adpTree3 = new ReactiveCategoryTree<Anniversary, int>(new(x => x.Date), x => x.Date.Year);
+		//var adpTree = new ReactiveCategoryTree<Anniversary, int>(ctmAnys, new ExpressionList<Anniversary>(x => x.Date), EqualityComparer<int>.Default, x => x.Date.Year);
+		//var adpTree2 = new ReactiveCategoryTree<Anniversary, int>(new(x => x.Date), x => x.IsHoliday ? 0 : 1, x => x.Date.Year);
+		//var adpTree3 = new ReactiveCategoryTree<Anniversary, int>(new(x => x.Date), x => x.Date.Year);
 	}
 	public static void MethodPP() {
 		var rdm = new RandomDateTime(new DateTime(2021, 1, 1), new DateTime(2022, 1, 1));
@@ -52,28 +57,51 @@ public static partial class UseageSample {
 
 	}
 	public static void MethodPPP() {
-		var heads = new List<HeadOfState>() {
-			new HeadOfState{ Name = "Naruhito",State ="Japan", Birthday = new DateTime(1960,2,23), IsRepublic = false,IsEmpress = false },
-			new HeadOfState{Name = "Elizabeth2nd",State="UK",Birthday = new DateTime(1926,4,21),IsRepublic = false,IsEmpress = true },
-			new HeadOfState{Name = "Charlse3rd",State="UK",Birthday=new DateTime(1948,11,14), IsRepublic=false,IsEmpress=false },
-			new HeadOfState{Name = "BidenJr",State = "USA",Birthday = new DateTime(1942,11,20),IsRepublic=true,IsEmpress = false },
-			new HeadOfState{Name = "Putin",State="Russia",Birthday = new DateTime(1952,10,7),IsRepublic = true,IsEmpress=false },
-			new HeadOfState{Name ="Raisi",State="Iran",Birthday = new DateTime(1960,12,14),IsRepublic = true,IsEmpress=false },
-			new HeadOfState{Name = "Margrethe2nd",State="Danmark",Birthday = new DateTime(1940,4,16),IsRepublic =false,IsEmpress = true },
-			new HeadOfState{Name = "Erdogan",State = "Turkey",Birthday =new DateTime(1954,2,26),IsRepublic=true,IsEmpress=false },
-			new HeadOfState{Name = "Charlse3rd",State="Australia",Birthday=new DateTime(1948,11,14),IsRepublic=false, IsEmpress=false },
-			new HeadOfState{Name = "Charlse3rd",State="Canada",Birthday=new DateTime(1948,11,14), IsRepublic=false,IsEmpress=false }, };
+		var persons = new List<PersonNode>() {
+			new PersonNode() {
+				Name = "A", PersonalData = new PersonalInfo(){ Height = 160, Weight = 70, Job = "Writer" } },
+			new PersonNode() {
+				Name = "B", PersonalData = new PersonalInfo(){Height = 180, Weight = 55, Job = "Comedian" } },
+			new PersonNode() {
+				Name = "C", PersonalData = new PersonalInfo(){Height = 150, Weight = 60, Job = "Writer" } },
+			new PersonNode() {
+				Name = "D", PersonalData = new PersonalInfo(){Height = 175, Weight = 90, Job = "Writer" } },
+			new PersonNode() {
+				Name = "E", PersonalData = new PersonalInfo(){Height = 170, Weight = 60 , Job = "Writer"} },
+		};
+		var ctgTree = new ReactiveCategoryTree<PersonNode, string>(
+			persons,
+			new(x => x.PersonalData.Job, x=>x.PersonalData.BMI),
+			x => x.PersonalData.Job, x => ((int)x.PersonalData.BMI).ToString());
+		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"Name:{x.Item.Name}, H:{x.Item.PersonalData.Height}, W:{x.Item.PersonalData.Weight}, BMI:{x.Item.PersonalData.BMI}" : x.Category));
 
-		var ctgTree = new ReactiveCategoryTree<HeadOfState, string>(heads, new(x => x.Name, x => x.State), EqualityComparer<string>.Default, x => x.State, x => x.Name);
-		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
-		heads[0].State = "Gibli";
-		heads[1].State = "Gibli";
-		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
-		ctgTree.Remove(new HeadOfState[] { heads[6], heads[7] });
-		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
+		persons[0].PersonalData.Job = "Animator";
+		persons[4].PersonalData.Weight = 100;
+		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"Name:{x.Item.Name}, H:{x.Item.PersonalData.Height}, W:{x.Item.PersonalData.Weight}, BMI:{x.Item.PersonalData.BMI}" : x.Category));
 
-		//after use
 		ctgTree.Dispose();
+		//var heads = new List<HeadOfState>() {
+		//	new HeadOfState{ Name = "Naruhito",State ="Japan", Birthday = new DateTime(1960,2,23), IsRepublic = false,IsEmpress = false },
+		//	new HeadOfState{Name = "Elizabeth2nd",State="UK",Birthday = new DateTime(1926,4,21),IsRepublic = false,IsEmpress = true },
+		//	new HeadOfState{Name = "Charlse3rd",State="UK",Birthday=new DateTime(1948,11,14), IsRepublic=false,IsEmpress=false },
+		//	new HeadOfState{Name = "BidenJr",State = "USA",Birthday = new DateTime(1942,11,20),IsRepublic=true,IsEmpress = false },
+		//	new HeadOfState{Name = "Putin",State="Russia",Birthday = new DateTime(1952,10,7),IsRepublic = true,IsEmpress=false },
+		//	new HeadOfState{Name ="Raisi",State="Iran",Birthday = new DateTime(1960,12,14),IsRepublic = true,IsEmpress=false },
+		//	new HeadOfState{Name = "Margrethe2nd",State="Danmark",Birthday = new DateTime(1940,4,16),IsRepublic =false,IsEmpress = true },
+		//	new HeadOfState{Name = "Erdogan",State = "Turkey",Birthday =new DateTime(1954,2,26),IsRepublic=true,IsEmpress=false },
+		//	new HeadOfState{Name = "Charlse3rd",State="Australia",Birthday=new DateTime(1948,11,14),IsRepublic=false, IsEmpress=false },
+		//	new HeadOfState{Name = "Charlse3rd",State="Canada",Birthday=new DateTime(1948,11,14), IsRepublic=false,IsEmpress=false }, };
+
+		//var ctgTree = new ReactiveCategoryTree<HeadOfState, string>(heads, new(x => x.Name, x => x.State), EqualityComparer<string>.Default, x => x.State, x => x.Name);
+		//Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
+		//heads[0].State = "Gibli";
+		//heads[1].State = "Gibli";
+		//Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
+		//ctgTree.Remove(new HeadOfState[] { heads[6], heads[7] });
+		//Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"State:{x.Item.State}, Name:{x.Item.Name}, Birthday:{x.Item.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.Item.IsRepublic}, IsEmpress:{x.Item.IsEmpress}" : x.Category));
+
+		////after use
+		//ctgTree.Dispose();
 	}
 }
 public class DateCategoryWrapper : TreeNodeWrapper<CategoryTree<Anniversary, int>.Node, DateCategoryWrapper> {

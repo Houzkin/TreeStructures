@@ -229,15 +229,17 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		}
 	}
 	public class ExpressionList<T> : IEnumerable<Expression<Func<T, object>>> {
-		List<Expression<Func<T, object>>> _list = new List<Expression<Func<T, object>>>();
-		protected ExpressionList() { }
-		public ExpressionList(Expression<Func<T, object>> property,params Expression<Func<T, object>>[] properties) {
-			_list.Add(property);
-			_list.AddRange(properties);
+		List<Expression<Func<T, object>>>? _list;// = new List<Expression<Func<T, object>>>();
+		internal ExpressionList() { }
+		public ExpressionList(Expression<Func<T, object>> property, params Expression<Func<T, object>>[] properties)
+			: this(properties.AddHead(property)) {
+		}
+		public ExpressionList(IEnumerable<Expression<Func<T,object>>> properties) {
+			_list = new List<Expression<Func<T, object>>>(properties);
 		}
 
 		public virtual IEnumerator<Expression<Func<T, object>>> GetEnumerator() {
-			return _list.GetEnumerator();
+			return _list?.GetEnumerator() ?? Enumerable.Empty<Expression<Func<T, object>>>().GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() {
@@ -264,7 +266,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> addAction,
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> removeAction,
 			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> clearAction,
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dispAction) {
+			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dispAction) : base() {
 			_self = self;
 			_area = area;
 			_addAction = addAction;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -82,7 +83,7 @@ public class Anniversary {
 	public string Name { get; set; }
 
 	public override string ToString() {
-		return $"{Name} : {Date}";
+		return $"{Name} : "+ Date.ToString("yyyy/M/d(ddd)",CultureInfo.CreateSpecificCulture("en-US"));
 	}
 	public bool IsHoliday { get; set; }
 }

@@ -25,8 +25,8 @@ public class AdditionalObj : INotifyPropertyChanged {
 	int number = 0;
 
 	public event PropertyChangedEventHandler? PropertyChanged {
-		add { proxy.PropertyChanged += value; }
-		remove { proxy.PropertyChanged -= value; }
+		add { proxy.Changed += value; }
+		remove { proxy.Changed -= value; }
 	}
 	public string Title {
 		get { return title; }

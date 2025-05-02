@@ -7,36 +7,78 @@ using TreeStructures.Linq;
 using TreeStructures.Results;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections.Specialized;
 
 namespace TreeStructures.Tree {
-	//public static class PropertyHelper {
-	//	public static Expression<Func<T, object>>[] ToExpression<T>(Expression<Func<T, object>> expression, params Expression<Func<T,object>>[] expressions) {
-	//		return expressions.AddHead(expression).ToArray();
-	//	}
-	//	public static Expression<Func<T, object>>[] ToExpression<T>(this T self, Expression<Func<T, object>> expression, params Expression<Func<T,object>>[] expressions) {
-	//		return expressions.AddHead(expression).ToArray();
-	//	}
-	//}
+	/// <summary>
+	/// A reactive category tree that extends <see cref="CategoryTree{TItm, TCtg}"/>.
+	/// This class updates category classification whenever specified properties change.
+	/// </summary>
+	/// <typeparam name="TItm">The type of elements to be categorized.</typeparam>
+	/// <typeparam name="TCtg">The type representing categories.</typeparam>
 	public class ReactiveCategoryTree<TItm, TCtg> : CategoryTree<TItm, TCtg>, IDisposable {
-
+		/// <summary>
+		/// Initializes a new instance.
+		/// </summary>
+		/// <param name="properties">The properties whose changes trigger category updates.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(ExpressionList<TItm> properties, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(properties, EqualityComparer<TCtg>.Default, lv1Category, nestsLvCategories) { }
+		/// <summary>
+		/// Initializes a new instance.
+		/// </summary>
+		/// <param name="properties">A collection of property expressions whose changes trigger category updates.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(IEnumerable<Expression<Func<TItm, object>>> properties, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(properties, EqualityComparer<TCtg>.Default, lv1Category, nestsLvCategories) { }
-
+		/// <summary> Initializes a new instance.</summary>
+		/// <param name="properties">The properties whose changes trigger category updates.</param>
+		/// <param name="equality">The comparer to determine category equivalence.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(ExpressionList<TItm> properties, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(Array.Empty<TItm>(), properties, equality, lv1Category, nestsLvCategories) { }
+		/// <summary> Initializes a new instance.</summary>
+		/// <param name="properties">A collection of property expressions whose changes trigger category updates.</param>
+		/// <param name="equality">The comparer to determine category equivalence.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(IEnumerable<Expression<Func<TItm, object>>> properties, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(Array.Empty<TItm>(), properties, equality, lv1Category, nestsLvCategories) { }
 
+		/// <summary> Initializes a new instance.</summary>
+		/// <param name="items">The collection of items to be categorized.</param>
+		/// <param name="properties">The properties whose changes trigger category updates.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(IEnumerable<TItm> items,ExpressionList<TItm> properties,Func<TItm,TCtg> lv1Category,params Func<TItm,TCtg>[] nestsLvCategories)
 			: this(items, properties, EqualityComparer<TCtg>.Default,lv1Category,nestsLvCategories) { }
+		/// <summary> Initializes a new instance.</summary>
+		/// <param name="items">The collection of items to be categorized.</param>
+		/// <param name="properties">A collection of property expressions whose changes trigger category updates.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(IEnumerable<TItm> items, IEnumerable<Expression<Func<TItm, object>>> properties, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(items, properties, EqualityComparer<TCtg>.Default, lv1Category, nestsLvCategories) { }
 
+		/// <summary> Initializes a new instance.</summary>
+		/// <param name="items">The collection of items to be categorized.</param>
+		/// <param name="properties">The properties whose changes trigger category updates.</param>
+		/// <param name="equality">The comparer to determine category equivalence.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public ReactiveCategoryTree(IEnumerable<TItm> items, ExpressionList<TItm> properties, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(items, properties.AsEnumerable(), equality, lv1Category, nestsLvCategories) { }
-		private ReactiveCategoryTree(IEnumerable<TItm> items, IEnumerable<Expression<Func<TItm,object>>> properties, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
+
+		/// <summary> Initializes a new instance.</summary>
+		/// <param name="items">The collection of items to be categorized.</param>
+		/// <param name="properties">A collection of property expressions whose changes trigger category updates.</param>
+		/// <param name="equality">The comparer to determine category equivalence.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
+		public ReactiveCategoryTree(IEnumerable<TItm> items, IEnumerable<Expression<Func<TItm,object>>> properties, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: base(equality, lv1Category, nestsLvCategories) {
 			_items = new ObservableCollection<TItm>();
 			_trackingCollection = new ReadOnlyObservableTrackingCollection<TItm>(_items);
@@ -98,25 +140,46 @@ namespace TreeStructures.Tree {
 			GC.SuppressFinalize(this);
 		}
 	}
+	/// <summary>Provides a category tree, where elements are classified at each hierarchical level.</summary>
+	/// <typeparam name="TItm">The type of elements to be categorized.</typeparam>
+	/// <typeparam name="TCtg">The type representing categories.</typeparam>
 	public class CategoryTree<TItm, TCtg> {
-
+		/// <summary>Initializes a new instance.</summary>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public CategoryTree(Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(Array.Empty<TItm>(), lv1Category, nestsLvCategories) { }
+		/// <summary>Initializes a new instance.</summary>
+		/// <param name="equality">The comparer to determine category equivalence.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public CategoryTree(IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(Array.Empty<TItm>(), equality, lv1Category, nestsLvCategories) { }
+		/// <summary>Initializes a new instance.</summary>
+		/// <param name="items">The collection of items to be categorized.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public CategoryTree(IEnumerable<TItm> items, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: this(items, EqualityComparer<TCtg>.Default, lv1Category, nestsLvCategories) { }
+		/// <summary>Initializes a new instance.</summary>
+		/// <param name="items">The collection of items to be categorized.</param>
+		/// <param name="equality">The comparer to determine category equivalence.</param>
+		/// <param name="lv1Category">The function to determine the first-level category.</param>
+		/// <param name="nestsLvCategories">Functions to determine categories at subsequent levels.</param>
 		public CategoryTree(IEnumerable<TItm> items, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories) {
 			CategorySelectors = nestsLvCategories.AddHead(lv1Category).ToListScroller();
 			CategoryEquality = equality ?? EqualityComparer<TCtg>.Default;
 			this.Add(items);
 		}
 		Node? _root;
+		/// <summary>The equality comparer used to determine category equivalence.</summary>
 		protected IEqualityComparer<TCtg> CategoryEquality;
+		/// <summary>Functions that determine categories at each hierarchical level.</summary>
 		protected ListScroller<Func<TItm, TCtg>> CategorySelectors;
 		protected virtual Node CreateRoot() => new Node();
 		protected virtual Node CreateNode(TCtg ctg) => new Node(ctg);
 		protected virtual Node CreateLeaf(TItm item, TCtg ctg) => new Node(item, ctg);
+		/// <summary>Represents the root node of the category tree.</summary>
 		public Node Root => _root ??= CreateRoot();
 		protected virtual void AddItem(TItm item,Func<TItm,TCtg,Node>? create = null) {
 			create ??= new Func<TItm, TCtg, Node>((itm, ctg) => CreateLeaf(itm, ctg));
@@ -149,46 +212,68 @@ namespace TreeStructures.Tree {
 				}
 			}
 		}
+		/// <summary>Adds an item to the category tree.</summary>
+		/// <param name="item">The item to be added.</param>
 		public void Add(TItm item) {
 			this.AddItem(item);
 		}
+		/// <summary>Adds multiple items to the category tree.</summary>
+		/// <param name="items">The collection of items to be added.</param>
 		public void Add(IEnumerable<TItm> items) {
 			foreach (var item in items) this.AddItem(item);
 		}
+		/// <summary>Removes an item from the category tree.</summary>
+		/// <param name="item">The item to be removed.</param>
 		public void Remove(TItm item) {
 			this.RemoveItem(item);
 		}
-		public void Remove(IEnumerable<TItm> items) {
+		/// <summary>Removes multiple items from the category tree.</summary>
+		/// <param name="items">The collection of items to be removed.</param>
+		public void Remove(IEnumerable<TItm> items) { 
 			foreach (var item in items) this.RemoveItem(item);
 		}
 
+		/// <summary>Represents a node in the category tree, which can either be a category or an item.</summary>
+		/// <remarks>
+		/// The collection returned by the <see cref="ITreeNode{TNode}.Children"/> property is configured in the <see cref="CategoryTree{TItm, TCtg}.Node"/> class to implement <see cref="INotifyCollectionChanged"/>.
+		/// </remarks>
 		public class Node : TreeNodeBase<Node> {
-			/// <summary>Initialize as root.</summary>
+			/// <summary>Initializes a new instance as the root node.</summary>
 			public Node() {
 				this.HasItem = false;
 				this.Item = default;
 			}
-			/// <summary>Initialize as class node.</summary>
-			public Node(TCtg nodeClass) {
-				this.Category = nodeClass;
+			/// <summary>Initializes a new instance as a category node with the specified category.</summary>
+			/// <param name="category">The category assigned to this node.</param>
+			public Node(TCtg category) {
+				this.Category = category;
 				this.HasItem = false;
 				this.Item = default;
 			}
 
-			/// <summary>Initialize as leaf.</summary>
-			public Node(TItm item, TCtg nodeClass) {
-				this.Category = nodeClass;
+			/// <summary>Initializes a new instance as an item node with the specified item and category.</summary>
+			///<param name="item">The item represented by this node.</param>
+			///<param name="category">The category assigned to this node.</param>
+			public Node(TItm item, TCtg category) {
+				this.Category = category;
 				this.Item = item;
 				this.HasItem = true;
 			}
+			/// <summary>
+			/// Gets the category assigned at the corresponding level.
+			/// </summary>
 			public TCtg Category { get; }
+			/// <summary>
+			/// Indicates whether this node represents an item or a category.
+			/// </summary>
 			public bool HasItem { get; }
-
+			/// <summary>
+			/// Gets the item represented by this node, if <see cref="HasItem"/> is true. Otherwise, returns the default value.
+			/// </summary>
 			public TItm Item { get; }
 
 			ImitableCollection<Node>? _childnodes;
 			IComparer<Node> comparer = Comparer<Node>.Create((a, b) => {
-				//if (a is IComparable<Node> cmpCN) return cmpCN.CompareTo(b);
 				if (a.HasItem && b.HasItem) {
 					if (a.Item is IComparable<TItm> cmpVal) return cmpVal.CompareTo(b.Item);
 					if (a.Item is IComparable cmpval) return cmpval.CompareTo(b.Item);
@@ -198,9 +283,11 @@ namespace TreeStructures.Tree {
 				}
 				return 0;
 			});
+			/// <inheritdoc/>
 			protected override IEnumerable<Node> SetupInnerChildCollection() {
 				return new HashSet<Node>();
 			}
+			/// <inheritdoc/>
 			protected override IEnumerable<Node> SetupPublicChildCollection(IEnumerable<Node> innerCollection) {
 				//return innerCollection;
 				_childnodes = innerCollection.ToImitable(a => a, null, true);

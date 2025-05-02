@@ -20,7 +20,7 @@ namespace TreeStructures {
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public ObservableGeneralTreeNode() { this.PropertyChangeProxy = new PropertyChangeProxy(this); }
+        public ObservableGeneralTreeNode() { this.pcProxy = new PropChangeProxy(this, () => this.PropertyChanged); }
 
         /// <summary>Initializes a new instance.</summary>
         /// <param name="collection">The collection.</param>
@@ -55,22 +55,23 @@ namespace TreeStructures {
             }
         }
         [NonSerialized]
-        PropertyChangeProxy PropertyChangeProxy;
+        PropChangeProxy pcProxy;
         /// <summary>Raises the property changed notification.</summary>
         /// <param name="propName">The property name.</param>
         protected void OnPropertyChanged([CallerMemberName] string? propName = null) {
-            PropertyChangeProxy.Notify(propName);
+            pcProxy.Notify(propName);
         }
 
         /// <summary>Performs value change and raises the change notification.</summary>
-        protected virtual bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
-            return PropertyChangeProxy.SetWithNotify(ref strage, value, propertyName);
+        protected bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
+            return pcProxy.SetWithNotify(ref strage, value, propertyName);
         }
         /// <inheritdoc/>
-        public event PropertyChangedEventHandler? PropertyChanged {
-            add { PropertyChangeProxy.PropertyChanged += value; }
-            remove { PropertyChangeProxy.PropertyChanged -= value; }
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        //{
+        //    add { PropertyChangeProxy.Changed += value; }
+        //    remove { PropertyChangeProxy.Changed -= value; }
+        //}
         /// <summary>Occurs when the tree structure changes.</summary>
         [field: NonSerialized]
         public event EventHandler<StructureChangedEventArgs<TNode>>? StructureChanged;

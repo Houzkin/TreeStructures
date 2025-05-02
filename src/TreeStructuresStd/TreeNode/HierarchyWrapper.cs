@@ -93,7 +93,7 @@ namespace TreeStructures {
             get {
                 _children ??= SetupPublicChildCollection(InnerChildNodes);
 				if (this.IsImitating && !InnerChildNodes.SourceChildrenIsObservable) {
-					InnerChildNodes.Pause();
+					//InnerChildNodes.Pause();
 					InnerChildNodes.Imitate();
 				}
                 return _children;

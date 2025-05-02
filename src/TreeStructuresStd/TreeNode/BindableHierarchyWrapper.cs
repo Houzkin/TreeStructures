@@ -54,24 +54,25 @@ namespace TreeStructures {
 		private protected override IEnumerable<TSrc>? getSourceChildren => this.SourceChildren;
 
 		#region NotifyPropertyChanged
-		PropertyChangeProxy? _propChangeProxy;
-        PropertyChangeProxy PropChangeProxy => _propChangeProxy ??= new PropertyChangeProxy(this);
+		PropChangeProxy? _pcProxy;
+		PropChangeProxy pcProxy => _pcProxy ??= new PropChangeProxy(this, () => PropertyChanged);
         /// <summary><inheritdoc/></summary>
-        public event PropertyChangedEventHandler? PropertyChanged {
-            add { this.PropChangeProxy.PropertyChanged += value; }
-            remove { this.PropChangeProxy.PropertyChanged -= value; }
-        }
-        /// <summary>
-        /// Performs the change of value and issues a change notification.
-        /// </summary>
-        protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
-            PropChangeProxy.SetWithNotify(ref storage, value, propertyName);
+        public event PropertyChangedEventHandler? PropertyChanged;
+		//{
+		//	add { this.PropChangeProxy.Changed += value; }
+		//	remove { this.PropChangeProxy.Changed -= value; }
+		//}
+		/// <summary>
+		/// Performs the change of value and issues a change notification.
+		/// </summary>
+		protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
+            pcProxy.SetWithNotify(ref storage, value, propertyName);
         /// <summary>
         ///  Issues a property change notification.
         /// </summary>
         /// <param name="propertyName"></param>
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
-            PropChangeProxy.Notify(propertyName);
+            pcProxy.Notify(propertyName);
         #endregion
 
 		//private IReadOnlyList<TImtr> StopImitateProcess() {
