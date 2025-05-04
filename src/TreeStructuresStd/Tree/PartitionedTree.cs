@@ -11,12 +11,12 @@ using TreeStructures.Results;
 using TreeStructures.Utilities;
 
 namespace TreeStructures.Tree {
-    /// <summary>
-    /// Builds a tree structure from a collection of items holding a value as a property.
-    /// </summary>
-    /// <typeparam name="TItm">Type of items.</typeparam>
-    /// <typeparam name="TVal"></typeparam>
-    /// <typeparam name="TClass"></typeparam>
+    ///// <summary>
+    ///// Builds a tree structure from a collection of items holding a value as a property.
+    ///// </summary>
+    ///// <typeparam name="TItm">Type of items.</typeparam>
+    ///// <typeparam name="TVal"></typeparam>
+    ///// <typeparam name="TClass"></typeparam>
    // public class PartitionedTree<TItm, TVal, TClass> {
    //     private InnerNodeBase _innerRoot { get; }
    //     private Node? _root;

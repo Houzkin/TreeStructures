@@ -12,50 +12,82 @@ using TreeStructures.Collections;
 using System.Reactive.Linq;
 
 namespace SampleConsoleApp;
-public class NotificationObj1 : INotifyPropertyChanged {
-	protected readonly PropChangeProxy PcProxy;
-	public NotificationObj1() {
-		PcProxy = new PropChangeProxy(this, () => PropertyChanged);
+public class ObjA : INotifyPropertyChanged {
+	protected readonly PropertyChangeProxy NotifyProxy;
+	public ObjA() {
+		NotifyProxy = new PropertyChangeProxy(this, () => PropertyChanged);
 	}
 	public event PropertyChangedEventHandler? PropertyChanged;
 }
-public class NotificationObj2 : INotifyPropertyChanged {
-	protected readonly PropChangeProxy PcProxy;
-	public NotificationObj2() {
-		PcProxy = new PropChangeProxy(RaisePropertyChanged);
+public class ObjAA : ObjA {
+	string _fistName = "";
+	string _lastName = "";
+	public string FistName {
+		get => _fistName;
+		set => NotifyProxy.TrySetAndNotify(ref _fistName, value).When(o => o.Notify(nameof(FullName)));
 	}
-	protected virtual void RaisePropertyChanged(PropertyChangedEventArgs e) {
+	public string LastName {
+		get => _lastName;
+		set => NotifyProxy.TrySetAndNotify(ref _lastName, value).When(o => o.Notify(nameof(FullName)));
+	}
+	public string FullName => FistName + " " + LastName;
+}
+public class ObjB : INotifyPropertyChanged {
+	private readonly PropertyChangeProxy notifyProxy;
+	public ObjB() {
+		notifyProxy = new PropertyChangeProxy(RaisePropertyChangedEvent);
+	}
+	protected virtual void RaisePropertyChangedEvent(PropertyChangedEventArgs e) {
 		PropertyChanged?.Invoke(this, e);
 	}
-	public event PropertyChangedEventHandler? PropertyChanged;
+	protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName]string? propName = null) 
+		=> notifyProxy.TrySetAndNotify(ref storage, value, propName);
+	protected void OnPropertyChanged([CallerMemberName]string? propName = null)
+		=> notifyProxy.Notify(propName);
+	public virtual event PropertyChangedEventHandler? PropertyChanged;
 }
-public class NotificationObje3 : INotifyPropertyChanged {
-	private PropChangeProxy _proxy;
-	public NotificationObje3() {
-		_proxy = new PropChangeProxy(OnPropertyChanged);
+public class ObjBB : ObjB {
+	string _fistName = "";
+	string _lastName = "";
+	public string FistName {
+		get => _fistName;
+		set {
+			if (SetProperty(ref _fistName, value)) OnPropertyChanged(nameof(FullName));
+		}
 	}
-	protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
-		if (string.IsNullOrEmpty(propertyName)) return;
-		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	public string LastName {
+		get => _lastName;
+		set {
+			if (SetProperty(ref _lastName, value)) OnPropertyChanged(nameof(FullName));
+		}
 	}
-	protected bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
-		return _proxy.SetWithNotify(ref strage, value);
+	public string FullName => FistName + " " + LastName;
+	protected override void RaisePropertyChangedEvent(PropertyChangedEventArgs e) {
+		Console.WriteLine("Raise Event.");
+		base.RaisePropertyChangedEvent(e);
 	}
-	public event PropertyChangedEventHandler? PropertyChanged;
+	public override event PropertyChangedEventHandler? PropertyChanged {
+		add {
+			base.PropertyChanged += value;
+			Console.WriteLine("Handler added.");
+		}
+		remove {
+			base.PropertyChanged -= value;
+			Console.WriteLine("Handler removed.");
+		}
+	}
 }
+
 
 public abstract class NotificationObject : INotifyPropertyChanged {
 	protected NotificationObject() {
-		PropChangeProxy = new PropertyChangeProxy(this);
+		PropChangeProxy = new PropertyChangeProxy(this, () => PropertyChanged);
 	}
 	readonly PropertyChangeProxy PropChangeProxy;
 
-	public event PropertyChangedEventHandler? PropertyChanged {
-		add { this.PropChangeProxy.Changed += value; }
-		remove { this.PropChangeProxy.Changed -= value; }
-	}
-	protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
-		=> PropChangeProxy.SetWithNotify(ref storage, value, propertyName);
+	public event PropertyChangedEventHandler? PropertyChanged;
+	protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
+		=> PropChangeProxy.TrySetAndNotify(ref storage, value, propertyName);
 
 	protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
 		=> PropChangeProxy.Notify(propertyName);

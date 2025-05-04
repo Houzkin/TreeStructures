@@ -19,22 +19,19 @@ namespace SampleConsoleApp;
 public class AdditionalObj : INotifyPropertyChanged {
 	PropertyChangeProxy proxy;
 	public AdditionalObj() {
-		proxy = new PropertyChangeProxy(this);
+		proxy = new PropertyChangeProxy(this, () => PropertyChanged);
 	}
 	string title = string.Empty;
 	int number = 0;
 
-	public event PropertyChangedEventHandler? PropertyChanged {
-		add { proxy.Changed += value; }
-		remove { proxy.Changed -= value; }
-	}
+	public event PropertyChangedEventHandler? PropertyChanged;
 	public string Title {
 		get { return title; }
-		set { proxy.SetWithNotify(ref title, value); }
+		set { proxy.TrySetAndNotify(ref title, value); }
 	}
 	public int Number {
 		get { return number; } 
-		set { proxy.SetWithNotify(ref number, value); }
+		set { proxy.TrySetAndNotify(ref number, value); }
 	}
 	public override string ToString() {
 		return "Title:" + title + ", Number:" + number.ToString();

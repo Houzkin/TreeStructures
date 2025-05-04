@@ -21,11 +21,11 @@ namespace TreeStructures.Collections {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ObservableCombinableCollection{T}"/> class.
 		/// </summary>
-		/// <param name="addAction">An optional callback invoked just prior to adding an item to the collection.</param>
+		/// <param name="addingAction">An optional callback invoked just prior to adding an item to the collection.</param>
 		/// <param name="removedAction">An optional callback invoked when an item is removed.</param>
 		/// <param name="equality">An optional equality comparer used to detect duplicate items.</param>
-		public ObservableCombinableCollection(Action<T>? addAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null) 
-			: base(Enumerable.Empty<T>(), addAction, removedAction, equality) { }
+		public ObservableCombinableCollection(Action<T>? addingAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null) 
+			: base(Enumerable.Empty<T>(), addingAction, removedAction, equality) { }
 
 		List<Tuple<IEnumerable,ImitableCollection<T>,IDisposable>> _combines = new();
 		bool attach(int index, IEnumerable<T> collection) {

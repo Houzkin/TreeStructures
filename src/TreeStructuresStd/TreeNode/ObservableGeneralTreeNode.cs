@@ -20,7 +20,7 @@ namespace TreeStructures {
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public ObservableGeneralTreeNode() { this.pcProxy = new PropChangeProxy(this, () => this.PropertyChanged); }
+        public ObservableGeneralTreeNode() { this.pcProxy = new PropertyChangeProxy(this, () => this.PropertyChanged); }
 
         /// <summary>Initializes a new instance.</summary>
         /// <param name="collection">The collection.</param>
@@ -55,7 +55,7 @@ namespace TreeStructures {
             }
         }
         [NonSerialized]
-        PropChangeProxy pcProxy;
+        PropertyChangeProxy pcProxy;
         /// <summary>Raises the property changed notification.</summary>
         /// <param name="propName">The property name.</param>
         protected void OnPropertyChanged([CallerMemberName] string? propName = null) {
@@ -64,9 +64,10 @@ namespace TreeStructures {
 
         /// <summary>Performs value change and raises the change notification.</summary>
         protected bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
-            return pcProxy.SetWithNotify(ref strage, value, propertyName);
+            return pcProxy.TrySetAndNotify(ref strage, value, propertyName);
         }
         /// <inheritdoc/>
+        [field: NonSerialized]
         public event PropertyChangedEventHandler? PropertyChanged;
         //{
         //    add { PropertyChangeProxy.Changed += value; }

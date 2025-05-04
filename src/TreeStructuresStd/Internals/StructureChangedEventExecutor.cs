@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
@@ -21,8 +22,9 @@ namespace TreeStructures.Internals {
             Self = self;
             preOldAnc = Array.Empty<TNode>();
             initialize();
-            this.Register(structureeventkey, () => { });
+            this.Register(structureeventkey, () => { raiseProcess(); initialize(); });
         }
+        readonly object lockObj = new();
         readonly string structureeventkey = "in Library : " + nameof(StructureChangedEventExecutor<TNode>)+".StructureChanged - Manager";
         readonly TNode Self;
         TNode[] preOldAnc;
@@ -145,16 +147,28 @@ namespace TreeStructures.Internals {
         public IDisposable LateEvaluateTree() {
             var ele = ResultWith<CountOperationPair>.Of(Operations.TryGetValue, structureeventkey).When(
                 o => {
-                    o.Count++;
-                    if (o.Count == 1) { OldParent = Self.Parent; }
-                    return o;
+                    lock (lockObj) {
+                        o.Count++;
+                        if (o.Count == 1) { OldParent = Self.Parent; }
+                        return o;
+                    }
                 }, x => throw new KeyNotFoundException());
             return new DisposableObject(() => {
-                this.NewParent = Self.Parent;
-                if (ele.Count == 1 && IsChanged) {
-                    raiseProcess(); initialize();
+                bool shouldRaiseProcess = false;
+                lock (lockObj) {
+                    NewParent = Self.Parent;
+                    if (Interlocked.Decrement(ref ele.Count) == 0) shouldRaiseProcess = IsChanged;
                 }
-                ele.Count--;
+                if (shouldRaiseProcess) {
+                    ele.Operation?.Invoke();
+                    //raiseProcess();
+                    //initialize();
+                }
+                //this.NewParent = Self.Parent;
+                //if (ele.Count == 1 && IsChanged) {
+                //    raiseProcess(); initialize();
+                //}
+                //ele.Count--;
             });
         }
     }

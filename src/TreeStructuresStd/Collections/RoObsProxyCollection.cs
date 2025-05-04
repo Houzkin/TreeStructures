@@ -181,12 +181,12 @@ namespace TreeStructures.Collections {
 		/// Initializes a new instance of the <see cref="ReadOnlyObservableProxyCollection{T}"/> class.
 		/// </summary>
 		/// <param name="source">The source collection to wrap.</param>
-		/// <param name="addAction">An optional callback invoked just prior to adding an item to the collection.</param>
+		/// <param name="addingAction">An optional callback invoked just prior to adding an item to the collection.</param>
 		/// <param name="removedAction">An optional callback invoked when an item is removed.</param>
 		/// <param name="equality">An optional equality comparer used to determine element equivalence. If null, <see cref="Equality{T}.ValueOrReferenceComparer"/> is used.</param>
-		public ReadOnlyObservableProxyCollection(IEnumerable<T> source, Action<T>? addAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null)
+		public ReadOnlyObservableProxyCollection(IEnumerable<T> source, Action<T>? addingAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null)
 			: base(source,
-				  addAction is null ? (x => x) : (x => { addAction.Invoke(x); return x; }),
+				  addingAction is null ? (x => x) : (x => { addingAction.Invoke(x); return x; }),
 				  (x, y) => equality?.Equals(x, y) ?? Equality<T>.ValueOrReferenceComparer.Equals(x, y),
 				  removedAction) {
 		}

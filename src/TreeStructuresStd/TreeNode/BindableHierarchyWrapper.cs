@@ -54,8 +54,8 @@ namespace TreeStructures {
 		private protected override IEnumerable<TSrc>? getSourceChildren => this.SourceChildren;
 
 		#region NotifyPropertyChanged
-		PropChangeProxy? _pcProxy;
-		PropChangeProxy pcProxy => _pcProxy ??= new PropChangeProxy(this, () => PropertyChanged);
+		PropertyChangeProxy? _pcProxy;
+		PropertyChangeProxy pcProxy => _pcProxy ??= new PropertyChangeProxy(this, () => PropertyChanged);
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 		//{
@@ -66,7 +66,7 @@ namespace TreeStructures {
 		/// Performs the change of value and issues a change notification.
 		/// </summary>
 		protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
-            pcProxy.SetWithNotify(ref storage, value, propertyName);
+            pcProxy.TrySetAndNotify(ref storage, value, propertyName);
         /// <summary>
         ///  Issues a property change notification.
         /// </summary>
