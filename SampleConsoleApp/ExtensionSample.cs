@@ -15,10 +15,10 @@ public static partial class ExtensionSample{
 
 		//var list = new List<int> { 10, 21, 32, 43, 5, 65, 70, 18, 29 };
 		var list = new ObservableCollection<int>(new[] { 10, 21, 32, 43, 5, 65, 70, 18, 29 });
-		list.CollectionChanged += (s, e) => {
-			Console.WriteLine($"{e.Action}, newIndex:{e.NewStartingIndex}, oldIndex:{e.OldStartingIndex}  newItems:{string.Join(',', e.NewItems?.OfType<int>().Select(x => x.ToString()) ?? new string[] { })}, oldItems:{string.Join(',', e.OldItems?.OfType<int>().Select(x => x.ToString()) ?? new string[] { })}");
-			Console.WriteLine(string.Join(", ", list)+"\n");
-		};
+		//list.CollectionChanged += (s, e) => {
+		//	Console.WriteLine($"{e.Action}, newIndex:{e.NewStartingIndex}, oldIndex:{e.OldStartingIndex}  newItems:{string.Join(',', e.NewItems?.OfType<int>().Select(x => x.ToString()) ?? new string[] { })}, oldItems:{string.Join(',', e.OldItems?.OfType<int>().Select(x => x.ToString()) ?? new string[] { })}");
+		//	Console.WriteLine(string.Join(", ", list)+"\n");
+		//};
 		Console.WriteLine(string.Join(", ", list)+"\n");
 		list.AlignBy(list.OrderBy(x => x).TakeWhile(x => x < 50));
 

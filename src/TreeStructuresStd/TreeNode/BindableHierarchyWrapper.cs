@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Events;
 using TreeStructures.Linq;
+using TreeStructures.Results;
 
 namespace TreeStructures {
 	/// <summary>Represents an object that wraps a hierarchal structure and is bindable to data.</summary>
@@ -65,13 +66,13 @@ namespace TreeStructures {
 		/// <summary>
 		/// Performs the change of value and issues a change notification.
 		/// </summary>
-		protected virtual bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
+		protected ResultWithValue<PropertyChangeProxy> SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
             pcProxy.TrySetAndNotify(ref storage, value, propertyName);
         /// <summary>
         ///  Issues a property change notification.
         /// </summary>
         /// <param name="propertyName"></param>
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+        protected PropertyChangeProxy OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
             pcProxy.Notify(propertyName);
         #endregion
 

@@ -37,7 +37,7 @@ namespace TreeStructures.Collections {
 		TrackingPropertyList<T> _filterExps;
 		TrackingPropertyList<T> _comparExps;
 		IComparer<T>? _comparer;
-		IComparer<T> _incCmpr = new CustomComparer<T, bool>(x => true);
+		IComparer<T> _incCmpr = Comparer<T>.Create((a, b) => 0);// new CustomComparer<T, bool>(x => true);
 		
 
 		void Align() {
@@ -109,7 +109,7 @@ namespace TreeStructures.Collections {
 		/// <param name="triggerProperties">The properties to trigger re-evaluation when the element's properties change. (Nesting is allowed)</param>
 		public void SortBy<TKey>(Func<T,TKey> getComparerKey,IComparer<TKey>? keyComparer =null,params Expression<Func<T, object>>[] triggerProperties) {
 			_comparExps.Clear();
-			_comparer = new CustomComparer<T,TKey>(getComparerKey,keyComparer);
+			_comparer = Comparer<T>.Create((a, b) => (keyComparer ?? Comparer<TKey>.Default).Compare(getComparerKey(a), getComparerKey(b)));// new CustomComparer<T,TKey>(getComparerKey,keyComparer);
 			_comparExps.Register(triggerProperties);
 			Align();
 		}

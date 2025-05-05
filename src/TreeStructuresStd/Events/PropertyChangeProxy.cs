@@ -27,7 +27,7 @@ namespace TreeStructures.Events {
 		public PropertyChangeProxy(object? sender, Func<PropertyChangedEventHandler?> handlerGetter) {
 			this.onAction = new(name => {
 				var hdlr = handlerGetter();
-				hdlr?.Invoke(sender, toArgs(name));
+				hdlr?.Invoke(sender, GetOrAddCachedEventArgs(name));
 			});
 		}
 		/// <summary>
@@ -36,9 +36,15 @@ namespace TreeStructures.Events {
 		/// </summary>
 		/// <param name="raiseAction">An action to invoke property change notifications.</param>
 		public PropertyChangeProxy(Action<PropertyChangedEventArgs> raiseAction) {
-			this.onAction = new(name => { raiseAction(toArgs(name)); });
+			this.onAction = new(name => { raiseAction(GetOrAddCachedEventArgs(name)); });
 		}
-		private static PropertyChangedEventArgs toArgs(string name)
+		/// <summary>
+		/// Retrieves a cached <see cref="PropertyChangedEventArgs"/> instance for the specified property name.
+		/// If no cached instance exists, a new one is created and stored.
+		/// </summary>
+		/// <param name="name">The name of the property for which to retrieve an event args instance.</param>
+		/// <returns>A cached <see cref="PropertyChangedEventArgs"/> instance associated with the given property name.</returns>
+		public static PropertyChangedEventArgs GetOrAddCachedEventArgs(string name)
 			=> _eventArgsCash.GetOrAdd(name, n => new PropertyChangedEventArgs(n));
 
 		/// <summary>

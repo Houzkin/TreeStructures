@@ -147,11 +147,15 @@ namespace TreeStructures.Internals {
         public IDisposable LateEvaluateTree() {
             var ele = ResultWith<CountOperationPair>.Of(Operations.TryGetValue, structureeventkey).When(
                 o => {
-                    lock (lockObj) {
-                        o.Count++;
-                        if (o.Count == 1) { OldParent = Self.Parent; }
-                        return o;
+                    if(Interlocked.Increment(ref o.Count) == 1) {
+                        lock (lockObj) { OldParent = Self.Parent; }
                     }
+                    return o;
+                    //lock (lockObj) {
+                    //    o.Count++;
+                    //    if (o.Count == 1) { OldParent = Self.Parent; }
+                    //    return o;
+                    //}
                 }, x => throw new KeyNotFoundException());
             return new DisposableObject(() => {
                 bool shouldRaiseProcess = false;
@@ -161,14 +165,7 @@ namespace TreeStructures.Internals {
                 }
                 if (shouldRaiseProcess) {
                     ele.Operation?.Invoke();
-                    //raiseProcess();
-                    //initialize();
                 }
-                //this.NewParent = Self.Parent;
-                //if (ele.Count == 1 && IsChanged) {
-                //    raiseProcess(); initialize();
-                //}
-                //ele.Count--;
             });
         }
     }

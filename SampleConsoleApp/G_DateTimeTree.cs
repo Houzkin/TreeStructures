@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,59 +12,99 @@ using TreeStructures;
 using TreeStructures.Collections;
 using TreeStructures.Linq;
 using TreeStructures.Tree;
+using TreeStructures.Utilities;
 
 namespace SampleConsoleApp;
 public static partial class UseageSample {
 
 	public static void MethodG() {
-		#region debug test
-		//var rmdtst = new RandomDateTime(new DateTime(2020, 1, 1), new DateTime(2020, 3, 1));
-		//var srccoll = new ObservableCollection<Anniversary>();
-		//var srcAnnys = "ABCDEFG".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmdtst.Next() });
-		//var wrprcoll = new ReadOnlySortFilterObservableCollection<Anniversary>(srccoll);
-		//wrprcoll.SortBy(x => x.Date);
+		var uniExecutor = new UniqueOperationExecutor();
 
-		//foreach (var e in srcAnnys) srccoll.Add(e);
+		var sw = new Stopwatch();
+		Action displayElapsedTime = () => {
+			Console.WriteLine($"Time  {sw.Elapsed.Seconds}.{sw.Elapsed.Milliseconds}(sec)");
+		};
+		Action resetTime = () => sw.Restart();
+		uniExecutor.Register("keyA", displayElapsedTime);
+		uniExecutor.Register("keyB", resetTime);
 
-		//Console.WriteLine("src collection");
-		//Console.WriteLine(string.Join("\n", srccoll));
-		//Console.WriteLine("sorted collection");
-		//Console.WriteLine(string.Join("\n", wrprcoll));
+		sw.Start();
+		var t1 = Task.Run(() => {
+			var exe = uniExecutor.ExecuteUnique("keyA");
+			Thread.Sleep(1000);
+			exe.Dispose();
+		});
+		var t2 = Task.Run(() => {
+			Thread.Sleep(800);
+			var exe = uniExecutor.ExecuteUnique("keyA");
+			Thread.Sleep(800);
+			exe.Dispose();
+		});
+		var t3 = Task.Run(() => {
+			var exe = uniExecutor.ExecuteUnique("keyA");
+			Thread.Sleep(500);
+			exe .Dispose();
+		});
+		var t4 = Task.Run(() => {
+			Thread.Sleep(2000);
+			var exe = uniExecutor.ExecuteUnique("keyA");
+			Thread .Sleep(500);
+			exe .Dispose();
+		});
+		//var t5 = Task.Run(() => {
+		//	var exe = uniExecutor.ExecuteUnique("keyB");
+		//	Thread.Sleep(500);
+		//	exe.Dispose();
+		//});
 
-		////Console.WriteLine("Add X");
-		////srccoll.Add(new Anniversary() { Name = "X", Date = new DateTime(2020, 2, 2) });
-
-		//Console.WriteLine("Remove at 0");
-		//srccoll.RemoveAt(0);
-
-		//Console.WriteLine("src collection");
-		//Console.WriteLine(string.Join("\n", srccoll));
-		//Console.WriteLine("sorted collection");
-		//Console.WriteLine(string.Join("\n", wrprcoll));
-
-
-		#endregion
-		//var rmd = new RandomDateTime(new DateTime(2021, 1, 1), new DateTime(2022, 1, 1));
-		//var Anniversarys = new ObservableCollection<Anniversary>();
-		//var anys = "ABCDEF".ToCharArray().Select(x => new Anniversary() { Name = x.ToString(), Date = rmd.Next() });
-
-		//foreach (var item in anys) Anniversarys.Add(item);
-		//var tree = new DateTimeTree<Anniversary>(Anniversarys,
-		//	x => x.Date, d => d.Month < 4 ? d.Year - 1 : d.Year,
-		//	d => d.Month < 4 ? d.Month + 12 : d.Month, d => d.Day);
-		//Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
-
-		//var DispTree = new AnnivWrapper(tree.Root);
-		//Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
-
-		////Anniversarys.RemoveAt(0);
-		//Anniversarys.Add(new Anniversary() { Name = "X", Date = rmd.Next() });
-		//Anniversarys.Move(1, 0);
-		//Console.WriteLine(tree.Root.ToTreeDiagram(x => x.HasItemAndValue ? x.Item.ToString() : x.NodeClass.ToString()));
-		//Console.WriteLine(DispTree.ToTreeDiagram(x => x.HeaderString));
-
+		Task.WaitAll(t1, t2, t3, t4);
 	}
 
+}
+public class NoticeLevelChangedNode : ObservableGeneralTreeNode<NoticeLevelChangedNode> {
+	public NoticeLevelChangedNode() {
+		evaluateLevelPropValue = whetherLevelChanged;
+		this.StructureChanged += (s, e) => {
+			if (e.IsAncestorChanged) {
+				evaluateLevelPropValue.Dispose();
+				evaluateLevelPropValue = whetherLevelChanged;
+			}
+		};
+	}
+	UniqueOperationExecutor? _uniExecutor;
+	UniqueOperationExecutor uniExecutor {
+		get {
+			if (_uniExecutor == null) {
+				_uniExecutor = new UniqueOperationExecutor();
+				_uniExecutor.Register(nameof(Level), () => this.OnPropertyChanged(nameof(this.Level)));
+			}
+			return _uniExecutor;
+		}
+	}
+	IDisposable evaluateLevelPropValue;
+	IDisposable whetherLevelChanged => uniExecutor.LateEvaluate(nameof(Level), () => Level);
+	public int Level => this.Depth();
+}
+public class NoticeDepthChangedNode : ObservableGeneralTreeNode<NoticeDepthChangedNode> {
+	public NoticeDepthChangedNode() {
+		//initialize instance
+		var uniExectr = new UniqueOperationExecutor();
+		//register action with key.
+		uniExectr.Register(nameof(Level), () => OnPropertyChanged(nameof(this.Level)));
+
+		//set initial status
+		evaluateLevel = uniExectr.LateEvaluate(nameof(Level), () => Level);
+		this.StructureChanged += (s, e) => {
+			if (e.IsAncestorChanged) { 
+				//evaluate whether level changed
+				evaluateLevel.Dispose();
+				//reset status
+				evaluateLevel = uniExectr.LateEvaluate(nameof(Level), () => Level);
+			}
+		};
+	}
+	IDisposable evaluateLevel;
+	public int Level => this.Depth();
 }
 class RandomDateTime {
 	DateTime start;

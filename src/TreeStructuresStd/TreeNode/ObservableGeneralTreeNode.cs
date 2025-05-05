@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TreeStructures.Events;
 using TreeStructures.Internals;
 using TreeStructures.Linq;
+using TreeStructures.Results;
 
 namespace TreeStructures {
     /// <summary>Represents a mutable node forming an observable general tree structure.</summary>
@@ -58,14 +59,13 @@ namespace TreeStructures {
         PropertyChangeProxy pcProxy;
         /// <summary>Raises the property changed notification.</summary>
         /// <param name="propName">The property name.</param>
-        protected void OnPropertyChanged([CallerMemberName] string? propName = null) {
-            pcProxy.Notify(propName);
-        }
+        protected PropertyChangeProxy OnPropertyChanged([CallerMemberName] string? propName = null)
+            => pcProxy.Notify(propName);
 
         /// <summary>Performs value change and raises the change notification.</summary>
-        protected bool SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) {
-            return pcProxy.TrySetAndNotify(ref strage, value, propertyName);
-        }
+        protected ResultWithValue<PropertyChangeProxy> SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) 
+            => pcProxy.TrySetAndNotify(ref strage, value, propertyName);
+        
         /// <inheritdoc/>
         [field: NonSerialized]
         public event PropertyChangedEventHandler? PropertyChanged;

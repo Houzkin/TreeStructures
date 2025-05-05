@@ -10,6 +10,7 @@ using TreeStructures.Events;
 using System.Runtime.CompilerServices;
 using TreeStructures.Collections;
 using System.Reactive.Linq;
+using TreeStructures.Results;
 
 namespace SampleConsoleApp;
 public class ObjA : INotifyPropertyChanged {
@@ -40,26 +41,22 @@ public class ObjB : INotifyPropertyChanged {
 	protected virtual void RaisePropertyChangedEvent(PropertyChangedEventArgs e) {
 		PropertyChanged?.Invoke(this, e);
 	}
-	protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName]string? propName = null) 
+	protected ResultWithValue<PropertyChangeProxy> SetProperty<T>(ref T storage, T value, [CallerMemberName]string? propName = null) 
 		=> notifyProxy.TrySetAndNotify(ref storage, value, propName);
-	protected void OnPropertyChanged([CallerMemberName]string? propName = null)
+	protected PropertyChangeProxy OnPropertyChanged([CallerMemberName]string? propName = null)
 		=> notifyProxy.Notify(propName);
 	public virtual event PropertyChangedEventHandler? PropertyChanged;
 }
 public class ObjBB : ObjB {
-	string _fistName = "";
+	string _firstName = "";
 	string _lastName = "";
 	public string FistName {
-		get => _fistName;
-		set {
-			if (SetProperty(ref _fistName, value)) OnPropertyChanged(nameof(FullName));
-		}
+		get => _firstName;
+		set => SetProperty(ref _firstName, value).When(o => o.Notify(nameof(FullName)));
 	}
 	public string LastName {
 		get => _lastName;
-		set {
-			if (SetProperty(ref _lastName, value)) OnPropertyChanged(nameof(FullName));
-		}
+		set => SetProperty(ref _lastName, value).When(o => o.Notify(nameof(FullName)));
 	}
 	public string FullName => FistName + " " + LastName;
 	protected override void RaisePropertyChangedEvent(PropertyChangedEventArgs e) {

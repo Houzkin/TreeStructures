@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
+using TreeStructures.Collections;
 using TreeStructures.Events;
 using TreeStructures.Linq;
+using TreeStructures.Results;
 using TreeStructures.Utilities;
 
 namespace SampleConsoleApp;
@@ -46,5 +48,22 @@ public static partial class  UseageSample {
 		
 	}
 	static void propchanged(object? s, PropertyChangedEventArgs e) { }
+
+	public static void MethodLL() {
+		var srcList = new ObservableCollection<char>("ABCDEFG".ToCharArray());
+		var obsPxy = new ReadOnlyObservableProxyCollection<char, string>(
+			srcList,
+			x =>x.ToString().ToUpper(),
+			(chr, str) => chr.ToString().ToUpper() == str);
+
+		Console.WriteLine(string.Join(",", obsPxy));
+		//A,B,C,D,E,F,G
+
+		srcList.Add('X');
+		srcList.Remove('B');
+
+		Console.WriteLine(string.Join(",", obsPxy));
+		//A, C, D, E, F, G, X
+	}
 }
 

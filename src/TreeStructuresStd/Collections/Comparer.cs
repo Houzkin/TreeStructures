@@ -46,23 +46,23 @@ namespace TreeStructures.Collections {
 			return _comparer.Compare(x, y) * f;
 		}
 	}
-	/// <summary>
-	/// Represents a comparer that can be customize.
-	/// </summary>
-	/// <typeparam name="TItem"></typeparam>
-	/// <typeparam name="TKey"></typeparam>
-	public class CustomComparer<TItem, TKey> : IComparer<TItem> {
-		Func<TItem, TKey> _keySelector;
-		IComparer<TKey> _keyComparer;
-		public CustomComparer(Func<TItem, TKey> keySelector, IComparer<TKey>? comparer = null) {
-			_keySelector = keySelector;
-			_keyComparer = comparer ?? Comparer<TKey>.Default;
-		}
-		public virtual int Compare(TItem? x, TItem? y) {
-			if (x == null && y == null) return -1;
-			if (x == null) return 0;
-			if (y == null) return -2;
-			return _keyComparer.Compare(_keySelector(x), _keySelector(y));
-		}
-	}
+	///// <summary>
+	///// Represents a comparer that can be customize.
+	///// </summary>
+	///// <typeparam name="TItem"></typeparam>
+	///// <typeparam name="TKey"></typeparam>
+	//public class CustomComparer<TItem, TKey> : IComparer<TItem> {
+	//	Func<TItem, TKey> _keySelector;
+	//	IComparer<TKey> _keyComparer;
+	//	public CustomComparer(Func<TItem, TKey> keySelector, IComparer<TKey>? comparer = null) {
+	//		_keySelector = keySelector;
+	//		_keyComparer = comparer ?? Comparer<TKey>.Default;
+	//	}
+	//	public virtual int Compare(TItem? x, TItem? y) {
+	//		if (x == null && y == null) return -1;
+	//		if (x == null) return 0;
+	//		if (y == null) return -2;
+	//		return _keyComparer.Compare(_keySelector(x), _keySelector(y));
+	//	}
+	//}
 }

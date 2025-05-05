@@ -142,7 +142,8 @@ namespace TreeStructures.Collections {
 			bool switchConnection(bool imitate) {
 				if (_isImitating == imitate) return false;
 				_isImitating = imitate;
-				this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsImitating)));
+				this.OnPropertyChanged(PropertyChangeProxy.GetOrAddCachedEventArgs(nameof(IsImitating)));
+				//this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsImitating)));
 				return true;
 			}
 			public bool IsImitating => _isImitating;
