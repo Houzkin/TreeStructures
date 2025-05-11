@@ -64,10 +64,6 @@ namespace TreeStructures {
         private CombinableChildrenProxyCollection<TWrpr>? _wrappers;
         private protected CombinableChildrenProxyCollection<TWrpr> InnerChildNodes {
             get {
-                //_wrappers ??= new CombinableChildrenProxyCollection<TWrpr>(
-                //    (getSourceChildren ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild, null, IsImitating),
-                //    SetupChildNode,
-                //    HandleRemovedChildNode);
                 if(_wrappers is null) {
                     var srccn = getSourceChildren;
                     _wrappers = new CombinableChildrenProxyCollection<TWrpr>(
@@ -98,7 +94,7 @@ namespace TreeStructures {
 				}
                 return _children;
             }
-        }// => _Children;//_children ??= SetupPublicChildCollection(InnerChildNodes);
+        }
         /// <summary>Sets the collection to be exposed externally.</summary>
         /// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
         protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)

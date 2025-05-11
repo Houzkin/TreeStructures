@@ -22,11 +22,11 @@ namespace TreeStructures.Tree {
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ChainedPropertyChangedEventArgs<T> : PropertyChangedEventArgs {
-        /// <summary>プロパティ値</summary>
+        /// <summary>Changed property value</summary>
         public T PropertyValue { get; private set; }
-        /// <summary>変更が行われたプロパティ名を列挙</summary>
+        /// <summary>Enumerates the names of the properties leading up to the changed property.</summary>
         public IEnumerable<string> ChainedProperties { get; private set; }
-        /// <summary>変更が行われたプロパティ名</summary>
+        /// <summary>The full property path to the changed property, joined by dots.</summary>
         public string ChainedName => string.Join(".", ChainedProperties);
         /// <summary>Constructor.</summary>
         public ChainedPropertyChangedEventArgs(string? propertyName,IEnumerable<string> propertyChain, T propertyValue): base(propertyName ?? string.Empty) {

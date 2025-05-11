@@ -28,28 +28,34 @@ namespace TreeStructures.Linq {
             return true;
         }
 
-		/// <summary>
-		/// Expands and enumerates a tree structure starting from the current node, allowing custom logic for adding and updating nodes during the traversal.
-		/// </summary>
-		/// <typeparam name="T">The type of the node.</typeparam>
-		/// <param name="startNode">The starting node for the traversal.</param>
-		/// <param name="getNodes">
-		/// A function that determines additional nodes to add based on the specified node.  
-		/// Takes the current node as an argument and returns a collection of nodes related to it.
-		/// </param>
-		/// <param name="updatePendingNodes">
-		/// A function that updates the list of unenumerated nodes during traversal. This function takes the following arguments:
-		/// <list type="bullet">
-		/// <item><description>The current node. The value passed as the first argument to the <paramref name="getNodes"/> function.</description></item>
-		/// <item><description>The collection of new nodes added for the current node. The return value of the <paramref name="getNodes"/> function.</description></item>
-		/// <item><description>
-		/// The remaining unenumerated collection.  
-		/// <para>If the head element of this collection has not been used as an argument to <paramref name="getNodes"/>, it will be passed as the argument to <paramref name="getNodes"/>. </para>
-        /// <para>If it has already been used as an argument to <paramref name="getNodes"/>, that element will be enumerated.</para>
-		/// </description></item>
-		/// </list>
-		/// </param>
-		public static IEnumerable<T> Traverse<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
+        /// <summary>
+        /// Expands and enumerates a tree structure starting from the current node, allowing custom logic for adding and updating nodes during the traversal.
+        /// </summary>
+        /// <typeparam name="T">The type of the node.</typeparam>
+        /// <param name="startNode">The starting node for the traversal.</param>
+        /// <param name="getNodes">
+        /// A function that determines additional nodes to add based on the specified node.  
+        /// Takes the current node as an argument and returns a collection of nodes related to it.
+        /// </param>
+        /// <param name="updatePendingNodes">
+        /// A function that updates the list of unenumerated nodes during traversal. This function takes the following arguments:
+        /// <list type="table">
+        /// <listheader><term>1st arg</term>
+        /// <description>The current node. The value passed as the first argument to the <paramref name="getNodes"/> function.<br/></description>
+        /// </listheader>
+        /// <listheader><term>2nd arg</term>
+        /// <description>The collection of new nodes added for the current node. The return value of the <paramref name="getNodes"/> function.<br/></description>
+        /// </listheader>
+        /// <listheader><term>3rd arg</term>
+        /// <description>The remaining unenumerated collection.  <br/>
+        /// </description>
+        /// </listheader>
+        /// <listheader><term>Return</term>
+        /// <description>If it has already been used as an argument to <paramref name="getNodes"/>, that element will be enumerated.
+        /// If the head element of this collection has not been used as an argument to <paramref name="getNodes"/>, it will be passed as the argument to <paramref name="getNodes"/>. <br/>
+        /// </description></listheader>
+        /// </list></param>
+        public static IEnumerable<T> Traverse<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
             ISet<T> exphistory = new HashSet<T>();//展開した履歴
             ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
             IEnumerable<T?> seeds = new T[1] { (T)startNode };
@@ -303,8 +309,7 @@ namespace TreeStructures.Linq {
         public static IEnumerable<T> DescendArrivals<T, Trc>(this ITreeNode<T> self, Func<T, Trc> selector, IEnumerable<Trc> trace, IEqualityComparer<Trc>? comparer = null) where T : ITreeNode<T> {
             if(!trace.Any()) return Enumerable.Empty<T>();
             comparer ??= EqualityComparer<Trc>.Default;
-            //var matchs = new ListScroller<Trc>(trace);
-            var matchs = trace.ToListScroller();//.First();
+            var matchs = trace.ToListScroller();
             var startdpth = self.Depth();
             return self.Traverse(cur => {
                 int curlv = cur.Depth() - startdpth;

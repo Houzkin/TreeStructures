@@ -29,18 +29,11 @@ namespace TreeStructures {
         protected override void HandleRemovedChild(TWrpr removedNode) {
             removedNode.Dispose();
         }
-		//private protected override TWrpr GenerateAndSetupChild(TSrc sourceChildNode) {
-		//          this.ThrowExceptionIfDisposed();
-		//	return base.GenerateAndSetupChild(sourceChildNode);
-		//}
 		private protected override void HandleRemovedChildNode(TWrpr removeNode) {
 			if(removeNode != null && !removeNode.isDisposed){
 				base.HandleRemovedChildNode(removeNode);
 			}
 		}
-		//private protected override IEnumerable<TWrpr> getSetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)
-		//	=> SetupPublicChildCollection(children);
-
 		private protected override void SetupChildNode(TWrpr child) {
 			this.ThrowExceptionIfDisposed();
 			base.SetupChildNode(child);
@@ -59,10 +52,7 @@ namespace TreeStructures {
 		PropertyChangeProxy pcProxy => _pcProxy ??= new PropertyChangeProxy(this, () => PropertyChanged);
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
-		//{
-		//	add { this.PropChangeProxy.Changed += value; }
-		//	remove { this.PropChangeProxy.Changed -= value; }
-		//}
+
 		/// <summary>
 		/// Performs the change of value and issues a change notification.
 		/// </summary>
@@ -143,22 +133,6 @@ namespace TreeStructures {
         protected void ThrowExceptionIfDisposed() {
             if (isDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
         }
-		//void IDisposable.Dispose() {
-		//    if (isDisposed) return;
-		//    Dispose(disposing: true);
-		//    GC.SuppressFinalize(this);
-		//}
-
-
-		///// <inheritdoc/>
-		//protected override void Dispose(bool disposing) {
-		//    if (disposing) {
-		//        var nd = this.PauseImitation();
-		//        InnerChildren.Dispose();
-		//        foreach (var n in nd) n.Dispose();
-		//        base.Dispose(disposing);
-		//    }
-		//}
 
 		/// <summary>Disposes of the current instance and all descendant nodes.</summary>
 		public void Dispose() {

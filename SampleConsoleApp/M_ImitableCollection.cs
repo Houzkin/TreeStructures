@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -15,7 +16,7 @@ public static partial class UseageSample {
 		var collection = new ObservableCollection<string>(new string[] {"a","b"});
 		
 		//var imit = ImitableCollection.Create(
-		var imit = collection.ToImitable(
+		ImitableCollection imit = collection.ToImitable(
 			//collection,
 			x =>{
 				var conv = new ObservableNamedNode() { Name = x.ToUpper() };
@@ -26,38 +27,38 @@ public static partial class UseageSample {
 		//Create A
 		//Create B
 
-		Console.WriteLine(string.Join(", ", imit));
+		Console.WriteLine(string.Join(", ", imit.OfType<object>()));
 		//A, B
 
 		collection.Add("c");
 		//Create C
 
-		Console.WriteLine(string.Join(", ", imit));
+		Console.WriteLine(string.Join(", ", imit.OfType<object>()));
 		//A, B, C
 
 		collection.Remove("b");
 		//Remove B
 
-		imit.ClearAndPause();
-		//RemoveA
-		//RemoveC
+		//imit.ClearAndPause();
+		////RemoveA
+		////RemoveC
 
-		Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
+		//Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
 
 
-		collection.Add("d");
-		collection.Remove("a");
-		Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
+		//collection.Add("d");
+		//collection.Remove("a");
+		//Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
 
-		imit.Imitate();
-		//Create C
-		//Create D
+		//imit.Imitate();
+		////Create C
+		////Create D
 
-		imit.Dispose();
-		//Remove C
-		//Remove D
+		//imit.Dispose();
+		////Remove C
+		////Remove D
 
-		Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
+		//Console.WriteLine($"imit is empty : {imit.IsEmpty()}");// true
 	}
 	public static void MethodMM() {
 

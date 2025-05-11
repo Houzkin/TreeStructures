@@ -143,7 +143,6 @@ namespace TreeStructures.Collections {
 				if (_isImitating == imitate) return false;
 				_isImitating = imitate;
 				this.OnPropertyChanged(PropertyChangeProxy.GetOrAddCachedEventArgs(nameof(IsImitating)));
-				//this.OnPropertyChanged(new PropertyChangedEventArgs(nameof(IsImitating)));
 				return true;
 			}
 			public bool IsImitating => _isImitating;

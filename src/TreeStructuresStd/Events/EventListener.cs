@@ -58,7 +58,7 @@ namespace TreeStructures.Events {
         }
     }
     /*
-     * 使用例
+     * example
             var a = new NotificationObject();
             var x = new EventListener<EventHandler>(
                 h => a.Disposed += h,

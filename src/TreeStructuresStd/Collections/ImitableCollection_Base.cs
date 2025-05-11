@@ -17,7 +17,7 @@ namespace TreeStructures.Collections {
     /// <summary>Provides an imitable collection with synchronization.
 	/// After use, call <see cref="ImitableCollection.Dispose()"/> to unsubscribe from the collection change notifications.
     /// </summary>
-    public abstract class ImitableCollection : INotifyPropertyChanged, INotifyCollectionChanged, IDisposable {
+    public abstract class ImitableCollection : INotifyPropertyChanged, INotifyCollectionChanged, IDisposable, IEnumerable {
         private bool disposedValue;
         /// <summary>Initializes an instance.</summary>
         private protected ImitableCollection() { }
@@ -36,6 +36,9 @@ namespace TreeStructures.Collections {
         protected void OnCollectionChanged(NotifyCollectionChangedEventArgs e) {
             CollectionChanged?.Invoke(this, e);
         }
+		IEnumerator IEnumerable.GetEnumerator() {
+            throw new NotImplementedException("This method is overridden in a derived class and is unreachable by any external caller.");
+		}
         #region static methods
         /// <summary>Assists in initializing an instance.</summary>
         /// <typeparam name="TSrc">The type of elements in the source collection for synchronization.</typeparam>
@@ -74,8 +77,8 @@ namespace TreeStructures.Collections {
         protected void ThrowExceptionIfDisposed() {
             if(disposedValue) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
         }
-        #endregion
-    }
+		#endregion
+	}
     /// <summary><inheritdoc/></summary>
     /// <typeparam name="TDst">The type of elements in the imitable collection for synchronization.</typeparam>
     public abstract class ImitableCollection<TDst> : ImitableCollection,IReadOnlyList<TDst> {

@@ -23,10 +23,11 @@ namespace TreeStructures.Utilities {
 		private readonly ConcurrentDictionary<int, CountOperationPair> TempOperations = new();
 		/// <summary>Registers a key and its corresponding operation.</summary>
 		/// <exception cref="InvalidOperationException">Thrown when an invalid operation is detected.</exception>
-		public void Register(string key, Action action) {
+		public UniqueOperationExecutor Register(string key, Action action) {
 			if (!Operations.TryAdd(key, new CountOperationPair { Count = 0, Operation = action })) {
 				throw new InvalidOperationException("The specified key is already registered.");
 			}
+			return this;
 		}
 		/// <summary>
 		/// Executes the operation specified by <paramref name="key"/> when the value returned by <paramref name="getPropertyValue"/> changes, either during the first method call or at the end of the returned value's last Dispose.

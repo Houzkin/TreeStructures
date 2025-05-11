@@ -129,48 +129,5 @@ namespace TreeStructures.Collections {
 			});
 			for (int i = _editList.Count - 1; orders.Items.Count <= i; i--) { _remove(i); }
 		}
-		//void setitem(int index, S item, IEnumerable<S> untils) {
-		//	if (_editList.Skip(index).Any(x => _equality(item, x))) {
-		//		var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(item, a.v)).i + index;
-		//		if (!untils.Any(x => _equality(x, _editList[index]))) {
-		//			_remove(index);
-		//			tgt--;
-		//			if (tgt != index) _move(tgt, index);
-		//		} else {
-		//			//move
-		//			_move(tgt, index);
-		//		}
-		//		//move
-		//		//var tgt = _editList.Skip(index).Select((v, i) => new { v, i }).First(a => _equality(a.v, item)).i + index;
-		//		//_move(tgt, index);
-		//	} else {
-		//		if (_editList.Count <= index || untils.Any(x => _equality(x, _editList[index]))) {
-		//			//insert
-		//			_insert(index, _convert(item));
-		//		} else {
-		//			//replace
-		//			_replace(index, _convert(item));
-		//		}
-		//	}
-		//}
-		///// <summary>
-		///// Aligns the list according to the specified order.
-		///// </summary>
-		///// <param name="order">A collection defining the desired order of elements in the list.</param>
-		//public void AlignBy2(IEnumerable<S> order) {
-		//	if (!order.Any() && 1 < _editList.Count) {
-		//		_clear(); return;
-		//	}
-		//	var orders = new Queue<S>(order);
-		//	var queueCount = orders.Count;
-		//	for (int i = 0; i <= queueCount - 1; i++) {
-		//		var item = orders.Dequeue();
-		//		if (i < _editList.Count && _equality(item, _editList[i])) continue; //_comparer.Equals(item, _editList[i])) continue;
-		//		setitem(i, item, orders);
-		//	}
-		//	for (int i = _editList.Count - 1; queueCount <= i; i--) {
-		//		_remove(i);
-		//	}
-		//}
 	}
 }

@@ -18,10 +18,9 @@ namespace TreeStructures.Collections {
 		/// <param name="equality"></param>
 		public ReadOnlyObservableFilterSortCollection(IEnumerable<T> source,IEqualityComparer<T>? equality = null) 
 			: base(source,null,null,equality) {
-			_equality = equality ?? Equality<T>.ValueOrReferenceComparer;// EqualityComparer<T>.Default;
+			_equality = equality ?? Equality<T>.ValueOrReferenceComparer;
 			_observer = new ReadOnlyObservableTrackingCollection<T>(source);
 			_observer.TrackingPropertyChanged += (s, e) => Align();
-			//_observer.CollectionChanged += (s, e) => Align();// { if (e.Action != NotifyCollectionChangedAction.Move) Align(); };
 			_filterExps = _observer.CreateTrackingList();
 			_comparExps = _observer.CreateTrackingList();
 		}
@@ -31,13 +30,13 @@ namespace TreeStructures.Collections {
 
 		ListAligner<T, ObservableCollection<T>>? _alinger;
 		private ListAligner<T,ObservableCollection<T>> Aligner 
-			=> _alinger ??= new ListAligner<T, ObservableCollection<T>>((ObservableCollection<T>)Items, move: (itms, ord, to) => itms.Move(ord, to), comparer: this._equality);
+			=> _alinger ??= new ListAligner<T, ObservableCollection<T>>(Items, move: (itms, ord, to) => itms.Move(ord, to), comparer: this._equality);
 
 		Func<T, bool>? _filter;
 		TrackingPropertyList<T> _filterExps;
 		TrackingPropertyList<T> _comparExps;
 		IComparer<T>? _comparer;
-		IComparer<T> _incCmpr = Comparer<T>.Create((a, b) => 0);// new CustomComparer<T, bool>(x => true);
+		IComparer<T> _incCmpr = Comparer<T>.Create((a, b) => 0);
 		
 
 		void Align() {

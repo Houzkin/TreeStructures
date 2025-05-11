@@ -225,7 +225,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() {
-			return ((IEnumerable)Items).GetEnumerator();
+			return Items.GetEnumerator();
 		}
 	}
 	public class ExpressionList<T> : IEnumerable<Expression<Func<T, object>>> {
