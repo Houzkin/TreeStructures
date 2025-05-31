@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Collections;
+using TreeStructures.Events;
 using TreeStructures.Linq;
 
 namespace SampleConsoleApp;
@@ -124,5 +125,41 @@ public static partial class UseageSample {
 		//a   , a   , b   , f   , c   , d
 		//2008, 2094, 2044, 2029, 2096, 2002
 
+	}
+	public static void MethodMMMM() {
+		var list = new ObservableCollection<string>(new string[] {"A","B","C"});
+		IDisposable listener = list.Observe()
+			.Added(x => Console.WriteLine($"added : {x}"))
+			.Removed(x=>Console.WriteLine($"removed : {x}"));
+
+		list.Add("D"); 
+		// added : D
+		Console.WriteLine(string.Join(",", list));
+		//A,B,C,D
+
+		list[0] = "E";
+		//adeed : E
+		//removed : A
+		Console.WriteLine(string.Join(",", list));
+		//E,B,C,D
+
+		list.Move(1, 2);
+		Console.WriteLine(string.Join(",", list));
+		//E,C,B,D
+
+		list.RemoveAt(0);
+		//removed : E
+		Console.WriteLine(string.Join(",", list));
+		//C,B,D
+
+		list.Clear();
+		//removed : C
+		//removed : B
+		//removed : D
+		Console.WriteLine(string.Join(",", list));
+		//
+
+		listener.Dispose();
+		list.Add("G");
 	}
 }

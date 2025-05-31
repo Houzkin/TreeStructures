@@ -15,7 +15,7 @@ namespace TreeStructures.Collections {
 		/// <summary>
 		/// Resets the current index to its initial state. If an element exists, it is set to 0; otherwise, it is set to -1.
 		/// </summary>
-		/// <returns>A new instance with the index reset.</returns>
+		/// <returns> Current instance with the index reset.</returns>
 		TList Reset();
 
 		/// <summary>
@@ -36,7 +36,7 @@ namespace TreeStructures.Collections {
 		/// Moves the current position to the specified index.
 		/// </summary>
 		/// <param name="index">The target index to move to.</param>
-		/// <returns>A new instance of <typeparamref name="TList"/> with the updated position.</returns>
+		/// <returns>Current instance of <typeparamref name="TList"/> with the updated position.</returns>
 		/// <exception cref="ArgumentOutOfRangeException">
 		/// Thrown when the specified index is out of the valid range.
 		/// </exception>

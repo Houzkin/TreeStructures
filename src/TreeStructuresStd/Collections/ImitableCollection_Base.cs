@@ -81,7 +81,7 @@ namespace TreeStructures.Collections {
 	}
     /// <summary><inheritdoc/></summary>
     /// <typeparam name="TDst">The type of elements in the imitable collection for synchronization.</typeparam>
-    public abstract class ImitableCollection<TDst> : ImitableCollection,IReadOnlyList<TDst> {
+    public abstract class ImitableCollection<TDst> : ImitableCollection,IReadOnlyObservableProxyCollection<TDst> /*,IReadOnlyList<TDst>*/ {
         internal ImitableCollection() : base() { }
 
         /// <summary>Indicates whether the current state is in synchronization.</summary>
@@ -93,20 +93,6 @@ namespace TreeStructures.Collections {
         public abstract void Pause();
         /// <summary>Stops synchronization and clears the imitable collection.</summary>
         public abstract void ClearAndPause();
-
-        ///// <summary>
-        ///// Gets this collection as a read-only <see cref="ReadOnlyObservableCollection{T}"/>.
-        ///// </summary>
-        ///// <returns>
-        ///// A <see cref="ReadOnlyObservableCollection{T}"/> corresponding to this instance.
-        ///// The first call creates and caches the instance, and subsequent calls return the cached instance.
-        ///// </returns>
-        ///// <remarks>
-        ///// Wraps the internal <see cref="ObservableCollection{T}"/> in a <see cref="ReadOnlyObservableCollection{T}"/>.
-        ///// Any changes made to the original collection will be reflected in the read-only collection,
-        ///// but modifications to the read-only collection itself are not allowed.
-        ///// </remarks>
-        //public abstract ReadOnlyObservableCollection<TConv> AsReadOnlyObservableCollection();
 
         #region IReadOnlyList Members
         /// <inheritdoc/>

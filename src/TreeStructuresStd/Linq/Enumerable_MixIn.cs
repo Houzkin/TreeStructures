@@ -57,7 +57,7 @@ namespace TreeStructures.Linq {
 		public static ImitableCollection<U> ToImitable<T, U>(this IEnumerable<T> self, Func<T, U> convert, Action<U>? removedAction = null, bool isImitate = true) {
 			return ImitableCollection.CreateFrom(self, convert, removedAction, isImitate);
 		}
-		
+
 		///// <summary>
 		///// Creates a new <see cref="CombinableObservableCollection{T}"/> from the specified enumerable, allowing combining collections and observing changes.
 		///// </summary>
@@ -70,6 +70,35 @@ namespace TreeStructures.Linq {
 		//	coc.AppendCollection(self);
 		//	return coc;
 		//}
+		/// <summary>
+		/// Generates a read-only Observable collection that monitors changes in the specified collection and provides transformed elements.<br/>
+		/// To reflect changes in the collection, the specified collection must implement <see cref="INotifyCollectionChanged"/>.<br/>
+		/// After use, call <see cref="IDisposable.Dispose()"/> to unsubscribe from the collection change notifications.
+		/// </summary>
+		/// <typeparam name="T">Type of source element.</typeparam>
+		/// <typeparam name="U">Type of transformed element.</typeparam>
+		/// <param name="self"></param>
+		/// <param name="convert"></param>
+		/// <param name="equality"></param>
+		/// <param name="removedHandler"></param>
+		/// <returns></returns>
+		public static IReadOnlyObservableProxyCollection<U> ToReadOnlyObservable<T,U>(this IEnumerable<T> self, Func<T,U> convert, Func<T,U,bool> equality, Action<U>? removedHandler = null) {
+			return new ReadOnlyObservableProxyCollection<T, U>(self, convert, equality, removedHandler);
+		}
+		/// <summary>
+		/// Generates a new instance of <see cref="IReadOnlyObservableProxyCollection{T}"/> that moitors changes in the current collection.
+		/// To reflect changes in the collection, the target collection must implement <see cref="INotifyCollectionChanged"/>.
+		/// After use, call <see cref="IDisposable.Dispose()"/> to unsbscribe from the collection change notifications.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="self"></param>
+		/// <param name="adding"></param>
+		/// <param name="removed"></param>
+		/// <param name="equality"></param>
+		/// <returns></returns>
+		public static IReadOnlyObservableProxyCollection<T> ToReadOnlyObservable<T>(this IEnumerable<T> self,Action<T>? adding = null, Action<T>? removed = null, IEqualityComparer<T>? equality = null) {
+			return new ReadOnlyObservableProxyCollection<T>(self, adding, removed, equality);
+		}
 
 		/// <summary>
 		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.

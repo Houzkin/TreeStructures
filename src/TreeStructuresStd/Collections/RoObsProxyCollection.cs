@@ -13,13 +13,21 @@ using TreeStructures.Linq;
 
 namespace TreeStructures.Collections {
 	/// <summary>
+	/// Represent a read-only observable collection that follows changes in a specified source collection.
+	/// After use, call <see cref="IDisposable.Dispose()"/> method.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public interface IReadOnlyObservableProxyCollection<T> : IReadOnlyList<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable {
+
+	}
+	/// <summary>
 	/// A read-only Observable collection that monitors changes in the specified collection and provides transformed elements.<br/>
 	/// To reflect changes in the collection, the specified collection must implement <see cref="INotifyCollectionChanged"/>.<br/>
 	/// After use, call <see cref="Dispose()"/> to unsubscribe from the collection change notifications.
 	/// </summary>
 	/// <typeparam name="T">The type of the elements in the source collection.</typeparam>
 	/// <typeparam name="U">The type of the elements in the wrapped collection that are linked to <typeparamref name="T"/>.</typeparam>
-	public class ReadOnlyObservableProxyCollection<T, U> : ReadOnlyObservableCollection<U>, IDisposable {
+	public class ReadOnlyObservableProxyCollection<T, U> : ReadOnlyObservableCollection<U>, IReadOnlyObservableProxyCollection<U> {
 		private bool isDisposed;
 		private IEnumerable<T> _collection;
 		IDisposable? _collectionChangedListener;
