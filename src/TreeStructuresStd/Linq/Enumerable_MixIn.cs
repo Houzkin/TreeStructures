@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TreeStructures.Collections;
+using TreeStructures.Events;
 using TreeStructures.Internals;
 using TreeStructures.Utilities;
-using TreeStructures.Events;
 
 namespace TreeStructures.Linq {
     /// <summary>Extension methods for <see cref="IEnumerable{T}"/>.</summary>
@@ -132,6 +132,19 @@ namespace TreeStructures.Linq {
 		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
 			//return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
 			return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
+		}
+		/// <summary>
+		/// Observes additions and removals in the specified collection that implements <see cref="INotifyCollectionChanged"/>.
+		/// </summary>
+		/// <typeparam name="T">The type of elements in the collection.</typeparam>
+		/// <param name="self">The collection to observe.</param>
+		/// <returns>An instance of <see cref="ICollectionAddRemoveObserver{T}"/> to monitor changes.</returns>
+		/// <exception cref="InvalidCastException">
+		/// Thrown if the specified collection does not implement <see cref="INotifyCollectionChanged"/>.
+		/// </exception>
+		public static ICollectionAddRemoveObserver<T> Observe<T>(this IEnumerable<T> self) {
+			if (self is not INotifyCollectionChanged) throw new InvalidCastException("The specified collection does not implement INotifyCollectionChanged.");
+			return new CollectionObserver<T>(self);
 		}
 
 

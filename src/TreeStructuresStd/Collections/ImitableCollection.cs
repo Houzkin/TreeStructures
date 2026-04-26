@@ -140,14 +140,14 @@ namespace TreeStructures.Collections {
 			LumpedDisopsables _disposables = new LumpedDisopsables();
 			protected override IEnumerable<TSrc> SourceItems => _src;
 			bool switchConnection(bool imitate) {
-				if (_isImitating == imitate) return false;
+				if (_isImitating == imitate) return false;//既に指定した状態だった場合false
 				_isImitating = imitate;
 				this.OnPropertyChanged(PropertyChangeProxy.GetOrAddCachedEventArgs(nameof(IsImitating)));
-				return true;
+				return true;//指定した状態に変更した場合true
 			}
 			public bool IsImitating => _isImitating;
 			public void Start() {
-				if (!switchConnection(true)) {
+				if (!switchConnection(true)) {//既にimitate状態だった場合の処理
 					if (SourceItems is not INotifyCollectionChanged)  _alignItems?.Invoke();
 					return;
 				}

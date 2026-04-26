@@ -11,8 +11,9 @@ using System.Collections.Specialized;
 
 namespace TreeStructures.Tree {
 	/// <summary>
-	/// A reactive category tree that extends <see cref="CategoryTree{TItm, TCtg}"/>.
-	/// This class updates category classification whenever specified properties change.
+	/// A reactive category tree that extends <see cref="CategoryTree{TItm, TCtg}"/>.<br/>
+	/// This class updates category classification whenever specified properties change.<br/>
+	/// After use, call <see cref="ReactiveCategoryTree{TItm, TCtg}.Dispose()"/> to unsubscribe from the property change notifications.
 	/// </summary>
 	/// <typeparam name="TItm">The type of elements to be categorized.</typeparam>
 	/// <typeparam name="TCtg">The type representing categories.</typeparam>
