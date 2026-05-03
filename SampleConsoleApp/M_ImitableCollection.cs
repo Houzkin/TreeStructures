@@ -128,7 +128,7 @@ public static partial class UseageSample {
 	}
 	public static void MethodMMMM() {
 		var list = new ObservableCollection<string>(new string[] {"A","B","C"});
-		IDisposable listener = list.Observe()
+		IDisposable listener = list.AddRemoveObserver()
 			.Added(x => Console.WriteLine($"added : {x}"))
 			.Removed(x=>Console.WriteLine($"removed : {x}"));
 

@@ -22,13 +22,13 @@ namespace TreeStructures.Collections {
             return new AnonymousEqualityComparer<TSource, TKey>(selector);
         }
         /// <summary>Returns a reference equality comparer.</summary>
-        public static IEqualityComparer ReferenceComparer => Equality<object>.ReferenceComparer;
+        public static IEqualityComparer Reference => Equality<object>.Reference;
 
 		/// <summary>
 		/// Returns a comparer that compares by value if the type is a value type,
 		/// and by reference if the type is a reference type.
 		/// </summary>
-		public static IEqualityComparer ValueOrReferenceComparer { get; } = new AnonymousEqualityComparer<object>(
+		public static IEqualityComparer ValueOrReference { get; } = new AnonymousEqualityComparer<object>(
             (a, b) => {
                 if (a == null || b == null) return ReferenceEquals(a, b);
                 var typeA = a.GetType();
@@ -62,12 +62,12 @@ namespace TreeStructures.Collections {
         /// <summary>
         /// Returns a reference equality comparer for the type specified by generic argument.
         /// </summary>
-        public static EqualityComparer<T> ReferenceComparer { get; } = new ReferenceEqualityComparer<T>();
+        public static EqualityComparer<T> Reference { get; } = new ReferenceEqualityComparer<T>();
 		/// <summary>
 		/// Returns a comparer that compares by value if T is a value type,
 		/// and by reference if T is a reference type.
 		/// </summary>
-		public static EqualityComparer<T> ValueOrReferenceComparer { get; } = new AnonymousEqualityComparer<T>(
+		public static EqualityComparer<T> ValueOrReference { get; } = new AnonymousEqualityComparer<T>(
             (a, b) => typeof(T).IsValueType ? EqualityComparer<T>.Default.Equals(a, b) : ReferenceEquals(a, b));
 
         //public static EqualityComparer<T> Sequence

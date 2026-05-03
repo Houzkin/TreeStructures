@@ -58,9 +58,9 @@ public class SubClass : BaseClass {
 }
 public static partial class UseageSample {
 	public static void MethodN() {
-		var tt = new SubClass("subclass");
-		var test = new ClassC();
-		test.OnRise();
+		//var tt = new SubClass("subclass");
+		//var test = new ClassC();
+		//test.OnRise();
 
 		var obs1 = new ObservableCollection<string>();
 		var obs2 = new ObservableCollection<string>("abc".Select(x=>x.ToString()));

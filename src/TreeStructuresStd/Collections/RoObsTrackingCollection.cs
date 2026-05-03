@@ -28,8 +28,8 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 	public class ReadOnlyObservableTrackingCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
 
 		ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>> _trees;
-		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dim3 = new();
-		IDisposable? listener;
+		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _trackingDics = new();
+		IDisposable? _listener;
 
 		/// <summary>
 		/// Gets the <see cref="IEnumerable{T}"/>that the <see cref="ReadOnlyObservableTrackingCollection{T}"/> wraps.
@@ -43,55 +43,55 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 			Items = items;
 			_trees = new ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>>(
 				items,
-				x => {
-					var opt = new ObservedPropertyTree<T>(x);
-					foreach (var d3 in dim3) {
-						foreach (var d2 in d3.Keys) {
-							var sbsc = opt.Subscribe(d2, handleItemPropertyChanged);
-							d3[d2][opt] = sbsc;
+				addedItem => {
+					var opt = new ObservedPropertyTree<T>(addedItem);
+					foreach (var exprDic in _trackingDics) {
+						foreach (var expr in exprDic.Keys) {
+							var sbsc = opt.Subscribe(expr, handleItemPropertyChanged);
+							exprDic[expr][opt] = sbsc;
 						}
 					}
 					return opt;
 				},
-				(itm, tree) => Equality.ValueOrReferenceComparer.Equals(itm, tree.Root.Source),// EqualityComparer<T>.Default.Equals(x, y.RootSource),
-				y => {
-					foreach (var d3 in dim3) {
-						foreach (var d2 in d3.Keys) {
-							ResultWith<IDisposable>.Of(d3[d2].Remove, y).When(o => o.Dispose());
+				(itm, tree) => Equality.ValueOrReference.Equals(itm, tree.Root.Source),
+				removedOpt => {
+					foreach (var exprDic in _trackingDics) {
+						foreach (var expr in exprDic.Keys) {
+							ResultWith<IDisposable>.Of(exprDic[expr].Remove, removedOpt).When(o => o.Dispose());
 						}
 					}
-					y.Dispose();
+					removedOpt.Dispose();
 				});
 			if (Items is INotifyCollectionChanged notify) {
-				listener = new EventListener<NotifyCollectionChangedEventHandler>(
+				_listener = new EventListener<NotifyCollectionChangedEventHandler>(
 					h => notify.CollectionChanged += h,
 					h => notify.CollectionChanged -= h,
 					(s, e) => this.OnCollectionChanged(e));
 			}
 		}
 
-		void addExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area, IEnumerable<Expression<Func<T, object>>> exps) {
+		void addExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic, IEnumerable<Expression<Func<T, object>>> exps) {
 			ThrowExceptionIfDisposed();
 			foreach (var key in exps) {
-				if (area.ContainsKey(key)) continue;
-				var newDic = new Dictionary<ObservedPropertyTree<T>, IDisposable>();
-				foreach (var trr in _trees) newDic.Add(trr, trr.Subscribe(key, this.handleItemPropertyChanged));
-				area[key] = newDic;
+				if (exprDic.ContainsKey(key)) continue;
+				var optrees = new Dictionary<ObservedPropertyTree<T>, IDisposable>();
+				foreach (var trr in _trees) optrees.Add(trr, trr.Subscribe(key, this.handleItemPropertyChanged));
+				exprDic[key] = optrees;
 			}
 		}
-		void removeExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area, IEnumerable<Expression<Func<T, object>>> exps) {
+		void removeExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic, IEnumerable<Expression<Func<T, object>>> exps) {
 			foreach (var key in exps) {
-				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of(area.Remove, key)
+				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of(exprDic.Remove, key)
 					.When(o => {
 						foreach (var t in o.Values) t.Dispose();
 					});
 			}
 		}
-		void clearExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area) {
-			foreach (var disp in area.Values.SelectMany(x => x.Values)) { disp.Dispose(); }
+		void clearExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic) {
+			foreach (var disp in exprDic.Values.SelectMany(x => x.Values)) { disp.Dispose(); }
 		}
-		void dispExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area) {
-			if (dim3.Remove(area)) { clearExpressions(area); }
+		void dispExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic) {
+			if (_trackingDics.Remove(exprDic)) { clearExpressions(exprDic); }
 		}
 		/// <summary>
 		/// Acquires a collection for managing properties to subscribe to.  
@@ -114,7 +114,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		public TrackingPropertyList<T> CreateTrackingList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
 			var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>(
 				Equality<Expression<Func<T, object>>>.ComparerBySequence(x => PropertyUtils.GetPropertyPath(x)));
-			dim3.Add(dic);
+			_trackingDics.Add(dic);
 			return new TrackingPropertyList<T>(this, dic, addExpressions, removeExpressions, clearExpressions, dispExpressions);
 		}
 
@@ -184,16 +184,16 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				// TODO: マネージド状態を破棄します (マネージド オブジェクト)
-				foreach (var d3 in this.dim3) {
-					foreach (var d2 in d3.Values) {
-						foreach (var d1 in d2) {
+				foreach (var exprDic in this._trackingDics) {
+					foreach (var treeDic in exprDic.Values) {
+						foreach (var d1 in treeDic) {
 							d1.Value.Dispose();
 							d1.Key.Dispose();
 						}
 					}
 				}
 				_trees.Dispose();
-				listener?.Dispose();
+				_listener?.Dispose();
 			}
 			// TODO: アンマネージド リソース (アンマネージド オブジェクト) を解放し、ファイナライザーをオーバーライドします
 			// TODO: 大きなフィールドを null に設定します

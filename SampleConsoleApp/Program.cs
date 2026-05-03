@@ -6,10 +6,10 @@ using static SampleConsoleApp.UseageSample;
 
 //Console.WriteLine("Hello, World!\n\n");
 
-MethodP();
-MethodPPP();
-MethodPP();
-MethodO();
+//MethodP();
+//MethodPPP();
+//MethodPP();
+//MethodO();
 MethodN();
 MethodLL();
 MethodMM();

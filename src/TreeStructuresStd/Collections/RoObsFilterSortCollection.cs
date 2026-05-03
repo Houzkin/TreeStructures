@@ -18,7 +18,7 @@ namespace TreeStructures.Collections {
 		/// <param name="equality"></param>
 		public ReadOnlyObservableFilterSortCollection(IEnumerable<T> source,IEqualityComparer<T>? equality = null) 
 			: base(source,null,null,equality) {
-			_equality = equality ?? Equality<T>.ValueOrReferenceComparer;
+			_equality = equality ?? Equality<T>.ValueOrReference;
 			_observer = new ReadOnlyObservableTrackingCollection<T>(source);
 			_observer.TrackingPropertyChanged += (s, e) => Align();
 			_filterExps = _observer.CreateTrackingList();

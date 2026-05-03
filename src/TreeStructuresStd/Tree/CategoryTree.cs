@@ -99,7 +99,7 @@ namespace TreeStructures.Tree {
 		void trackingPropertyChanged(TItm sender, ChainedPropertyChangedEventArgs<object> e) {
 			var tgtNodes = Root.LevelOrder()
 				.SkipWhile(x => x.Depth() <= CategorySelectors.Items.Count)
-				.Where(x => x.HasItem && Equality<TItm>.ValueOrReferenceComparer.Equals(x.Item, sender))//同値、可能であれば同一のインスタンスを動かしたい
+				.Where(x => x.HasItem && Equality<TItm>.ValueOrReference.Equals(x.Item, sender))//同値、可能であれば同一のインスタンスを動かしたい
 				.ToDictionary(x => x, x => x.Upstream().Select(y => y.Category).Reverse()); 
 			var newPath = CategorySelectors.Items.Select(x=>x(sender)).AddHead(Root.Category);
 			if (tgtNodes.Any(x => !x.Value.SequenceEqual(newPath, CategoryEquality))) {

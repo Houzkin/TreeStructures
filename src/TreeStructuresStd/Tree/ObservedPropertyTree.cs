@@ -242,7 +242,7 @@ namespace TreeStructures.Tree {
                 //if (IsEvaluateTargetChanged && !isEquals(this.Source,pre)) {
                 //    this.RaisePropertyChanged(null,this.Leafs());
                 //}
-                if(IsEvaluateTargetChanged && !Equality.ValueOrReferenceComparer.Equals(pre, this.Source)) {
+                if(IsEvaluateTargetChanged && !Equality.ValueOrReference.Equals(pre, this.Source)) {
                     this.RaisePropertyChanged(null, this.Leafs());
                 }
             }

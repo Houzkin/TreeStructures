@@ -29,7 +29,7 @@ namespace TreeStructures.Collections {
 			_SDPairList = new SDPairCollection(
 				collection,
 				new(src => new SDPair(src, convert(src))),
-				(s, d) => Equality<TSrc>.ValueOrReferenceComparer.Equals(s, d.Src),
+				(s, d) => Equality<TSrc>.ValueOrReference.Equals(s, d.Src),
 				a => removedAction?.Invoke(a.Dst),
 				isImitate);
 
