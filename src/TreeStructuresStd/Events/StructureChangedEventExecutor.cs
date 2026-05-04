@@ -12,7 +12,7 @@ using TreeStructures.Linq;
 using TreeStructures.Results;
 using TreeStructures.Utilities;
 
-namespace TreeStructures.Internals {
+namespace TreeStructures.Events {
     /// <summary>Controls the change events of <see cref="IObservableTreeNode{TNode}"/>.</summary>
     /// <typeparam name="TNode">The type of the tree node.</typeparam>
     public sealed class StructureChangedEventExecutor<TNode> : UniqueOperationExecutor where TNode: class, IObservableTreeNode<TNode> {

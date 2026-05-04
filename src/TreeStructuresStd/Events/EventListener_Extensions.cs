@@ -19,7 +19,7 @@ namespace TreeStructures.Events {
 	/// Provides an interface for observing additions and removals in a collection that implements <see cref="INotifyCollectionChanged"/>.
 	/// </summary>
 	/// <typeparam name="T">The type of elements in the collection.</typeparam>
-	public interface ICollectionAddRemoveObserver<T> : IDisposable {
+	public interface ICollectionAddRemoveObserver<out T> : IDisposable {
 		/// <summary>
 		/// Registers an action to be invoked when an item is added to the collection.
 		/// </summary>

@@ -28,7 +28,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 	public class ReadOnlyObservableTrackingCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
 
 		ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>> _trees;
-		List<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _trackingDics = new();
+		List<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _trackingDics = new();
 		IDisposable? _listener;
 
 		/// <summary>
@@ -47,7 +47,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 					var opt = new ObservedPropertyTree<T>(addedItem);
 					foreach (var exprDic in _trackingDics) {
 						foreach (var expr in exprDic.Keys) {
-							var sbsc = opt.Subscribe(expr, handleItemPropertyChanged);
+							var sbsc = opt.Subscribe(PropertyUtils.CreatePropertyExpression<T>(expr), handleItemPropertyChanged);
 							exprDic[expr][opt] = sbsc;
 						}
 					}
@@ -70,27 +70,29 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 			}
 		}
 
-		void addExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic, IEnumerable<Expression<Func<T, object>>> exps) {
+		void addExpressions(Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic, IEnumerable<Expression<Func<T, object>>> exps) {
 			ThrowExceptionIfDisposed();
 			foreach (var key in exps) {
-				if (exprDic.ContainsKey(key)) continue;
+				string keyname = string.Join(".", PropertyUtils.GetPropertyPath(key));
+				if (exprDic.ContainsKey(keyname)) continue;
 				var optrees = new Dictionary<ObservedPropertyTree<T>, IDisposable>();
 				foreach (var trr in _trees) optrees.Add(trr, trr.Subscribe(key, this.handleItemPropertyChanged));
-				exprDic[key] = optrees;
+				exprDic[keyname] = optrees;
 			}
 		}
-		void removeExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic, IEnumerable<Expression<Func<T, object>>> exps) {
+		void removeExpressions(Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic, IEnumerable<Expression<Func<T, object>>> exps) {
 			foreach (var key in exps) {
-				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of(exprDic.Remove, key)
+				string keyname = string.Join(".", PropertyUtils.GetPropertyPath(key));
+				ResultWith<Dictionary<ObservedPropertyTree<T>, IDisposable>>.Of(exprDic.Remove, keyname)
 					.When(o => {
 						foreach (var t in o.Values) t.Dispose();
 					});
 			}
 		}
-		void clearExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic) {
+		void clearExpressions(Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic) {
 			foreach (var disp in exprDic.Values.SelectMany(x => x.Values)) { disp.Dispose(); }
 		}
-		void dispExpressions(Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic) {
+		void dispExpressions(Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> exprDic) {
 			if (_trackingDics.Remove(exprDic)) { clearExpressions(exprDic); }
 		}
 		/// <summary>
@@ -112,8 +114,9 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// </summary>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
 		public TrackingPropertyList<T> CreateTrackingList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
-			var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>(
-				Equality<Expression<Func<T, object>>>.ComparerBySequence(x => PropertyUtils.GetPropertyPath(x)));
+															  //var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>(
+															  //	Equality<Expression<Func<T, object>>>.ComparerBySequence(x => PropertyUtils.GetPropertyPath(x)));
+			var dic = new Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>();
 			_trackingDics.Add(dic);
 			return new TrackingPropertyList<T>(this, dic, addExpressions, removeExpressions, clearExpressions, dispExpressions);
 		}
@@ -188,10 +191,11 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 					foreach (var treeDic in exprDic.Values) {
 						foreach (var d1 in treeDic) {
 							d1.Value.Dispose();
-							d1.Key.Dispose();
+							//d1.Key.Dispose();
 						}
 					}
 				}
+				foreach (var tr in _trees) tr.Dispose();
 				_trees.Dispose();
 				_listener?.Dispose();
 			}
@@ -228,45 +232,27 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 			return Items.GetEnumerator();
 		}
 	}
-	public class ExpressionList<T> : IEnumerable<Expression<Func<T, object>>> {
-		List<Expression<Func<T, object>>>? _list;// = new List<Expression<Func<T, object>>>();
-		internal ExpressionList() { }
-		public ExpressionList(Expression<Func<T, object>> property, params Expression<Func<T, object>>[] properties)
-			: this(properties.AddHead(property)) {
-		}
-		public ExpressionList(IEnumerable<Expression<Func<T,object>>> properties) {
-			_list = new List<Expression<Func<T, object>>>(properties);
-		}
-
-		public virtual IEnumerator<Expression<Func<T, object>>> GetEnumerator() {
-			return _list?.GetEnumerator() ?? Enumerable.Empty<Expression<Func<T, object>>>().GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator() {
-			return GetEnumerator();
-		}
-	}
 
 	/// <summary>
 	/// Represents a collection used to edit the list of properties to be subscribed to.  
-	/// Duplicate <see cref="Expression"/> instances are excluded from the collection.
+	/// Duplicate properties are excluded from the collection.
 	/// </summary>
-	public class TrackingPropertyList<T> : ExpressionList<T>, IDisposable {
+	public class TrackingPropertyList<T> : IEnumerable<string>, IDisposable {
 		ReadOnlyObservableTrackingCollection<T> _self;
-		Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area;
-		Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _addAction;
-		Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _removeAction;
-		Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _clearAction;
-		Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _dispAction;
+		Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area;
+		Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _addAction;
+		Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _removeAction;
+		Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _clearAction;
+		Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _dispAction;
 		bool isDisposed = false;
 
 		internal TrackingPropertyList(
 			ReadOnlyObservableTrackingCollection<T> self,
-			Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>> area,
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> addAction,
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> removeAction,
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> clearAction,
-			Action<Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dispAction) : base() {
+			Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> area,
+			Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> addAction,
+			Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> removeAction,
+			Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> clearAction,
+			Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> dispAction) : base() {
 			_self = self;
 			_area = area;
 			_addAction = addAction;
@@ -282,7 +268,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <returns>A disposable object used to unsubscribe from the notification.</returns>
 		public IDisposable AttachHandler(Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
 			Action<T, ChainedPropertyChangedEventArgs<object>> action = (s, e) => {
-				if (this.Select(x => PropertyUtils.GetPropertyPath(x)).Any(y => y.SequenceEqual(e.ChainedProperties))) 
+				if (_area.Keys.Select(x=>x.Split('.')).Any(y=>y.SequenceEqual(e.ChainedProperties)))//(this.Select(x => PropertyUtils.GetPropertyPath(x)).Any(y => y.SequenceEqual(e.ChainedProperties))) 
 					handle(s, e);
 			};
 			_self.TrackingPropertyChanged += action;
@@ -354,8 +340,19 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 				throw new ObjectDisposedException(GetType().FullName, "The instance has already been disposed and cannot be operated on.");
 		}
 
+		///// <inheritdoc/>
+		//public override IEnumerator<Expression<Func<T, object>>> GetEnumerator()
+		//	=> _area.Keys.Select(x => PropertyUtils.CreatePropertyExpression<T>(x)).GetEnumerator();
+
 		/// <inheritdoc/>
-		public override IEnumerator<Expression<Func<T, object>>> GetEnumerator() => _area.Keys.GetEnumerator();
+		public IEnumerator<string> GetEnumerator() {
+			return _area.Keys.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return GetEnumerator();
+		}
+		// => _area.Keys.GetEnumerator();
 	}
 
 }

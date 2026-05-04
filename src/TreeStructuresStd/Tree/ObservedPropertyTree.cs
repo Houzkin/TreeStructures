@@ -47,15 +47,15 @@ namespace TreeStructures.Tree {
         }
         //public TSrc RootSource => (TSrc?)_root.Source;
         /// <summary>Gets or sets a value indicating whether change notifications should be issued when the source of observation is reset. Default value is true.</summary>
-        public bool IsEvaluateTargetChanged {
-            get => _root.IsEvaluateTargetChanged;
-            set => _root.IsEvaluateTargetChanged = value;
+        public bool IsEvaluateSourceChanged {
+            get => _root.IsEvaluateSourceChanged;
+            set => _root.IsEvaluateSourceChanged = value;
         }
         /// <summary>Resets the source of observation.</summary>
         /// <param name="target">The new target instance to observe.</param>
         public void ChangeSource(TSrc target) {
             ThrowExceptionIfDisposed();
-            _root.ChangeTarget(target);
+            _root.ChangeSource(target);
         }
         bool _isDisposed = false;
         ///<inheritdoc/>
@@ -218,8 +218,8 @@ namespace TreeStructures.Tree {
         private class PropertyChainRoot : PropertyChainNode {
             HashSet<ChainStatus> chainStatuses = new(Equality<ChainStatus>.ComparerBy(a => string.Join(".", a.Key.AddHead(a.PropertyValueType))));
             public PropertyChainRoot(TSrc target) : base(target) { }
-            public bool IsEvaluateTargetChanged { get; set; } = true;
-            public void ChangeTarget(TSrc target) {
+            public bool IsEvaluateSourceChanged { get; set; } = true;
+            public void ChangeSource(TSrc target) {
                 var pre = this.Source;
                 this.SubscribePropertyValue(target);
                 ////if (IsEvaluateTargetChanged && !ReferenceEquals(pre, this.Source)) {
@@ -242,7 +242,7 @@ namespace TreeStructures.Tree {
                 //if (IsEvaluateTargetChanged && !isEquals(this.Source,pre)) {
                 //    this.RaisePropertyChanged(null,this.Leafs());
                 //}
-                if(IsEvaluateTargetChanged && !Equality.ValueOrReference.Equals(pre, this.Source)) {
+                if(IsEvaluateSourceChanged && !Equality.ValueOrReference.Equals(pre, this.Source)) {
                     this.RaisePropertyChanged(null, this.Leafs());
                 }
             }

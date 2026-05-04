@@ -8,7 +8,7 @@ namespace TreeStructures {
 
     /// <summary>Represents a path traversing nodes.</summary>
     /// <typeparam name="T">The type represented by each node.</typeparam>
-    public interface INodePath<T> : IEnumerable<T>{
+    public interface INodePath<out T> : IEnumerable<T>{
         /// <summary>Gets the path at the specified level.</summary>
         /// <param name="level">The level.</param>
         T this[int level] { get; }
@@ -18,7 +18,7 @@ namespace TreeStructures {
 
     /// <summary>Provides a tree structure.</summary>
     /// <typeparam name="TNode">The type of each node.</typeparam>
-    public interface ITreeNode<TNode> where TNode : ITreeNode<TNode> {
+    public interface ITreeNode<out TNode> where TNode : ITreeNode<TNode> {
         /// <summary>Gets the parent node.</summary>
         TNode? Parent { get; }
         /// <summary>Gets the child nodes.</summary>

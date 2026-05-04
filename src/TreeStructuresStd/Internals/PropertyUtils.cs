@@ -50,6 +50,15 @@ namespace TreeStructures.Internals {
                 throw new ArgumentException($"Property '{propertyName}' not found in type {obj.GetType().Name}");
             }
         }
+        public static Expression<Func<T,object>> CreatePropertyExpression<T>(string path) {
+            var param = Expression.Parameter(typeof(T), "x");
+            Expression body = param;
+            foreach (var memberName in path.Split('.'))
+                body = Expression.Property(body, memberName);
+            if (body.Type.IsValueType)
+                body = Expression.Convert(body, typeof(object));
+            return Expression.Lambda<Func<T, object>>(body, param);
+        }
         #endregion
 
     }

@@ -87,9 +87,11 @@ public static partial class UseageSample{
 			.ObserveProperty(x => x.Value)
 			.ToReactiveProperty().AddTo(disposables);
 		//Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
+		var disp = nodeList['H'].ObserveProperty(x => x.Parent.AdditionalInfo.Title).ToReactiveProperty();
 
 		nodeList['B'].AddChild(nodeList['H']);
 		Console.WriteLine($"ReactivePropertyValue:{rp.Value}");
+		Console.WriteLine($"ReactivePropertyValue2:{disp.Value}");
 		//rp.Dispose();
 		//listener.Dispose();
 		//observingTree.Dispose();

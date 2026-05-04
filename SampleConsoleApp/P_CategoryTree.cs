@@ -71,7 +71,7 @@ public static partial class UseageSample {
 		};
 		var ctgTree = new ReactiveCategoryTree<PersonNode, string>(
 			persons,
-			new(x => x.PersonalData.Job, x=>x.PersonalData.BMI),
+			new(x => x.PersonalData.Job, x=>x.PersonalData.BMI),//or ExpressionList<PersonNode>.Create(x=>x.PersonalData.Job,x=>x.PersonalData.BMI),
 			x => x.PersonalData.Job, x => ((int)x.PersonalData.BMI).ToString());
 		Console.WriteLine(ctgTree.Root.ToTreeDiagram(x => x.HasItem ? $"Name:{x.Item.Name}, H:{x.Item.PersonalData.Height}, W:{x.Item.PersonalData.Weight}, BMI:{x.Item.PersonalData.BMI}" : x.Category));
 
