@@ -73,9 +73,11 @@ namespace TreeStructures.Linq {
             }
             return string.Concat(strlit);
         }
-        internal static string ToPhylogeneticTree<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
-            string node = "┬";
+        internal static string ToPhylogeneticDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
+            string firstnode = "┬";
+            string singlenode = "─";
             string lastBranch = "└";
+            string innernode = "├";
             string through = "─";
             string blank = "  ";
             string leafInnerBr = "┼";
