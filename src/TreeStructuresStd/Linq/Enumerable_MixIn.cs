@@ -153,7 +153,6 @@ namespace TreeStructures.Linq {
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ObservableCollection<T> self) => new CollectionObserver<T>(self);
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ReadOnlyObservableCollection<T> self) => new CollectionObserver<T>(self);
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IReadOnlyObservableProxyCollection<T> self) => new CollectionObserver<T>(self);
-		
 
 
 	}
