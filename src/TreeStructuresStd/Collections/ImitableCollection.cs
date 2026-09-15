@@ -23,7 +23,7 @@ namespace TreeStructures.Collections {
 		/// <param name="convert">A function to convert elements from <typeparamref name="TSrc"/> to corresponding <typeparamref name="TDst"/>.</param>
 		/// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
 		/// <param name="isImitate">Specifies whether to initialize in a synchronized state.</param>
-		public ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TDst> convert, Action<TDst>? removedAction = null, bool isImitate = true)
+		protected internal ImitableCollection(IEnumerable<TSrc> collection, Func<TSrc, TDst> convert, Action<TDst>? removedAction = null, bool isImitate = true)
 			: base() {
 
 			_SDPairList = new SDPairCollection(

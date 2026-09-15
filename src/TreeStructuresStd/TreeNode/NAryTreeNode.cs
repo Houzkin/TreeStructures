@@ -31,6 +31,8 @@ namespace TreeStructures {
         TNode[]? array;
         /// <inheritdoc/>
         protected override IEnumerable<TNode> SetupInnerChildCollection() => array;
+        ///// <summary>Get the read-only list of child nodes.</summary>
+        //public new IReadOnlyList<TNode> Children => (IReadOnlyList<TNode>)base.Children;
 
 
         /// <summary>Adds a child node if the element at the specified index is null.</summary>

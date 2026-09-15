@@ -30,6 +30,7 @@ public static partial class UseageSample {
         D.Left = E;
         C.Right = F;
         F.Left = G;
+        //Console.WriteLine($"Test:{F.Children[1]?.Name}");
 
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
         Console.WriteLine($"Inorder:{string.Join(",", A.InOrder().Select(x => x.Name))}");

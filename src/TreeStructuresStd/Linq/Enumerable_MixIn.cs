@@ -142,10 +142,18 @@ namespace TreeStructures.Linq {
 		/// <exception cref="InvalidCastException">
 		/// Thrown if the specified collection does not implement <see cref="INotifyCollectionChanged"/>.
 		/// </exception>
-		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IEnumerable<T> self) {
-			if (self is not INotifyCollectionChanged) throw new InvalidCastException("The specified collection does not implement INotifyCollectionChanged.");
-			return new CollectionObserver<T>(self);
-		}
+		//public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IEnumerable<T> self) {
+		//	if (self is not INotifyCollectionChanged) throw new InvalidCastException("The specified collection does not implement INotifyCollectionChanged.");
+		//	return new CollectionObserver<T>(self);
+		//}
+
+		//public static ICollectionAddRemoveObserver<U> AddRemoveObserver<T,U>(this T self) where T : IEnumerable<U>, INotifyCollectionChanged {
+		//	return new CollectionObserver<U>(self);
+		//}
+		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ObservableCollection<T> self) => new CollectionObserver<T>(self);
+		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ReadOnlyObservableCollection<T> self) => new CollectionObserver<T>(self);
+		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IReadOnlyObservableProxyCollection<T> self) => new CollectionObserver<T>(self);
+		
 
 
 	}
