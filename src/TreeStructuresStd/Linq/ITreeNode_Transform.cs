@@ -20,7 +20,7 @@ namespace TreeStructures.Linq {
         /// <returns>A dictionary containing pairs of node index and the generated data</returns>
         public static Dictionary<NodeIndex, U> ToNodeMap<T, U>(this ITreeNode<T> self, Func<T, U> conv)
         where T : ITreeNode<T> {
-            return self.LevelOrder().ToDictionary(x => x.TreeIndex(), x => conv(x));
+            return self.LevelOrder().ToDictionary(x => x.GetNodeIndex(), x => conv(x));
         }
         /// <summary>Gets a collection of pairs consisting of each node and its index.</summary>
         /// <typeparam name="T">Type of each node</typeparam>
@@ -66,7 +66,7 @@ namespace TreeStructures.Linq {
             }
             var strlit = new List<string>();
             foreach (var n in self.PreOrder()) {
-                var line = createLine(n.Upstream().Reverse(), n.TreeIndex());
+                var line = createLine(n.Upstream().Reverse(), n.GetNodeIndex());
                 var head = n.IsRoot() ? "" : n.HasNextSibling() ? branch : lastBranch;
                 line = line + head + tostring(n) + Environment.NewLine;
                 strlit.Add(line);

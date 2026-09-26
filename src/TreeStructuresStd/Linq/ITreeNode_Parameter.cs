@@ -9,7 +9,7 @@ namespace TreeStructures.Linq {
 
         #region パラメータの取得
         /// <summary>Gets the path code indicating the position of the current node.</summary>
-        public static NodeIndex TreeIndex<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+        public static NodeIndex GetNodeIndex<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
             var z = self
                 .Upstream()
                 .Select(b => b.BranchIndex())
@@ -17,12 +17,20 @@ namespace TreeStructures.Linq {
                 .Reverse();
             return new NodeIndex(z);
         }
+        [Obsolete("This method is obsolete. Use GetNodeIndex() instead.")]
+        public static NodeIndex TreeIndex<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
+            return GetNodeIndex(self);
+        }
         /// <summary>Generates the path from the root to the current node.</summary>
         /// <param name="self">Current node</param>
         /// <param name="conv">Specifies the unique value of each node or the value that represents the node.</param>
-        public static NodePath<TPath> NodePath<TPath, T>(this ITreeNode<T> self, Converter<T, TPath> conv)
-        where T : ITreeNode<T> {
+        public static NodePath<TPath> GetNodePath<TPath, T>(this ITreeNode<T> self, Converter<T, TPath> conv)
+            where T : ITreeNode<T> {
             return NodePath<TPath>.Create((T)self, conv);
+        }
+        [Obsolete("This method is obsolete. Use GetNodePath() instead.")]
+        public static NodePath<TPath> NodePath<TPath,T>(this ITreeNode<T> self, Converter<T, TPath> conv) where T : ITreeNode<T> {
+            return GetNodePath(self, conv);
         }
         /// <summary>Gets the distance from the current node to the deepest descendant node.</summary>
         public static int Height<T>(this ITreeNode<T> self) where T : ITreeNode<T> {

@@ -26,7 +26,7 @@ For example:
 Enumeration: `PreOrder`, `LevelOrder`, all traversal methods, `Leafs`, `Ancestors`, `DescendArrivals`, `DescendTraces`, etc.  
 Navigation: `Root`, `NextSibling`, `LastSibling`, etc.  
 Editing: `TryAddChild`, `Try○○Child`, `Disassemble`, `RemoveAllDescendant`, etc.  
-Retrieving parameters: `TreeIndex`, `NodePath`, `Height`, `Depth`, etc.  
+Retrieving parameters: `GetNodeIndex`, `GetNodePath`, `Height`, `Depth`, etc.  
 Validation methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
 Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `Convert`, `AsValuedTreeNode`   
 Tree construction: `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`

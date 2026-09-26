@@ -48,7 +48,7 @@ public static　partial class UseageSample {
 
         Console.WriteLine(A.ToTreeDiagram(x => x.Name));
         Console.WriteLine("Displaying height, level, and node index as additional information.");
-        Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},TreeIndex:{x.TreeIndex()}"));
+        Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},Height:{x.Height()},Depth:{x.Depth()},TreeIndex:{x.GetNodeIndex()}"));
 
 
         Console.WriteLine("Move nodeN to be a child node of nodeE");
@@ -87,7 +87,7 @@ public static　partial class UseageSample {
         };
         Console.WriteLine(dic.AssembleTree().ToTreeDiagram(x => x.Name));
         Console.WriteLine("Displaying additional information such as indices assigned from parent nodes and paths.");
-        Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},BranchIndex:{x.BranchIndex()},NodePath:{x.NodePath(y=>y.Name)}"));
+        Console.WriteLine(A.ToTreeDiagram(x => $"Name:{x.Name},BranchIndex:{x.BranchIndex()},NodePath:{x.GetNodePath(y=>y.Name)}"));
 
         A.Disassemble(); 
         //Console.ReadLine();

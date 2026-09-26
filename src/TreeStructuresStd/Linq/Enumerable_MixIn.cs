@@ -119,7 +119,6 @@ namespace TreeStructures.Linq {
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
 		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
 		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null){
-			//return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
 			return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
 		}
 		/// <summary>
@@ -130,28 +129,31 @@ namespace TreeStructures.Linq {
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
 		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
 		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
-			//return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
 			return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
 		}
 		/// <summary>
-		/// Observes additions and removals in the specified collection that implements <see cref="INotifyCollectionChanged"/>.
+		/// Observes additions and removals in the specified collection that implements <see cref="ObservableCollection{T}"/>.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The collection to observe.</param>
 		/// <returns>An instance of <see cref="ICollectionAddRemoveObserver{T}"/> to monitor changes.</returns>
-		/// <exception cref="InvalidCastException">
-		/// Thrown if the specified collection does not implement <see cref="INotifyCollectionChanged"/>.
-		/// </exception>
-		//public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IEnumerable<T> self) {
-		//	if (self is not INotifyCollectionChanged) throw new InvalidCastException("The specified collection does not implement INotifyCollectionChanged.");
-		//	return new CollectionObserver<T>(self);
-		//}
-
-		//public static ICollectionAddRemoveObserver<U> AddRemoveObserver<T,U>(this T self) where T : IEnumerable<U>, INotifyCollectionChanged {
-		//	return new CollectionObserver<U>(self);
-		//}
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ObservableCollection<T> self) => new CollectionObserver<T>(self);
+
+
+		/// <summary>
+		/// Observes additions and removals in the specified collection that implements <see cref="ReadOnlyObservableCollection{T}"/>.
+		/// </summary>
+		/// <typeparam name="T">The type of elements in the collection.</typeparam>
+		/// <param name="self">The collection to observe.</param>
+		/// <returns>An instance of <see cref="ICollectionAddRemoveObserver{T}"/> to monitor changes.</returns>
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ReadOnlyObservableCollection<T> self) => new CollectionObserver<T>(self);
+
+		/// <summary>
+		/// Observes additions and removals in the specified collection that implements <see cref="IReadOnlyObservableProxyCollection{T}"/>.
+		/// </summary>
+		/// <typeparam name="T">The type of elements in the collection.</typeparam>
+		/// <param name="self">The collection to observe.</param>
+		/// <returns>An instance of <see cref="ICollectionAddRemoveObserver{T}"/> to monitor changes.</returns>
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IReadOnlyObservableProxyCollection<T> self) => new CollectionObserver<T>(self);
 
 

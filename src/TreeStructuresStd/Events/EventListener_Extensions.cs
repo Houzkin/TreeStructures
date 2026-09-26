@@ -16,7 +16,8 @@ using TreeStructures.Utilities;
 
 namespace TreeStructures.Events {
 	/// <summary>
-	/// Provides an interface for observing additions and removals in a collection that implements <see cref="INotifyCollectionChanged"/>.
+	/// Provides an interface for observing additions and removals in a collection that implements <see cref="INotifyCollectionChanged"/>. 
+	/// After use, call <see cref="IDisposable.Dispose()"/> method.
 	/// </summary>
 	/// <typeparam name="T">The type of elements in the collection.</typeparam>
 	public interface ICollectionAddRemoveObserver<out T> : IDisposable {
