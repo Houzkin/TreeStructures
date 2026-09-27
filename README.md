@@ -66,6 +66,7 @@ Even objects that do not implement `ITreeNode<TNode>` can still utilize the exte
 By wrapping them with `HierarchyWrapper<TSrc, TWrpr>` or `BindableHierarchyWrapper<TSrc, TWrpr>`, or by calling the `AsValuedTreeNode` method, you can access the extension methods of `ITreeNode<TNode>`.  
 
 Additionally, several other conversion methods are available, such as the extension methods `AssembleTree`, `AssembleTryByPath`, and `ToNodeMap`.
+The construction methods can also build any hierarchical structures that do not implement `ITreeNode<T>`.
 
 ## Generic Utility Classes Needed for Implementation
 
