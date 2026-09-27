@@ -252,7 +252,7 @@ namespace TreeStructures.Linq {
         /// <param name="self">Current node.</param>
         /// <param name="action">Predicate processing to be performed.</param>
         /// <returns>The node targeted before the predicate processing.</returns>
-        public static T Fork<T>(this ITreeNode<T> self, Action<T> action) where T : ITreeNode<T> {
+        public static T RestorePosition<T>(this ITreeNode<T> self, Action<T> action) where T : ITreeNode<T> {
             if (self == null) throw new ArgumentNullException(nameof(self));
             action?.Invoke((T)self);
             return (T)self;
@@ -265,7 +265,7 @@ namespace TreeStructures.Linq {
         /// <param name="self">Current node.</param>
         /// <param name="sentence">Arbitrary object representing the predicate processing.</param>
         /// <returns>The node targeted before the predicate processing.</returns>
-        public static T Fork<T>(this ITreeNode<T> self, object sentence) where T : ITreeNode<T> {
+        public static T RestorePosition<T>(this ITreeNode<T> self, object sentence) where T : ITreeNode<T> {
             //action?.Invoke();
             return (T)self;
         }

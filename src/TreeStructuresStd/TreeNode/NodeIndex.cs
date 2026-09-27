@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 
@@ -12,16 +13,22 @@ namespace TreeStructures{
         /// <param name="nodePath">Branch indices at each level, excluding the root.</param>
         public NodeIndex(params int[] nodePath) {
             if (nodePath == null) {
-                this._nodePath = new List<int>();
+                this._nodePath = Array.Empty<int>(); // new List<int>();
             } else {
-                this._nodePath = new List<int>(nodePath);
+                this._nodePath = new List<int>(nodePath);// (int[])nodePath.Clone();//new List<int>(nodePath);
             }
         }
         /// <summary>Initializes a new instance.</summary>
         /// <param name="nodePath">Branch indices at each level, excluding the root.</param>
-        public NodeIndex(IEnumerable<int> nodePath)
-            : this(nodePath == null ? null : nodePath.ToArray()) { }
-
+        public NodeIndex(IEnumerable<int> nodePath){
+            if (nodePath == null) {
+                _nodePath = Array.Empty<int>();
+            } else {
+                _nodePath = nodePath.ToArray();
+            }
+        }
+        /// <summary> Initializes a new instance as the root node index.</summary>
+        public NodeIndex() { _nodePath = Array.Empty<int>(); }
         /// <summary>Gets the index of the collection at the specified level.
         /// <para>Returns a constant 0 for 0-level specifying the root, and -1 if the specified level does not exist.</para></summary>
         /// <param name="level">Specifies the level.</param>
@@ -83,9 +90,9 @@ namespace TreeStructures{
         /// <summary>
         /// Returns an object implementing a comparison method for performing a pre-order sorting.
         /// </summary>
-        public static IComparer<NodeIndex> GetPreorderComparer() {
+        public static IComparer<NodeIndex> GetPreOrderComparer() {
             var cpn = new Comparison<NodeIndex>((x, y) => {
-                var lv = x.ToArray().Zip(y.ToArray(), (xi, yi) => xi - yi).FirstOrDefault(s => s != 0);
+                var lv = x.Zip(y, (xi, yi) => xi - yi).FirstOrDefault(s => s != 0);
                 if (lv != 0) return lv;
                 return x.Depth - y.Depth;
             });
@@ -94,26 +101,41 @@ namespace TreeStructures{
         /// <summary>
         /// Returns an object implementing a comparison method for performing a post-order sorting.
         /// </summary>
-        public static IComparer<NodeIndex> GetPostorderComparer() {
+        public static IComparer<NodeIndex> GetPostOrderComparer() {
             var cpn = new Comparison<NodeIndex>((x, y) => {
-                var lv = x.ToArray().Zip(y.ToArray(), (xi, yi) => xi - yi).FirstOrDefault(s => s != 0);
+                var lv = x.Zip(y, (xi, yi) => xi - yi).FirstOrDefault(s => s != 0);
                 if (lv != 0) return lv;
                 return y.Depth - x.Depth;
             });
             return Comparer<NodeIndex>.Create(cpn);
         }
         /// <summary>
-        /// Returns an object implementing a comparison method for performing an in-order sorting.
+        /// Returns an object implementing a comparison method for performing an level-order sorting.
         /// </summary>
-        public static IComparer<NodeIndex> GetLevelorderComparer() {
+        public static IComparer<NodeIndex> GetLevelOrderComparer() {
             var cpn = new Comparison<NodeIndex>((x, y) => {
                 var lv = x.Depth - y.Depth;
                 if (lv != 0) return lv;
-                return x.ToArray().Zip(y.ToArray(), (xl, yl) => xl - yl)
+                return x.Zip(y, (xl, yl) => xl - yl)
                     .FirstOrDefault(s => s != 0);
             });
             return Comparer<NodeIndex>.Create(cpn);
         }
+        /// <summary>
+        /// Returns an object implementing a comparison method for performing an in-order sorting.
+        /// </summary>
+        public static IComparer<NodeIndex> GetInOrderComparer() {
+			var cpn = new Comparison<NodeIndex>((x, y) => {
+				// パスの末尾に「自分自身を表す特別値 0.5」を付与。 0 (左) < 0.5 (自分) < 1以上 (右) という順序関係を表現
+				var xSeq = x.Select(i => (double)i).Concat(new[] { 0.5 });
+				var ySeq = y.Select(i => (double)i).Concat(new[] { 0.5 });
+
+				// 拡張されたシーケンス同士を Zip で比較し、最初に現れる差を返す
+			    return xSeq.Zip(ySeq, (xi, yi) => xi.CompareTo(yi))
+							   .FirstOrDefault(s => s != 0);
+			});
+			return Comparer<NodeIndex>.Create(cpn);
+		}
 
         /// <inheritdoc/>
 		public static bool operator ==(NodeIndex left, NodeIndex right) {

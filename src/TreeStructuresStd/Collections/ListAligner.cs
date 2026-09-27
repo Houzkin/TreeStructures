@@ -98,7 +98,7 @@ namespace TreeStructures.Collections {
 					if (orders.HasNext(a => _equality(a, _editList[orders.CurrentIndex]))) {
 
 						//現在のindexにある要素の、ordersにおけるindex
-						var rslt = orders.RestoreAfter(_ => {
+						var rslt = orders.RestorePosition(_ => {
 							var tmp = orders.Next(x => _equality(x, _editList[orders.CurrentIndex]));//.CurrentIndex;
 							return new { Idx = tmp.CurrentIndex, Itm = tmp.Current };
 						});

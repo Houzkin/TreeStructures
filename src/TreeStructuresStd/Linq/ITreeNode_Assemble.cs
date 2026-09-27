@@ -29,10 +29,6 @@ namespace TreeStructures.Linq {
                     .When(r => addAction(ele.Item1.BranchIndex(), r.Current.Item2, ele.Item2));
             });
             return scroller.First().Current.Item2;
-
-            //return self.ToNodeMap().AssembleTree(generator, addAction);
-            //var dic = self.ToNodeMap(x=>generator(x));
-            //return dic.AssembleTree(addAction);
         }
         /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
         /// <typeparam name="T">Type before conversion.</typeparam>
@@ -154,7 +150,7 @@ namespace TreeStructures.Linq {
 		/// <param name="addaction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
 		/// <returns>The root node of the assembled tree.</returns>
 		public static T AssembleTreeByPath<U, UPath, T>(this IDictionary<NodePath<UPath>, U> dic,Func<U,T> conv,Action<T,T> addaction) {
-            return AssembleForestByPath(dic, conv, addaction).First();
+            return AssembleForestByPath(dic, conv, addaction).Single();
         }
 		/// <summary>
 		/// Assembles a tree structure from a dictionary where the keys represent paths in the hierarchy.If any nodes leading to the root are missing, those nodes will be omitted.
@@ -165,7 +161,7 @@ namespace TreeStructures.Linq {
 		/// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
 		/// <returns>The root node of the assembled tree.</returns>
 		public static T AssembleTreeByPath<TPath,T>(this IDictionary<NodePath<TPath>,T> dic,Action<T,T> addAction){
-            return AssembleForestByPath(dic, addAction).First();
+            return AssembleForestByPath(dic, addAction).Single();
         }
 		/// <summary>
 		/// Assembles a tree structure from a dictionary where the keys represent paths in the hierarchy.If any nodes leading to the root are missing, those nodes will be omitted.
@@ -175,7 +171,7 @@ namespace TreeStructures.Linq {
 		/// <param name="dic">The dictionary containing paths as keys and tree nodes as values.</param>
 		/// <returns>The root node of the assembled tree.</returns>
 		public static T AssembleTreeByPath<TPath,T>(this IDictionary<NodePath<TPath>,T> dic) where T : IMutableTreeNode<T>{
-            return AssembleForestByPath(dic).First();
+            return AssembleForestByPath(dic).Single();
         }
 		/// <summary>
 		/// Assembles a tree structure from an enumerable of paths, with a conversion function for creating tree nodes.
@@ -187,7 +183,7 @@ namespace TreeStructures.Linq {
 		/// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, and the second parameter being the child object.</param>
 		/// <returns>The root node of the assembled tree.</returns>
 		public static T AssembleTreeByPath<TPath,T>(this IEnumerable<NodePath<TPath>> self, Func<NodePath<TPath>,T> conv,Action<T,T> addAction){
-            return AssembleForestByPath(self,conv,addAction).First();
+            return AssembleForestByPath(self,conv,addAction).Single();
         }
 		/// <summary>
 		/// Assembles a tree structure from an enumerable of paths, assuming the tree node type supports mutable relationships.
@@ -198,7 +194,7 @@ namespace TreeStructures.Linq {
 		/// <param name="conv">A function to convert each path into a tree node.</param>
 		/// <returns>The root node of the assembled tree.</returns>
 		public static T AssembleTreeByPath<TPath,T>(this IEnumerable<NodePath<TPath>> self,Func<NodePath<TPath>,T> conv) where T : IMutableTreeNode<T>{
-            return AssembleForestByPath(self, conv).First();
+            return AssembleForestByPath(self, conv).Single();
         }
 
         private static IEnumerable<NodePath<T>> _scan<T>(this NodePath<T> self){
@@ -211,17 +207,15 @@ namespace TreeStructures.Linq {
 		#endregion
 
 		#region NodeIndexから組み立て
-		private static T _assemble<T>(IEnumerable<Tuple<NodeIndex, T>> dic, Action<int, T, T> addAction) {
-            var scroller = dic.OrderBy(x => x.Item1, NodeIndex.GetPostorderComparer()).ToListScroller();
+        private static U assemble<U,TKey, T>(IDictionary<TKey, T> dictionary, Func<T, U> conv, Action<int, U, U> addAction) where TKey: IEnumerable<int> {
+            var scroller = dictionary.Select(x => (new NodeIndex(x.Key),conv(x.Value)))
+                .OrderBy(x => x.Item1, NodeIndex.GetPostOrderComparer())
+                .ToListScroller();
             scroller.MoveForEach(ele => {
                 scroller.TryNext(x => ele.Item1.Depth > x.Item1.Depth)
                     .When(r => addAction(ele.Item1.LastOrDefault(), r.Current.Item2, ele.Item2));
             });
             return scroller.Current.Item2;
-        }
-        private static U assemble<U,TKey, T>(IDictionary<TKey, T> dictionary, Func<T, U> conv, Action<int, U, U> addAction) where TKey: IEnumerable<int> {
-            var seq = dictionary.Select(x => Tuple.Create(new NodeIndex(x.Key), conv(x.Value)));
-            return _assemble(seq, addAction);
         }
 		/// <summary>
 		/// Assembles each node based on the index indicated by the key.
@@ -297,6 +291,109 @@ namespace TreeStructures.Linq {
         }
         #endregion
 
+        #region Id,ParentIdから生成
+        /// <summary>
+        /// Assembles a tree structure (forest) by resolving parent-child relationships 
+        /// from a flat collection based on the adjacency list model (Id and ParentId).
+        /// </summary>
+        /// <typeparam name="T">The type of the source flat data entity.</typeparam>
+        /// <typeparam name="TIdx">The type of the unique identifier (ID) used to recognize nodes (e.g., <see cref="int"/> or <see cref="string"/>).</typeparam>
+        /// <typeparam name="U">The type of the tree node that implements <see cref="ITreeNode{T}"/>.</typeparam>
+        /// <param name="self">The source collection of flat data entities.</param>
+        /// <param name="getId">A function to get the unique identifier (ID) of the entity.</param>
+        /// <param name="getParentId">A function to get the parent identifier (ID) of the entity (must return null for root nodes).</param>
+        /// <param name="convert">A function to instantiate a tree node (<typeparamref name="U"/>) from the entity.</param>
+        /// <param name="addAction">An action to define how to add a child node to its parent (e.g., <c>(parent, child) => parent.AddChild(child)</c>).</param>
+        /// <returns>A collection of root nodes representing the assembled tree structure (forest).</returns>
+        /// <remarks>
+        /// This method internally constructs a dictionary, running in O(N) time complexity.
+        /// It avoids nested loops and recursion, allowing for highly efficient tree assembly even with large datasets.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when any of the arguments is null.</exception>
+        public static IEnumerable<U> AssembleForestById<T,TIdx,U>(this IEnumerable<T> self, Func<T,TIdx> getId, Func<T,TIdx?> getParentId, Func<T,U> convert, Action<U, U> addAction)
+            where TIdx : struct where U : ITreeNode<U> {
+            var dic = self.ToDictionary(x => getId(x), x => (ParentId: getParentId(x), Node: convert(x)));
+            foreach (var data in dic) {
+                if(!data.Value.ParentId.HasValue) continue;
+                if (dic.TryGetValue(data.Value.ParentId.Value, out var pNode)) {
+                    addAction(pNode.Node, data.Value.Node);
+                }
+            }
+            return dic.Values.Select(x => x.Node).Where(x => x.IsRoot());
+        }
+        /// <summary>
+        /// Assembles a tree structure (forest) by resolving parent-child relationships 
+        /// from a flat collection based on the adjacency list model (Id and ParentId).
+        /// </summary>
+        /// <typeparam name="T">The type of the source flat data entity.</typeparam>
+        /// <typeparam name="TIdx">The type of the unique identifier (ID) used to recognize nodes (e.g., <see cref="int"/> or <see cref="string"/>).</typeparam>
+        /// <typeparam name="U">The type of the tree node that implements <see cref="ITreeNode{T}"/>.</typeparam>
+        /// <param name="self">The source collection of flat data entities.</param>
+        /// <param name="getId">A function to get the unique identifier (ID) of the entity.</param>
+        /// <param name="getParentId">A function to get the parent identifier (ID) of the entity (must return null for root nodes).</param>
+        /// <param name="convert">A function to instantiate a tree node (<typeparamref name="U"/>) from the entity.</param>
+        /// <param name="addAction">An action to define how to add a child node to its parent (e.g., <c>(parent, child) => parent.AddChild(child)</c>).</param>
+        /// <returns>A collection of root nodes representing the assembled tree structure (forest).</returns>
+        /// <remarks>
+        /// This method internally constructs a dictionary, running in O(N) time complexity.
+        /// It avoids nested loops and recursion, allowing for highly efficient tree assembly even with large datasets.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when any of the arguments is null.</exception>
+        public static IEnumerable<U> AssembleForestById<T,TIdx,U>(this IEnumerable<T> self, Func<T,TIdx> getId,Func<T,TIdx?> getParentId, Func<T,U> convert, Action<U,U> addAction)
+            where TIdx : class where U : ITreeNode<U> {
+            var dic = self.ToDictionary(x => getId(x), x => (ParentId: getParentId(x), Node: convert(x)));
+            foreach (var data in dic) {
+                if (data.Value.ParentId == null) continue;
+                if (dic.TryGetValue(data.Value.ParentId, out var pNode)) {
+                    addAction(pNode.Node, data.Value.Node);
+                }
+            }
+            return dic.Values.Select(x => x.Node).Where(x => x.IsRoot());
+        }
+        /// <summary>
+        /// Assembles a tree structure (forest) by resolving parent-child relationships 
+        /// from a flat collection based on the adjacency list model (Id and ParentId).
+        /// </summary>
+        /// <typeparam name="T">The type of the source flat data entity.</typeparam>
+        /// <typeparam name="TIdx">The type of the unique identifier (ID) used to recognize nodes (e.g., <see cref="int"/> or <see cref="string"/>).</typeparam>
+        /// <typeparam name="U">The type of the tree node that implements <see cref="IMutableTreeNode{T}"/>.</typeparam>
+        /// <param name="self">The source collection of flat data entities.</param>
+        /// <param name="getId">A function to get the unique identifier (ID) of the entity.</param>
+        /// <param name="getParentId">A function to get the parent identifier (ID) of the entity (must return null for root nodes).</param>
+        /// <param name="convert">A function to instantiate a tree node (<typeparamref name="U"/>) from the entity.</param>
+        /// <returns>A collection of root nodes representing the assembled tree structure (forest).</returns>
+        /// <remarks>
+        /// This method internally constructs a dictionary, running in O(N) time complexity.
+        /// It avoids nested loops and recursion, allowing for highly efficient tree assembly even with large datasets.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when any of the arguments is null.</exception>
+        public static IEnumerable<U> AssembleForestById<T, TIdx, U>(this IEnumerable<T> self, Func<T, TIdx> getId, Func<T, TIdx?> getParentId, Func<T, U> convert)
+            where TIdx : struct where U : IMutableTreeNode<U> {
+            return self.AssembleForestById(getId, getParentId, convert, (p, c) => p.AddChild(c));
+        }
+        /// <summary>
+        /// Assembles a tree structure (forest) by resolving parent-child relationships 
+        /// from a flat collection based on the adjacency list model (Id and ParentId).
+        /// </summary>
+        /// <typeparam name="T">The type of the source flat data entity.</typeparam>
+        /// <typeparam name="TIdx">The type of the unique identifier (ID) used to recognize nodes (e.g., <see cref="int"/> or <see cref="string"/>).</typeparam>
+        /// <typeparam name="U">The type of the tree node that implements <see cref="IMutableTreeNode{T}"/>.</typeparam>
+        /// <param name="self">The source collection of flat data entities.</param>
+        /// <param name="getId">A function to get the unique identifier (ID) of the entity.</param>
+        /// <param name="getParentId">A function to get the parent identifier (ID) of the entity (must return null for root nodes).</param>
+        /// <param name="convert">A function to instantiate a tree node (<typeparamref name="U"/>) from the entity.</param>
+        /// <returns>A collection of root nodes representing the assembled tree structure (forest).</returns>
+        /// <remarks>
+        /// This method internally constructs a dictionary, running in O(N) time complexity.
+        /// It avoids nested loops and recursion, allowing for highly efficient tree assembly even with large datasets.
+        /// </remarks>
+        /// <exception cref="ArgumentNullException">Thrown when any of the arguments is null.</exception>
+        public static IEnumerable<U> AssembleForestById<T, TIdx, U>(this IEnumerable<T> self, Func<T, TIdx> getId, Func<T, TIdx?> getParentId, Func<T, U> convert)
+            where TIdx : class where U : IMutableTreeNode<U> {
+            return self.AssembleForestById(getId, getParentId, convert, (p, c) => p.AddChild(c));
+        }
+        #endregion
+
         #region IEnumerableからN分木を生成
         /// <summary>Creates an N-ary tree starting from the first element.</summary>
         /// <remarks>Each node is added in level order.</remarks>
@@ -323,8 +420,7 @@ namespace TreeStructures.Linq {
                 while (tgt != null && cnt < nary && items.Any()) {
                     var item = items.Dequeue();
                     addAction(tgt, item);
-                    //if (item != null && tgt.Children.Contains(item)) {
-                    if (item != null && (nests(tgt) ?? Enumerable.Empty<U>()).Contains(item)) { //tgt.Children.Contains(item)) {
+                    if (item != null && (nests(tgt) ?? Enumerable.Empty<U>()).Contains(item)) { 
                         queue.Enqueue(item);
                         cnt++;
                     }
@@ -343,27 +439,6 @@ namespace TreeStructures.Linq {
         /// <returns>The node converted from the first element that serves as the root.</returns>
         public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Action<U, U> addAction) where U : ITreeNode<U> {
             return AssembleAsNAryTree(self, nary, conv, x => x.Children, addAction);
-            //if (self == null) throw new ArgumentNullException(nameof(self));
-            //if (!self.Any()) throw new InvalidOperationException(nameof(self));
-            //var nds = self.Select(a => conv(a)).SkipWhile(a=>a==null);
-            //U? root = nds.FirstOrDefault();
-            //if (root == null) throw new InvalidOperationException(nameof(conv));
-            //Queue<U> items = new Queue<U>(nds.Skip(1));//ルート以外のノードを格納
-            //Queue<U> queue = new Queue<U>();//追加待ちのノード
-            //queue.Enqueue(root);
-            //while (items.Any() && queue.Any()) {
-            //    int cnt = 0;
-            //    var tgt = queue.Dequeue();
-            //    while (tgt != null && cnt < nary && items.Any()) {
-            //        var item = items.Dequeue();
-            //        addAction(tgt, item);
-            //        if (item != null && tgt.Children.Contains(item)) {
-            //            queue.Enqueue(item);
-            //            cnt++;
-            //        }
-            //    }
-            //}
-            //return root;
         }
         /// <summary>Creates an N-ary tree starting from the first element.</summary>
         /// <remarks>Each node is added in level order.</remarks>

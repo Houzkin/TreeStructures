@@ -64,5 +64,34 @@ namespace SampleConsoleApp {
 			foreach( var x in testseq)Console.WriteLine($"{x.Name}, {x.GetNodeIndex()}");
 
 		}
+		public class CategoryRow {
+			public int Id { get; set; }
+			public int? ParentId { get; set; }
+			public string Name { get; set; }
+		}
+		public static void MethodAAAA() {
+			var SolarSystem = new List<CategoryRow>() {
+				new() { Id = 0, ParentId = null, Name = "Sun" },
+				new() { Id = 1, ParentId = 0, Name = "Mercury" },
+				new() { Id = 2, ParentId = 0, Name = "Venus" },
+				new() { Id = 3, ParentId = 0, Name = "Earth" },
+				new() { Id = 4, ParentId = 0, Name = "Mars" },
+				new() { Id = 5, ParentId = 0, Name = "Jupiter" },
+				new() { Id = 6, ParentId = 0, Name = "Saturn" },
+				new() { Id = 7, ParentId = 0, Name = "Uranus" },
+				new() { Id = 8, ParentId = 0, Name = "Neptune" },
+				new() { Id = 9, ParentId = 3, Name = "Moon" },
+				new() { Id = 10, ParentId = 4, Name = "Phobos" },
+				new() { Id = 11, ParentId = 4, Name = "Deimos" },
+				new() { Id = 12, ParentId = 5, Name = "Io" },
+				new() { Id = 13, ParentId = 5, Name = "Europa" },
+				new() { Id = 14, ParentId = 5, Name = "Ganymede" },
+				new() { Id = 15, ParentId = 5, Name = "Callisto" },
+				new() { Id = 16, ParentId = 5, Name = "Amalthea" },
+			};
+			var SolarSystemTrees = SolarSystem.AssembleForestById(x => x.Id, x => x.ParentId, x => new NamedNode() { Name = x.Name });
+			Console.WriteLine(SolarSystemTrees.First().ToTreeDiagram(x => x.Name));
+
+		}
 	}
 }

@@ -21,12 +21,12 @@ namespace TreeStructures.Collections {
 			return 0;
 		}
 
-		public static TList RestoreAfter<T,TList>(this IListScroller<T,TList> list,Action<TList> action) where TList: IListScroller<T, TList> {
+		public static TList RestorePosition<T,TList>(this IListScroller<T,TList> list,Action<TList> action) where TList: IListScroller<T, TList> {
 			var b = list.CurrentIndex;
 			action(list.asTList());
 			return list.MoveTo(b);
 		}
-		public static U RestoreAfter<T,TList,U>(this IListScroller<T,TList> list, Func<TList,U> func) where TList : IListScroller<T, TList> {
+		public static U RestorePosition<T,TList,U>(this IListScroller<T,TList> list, Func<TList,U> func) where TList : IListScroller<T, TList> {
 			var b = list.CurrentIndex;
 			U result = func(list.asTList());
 			list.MoveTo(b);
@@ -109,7 +109,7 @@ namespace TreeStructures.Collections {
 			=> list.CurrentIndex == 0;
 		public static bool IsFirst<T,TList>(this IListScroller<T,TList> list, Predicate<T> predicate)where TList : IListScroller<T, TList> {
 			bool result = false;
-			list.RestoreAfter(self => {
+			list.RestorePosition(self => {
 				int idx = self.CurrentIndex;
 				Action<int> check = (cruIdx) => { result = idx == cruIdx; };
 				self.Reset();
@@ -127,7 +127,7 @@ namespace TreeStructures.Collections {
 		}
 		public static bool IsLast<T,TList>(this IListScroller<T,TList> list,Predicate<T> predicate) where TList : IListScroller<T, TList> {
 			bool result = false;
-			list.RestoreAfter(self => {
+			list.RestorePosition(self => {
 				int idx = self.CurrentIndex;
 				Action<int> check = (cruIdx) => { result = idx == cruIdx; };
 				self.MoveTo(self.Tail());
@@ -197,14 +197,14 @@ namespace TreeStructures.Collections {
 					return lst.TryNext();
 				}, 
 				lst => {
-					lst.RestoreAfter(x => currentAction(x.Current));
+					lst.RestorePosition(x => currentAction(x.Current));
 				});
 		}
 		public static TList MoveForEachReverse<T, TList>(this IListScroller<T, TList> list, Action<T> currentAction) where TList : IListScroller<T, TList> {
 			list.Reset();
 			if (list.CurrentIndex < 0) return list.asTList();
 			list.MoveTo(list.Tail());
-			return list.DoWhile(lst => lst.TryPrevious(), lst=>lst.RestoreAfter(x=>currentAction(x.Current)));
+			return list.DoWhile(lst => lst.TryPrevious(), lst=>lst.RestorePosition(x=>currentAction(x.Current)));
 		}
 		public static TList Repeat<T,TList>(this IListScroller<T,TList> list, int count,Action<int,TList> action) where TList : IListScroller<T, TList> {
 			for (int i = 1; i <= count; i++) { action(i, list.asTList()); }
