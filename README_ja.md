@@ -67,6 +67,8 @@ MVVM の ViewModel など、観測可能で破棄が必要な場合を想定し�
 `HierarchyWrapper<TSrc,TWrpr>`や`BindableHierarchyWrapper<TSrc,TWrpr>`を使って階層構造をラップする、または、`AsValuedTreeNode`メソッドを呼び出すことによって、`ITreeNode<TNode>`の拡張メソッドにアクセスできます。
 
 その他にも、拡張メソッドの`AssembleTree`や`AssembleTryByPath`、`ToNodeMap`など、相互変換方法をいくつか用意しています。  
+組立メソッドは`ITreeNode<T>`を実装していない階層構造も組立てることができます。
+
 
 ## 実装過程で必要となった、汎用性のあるクラス 
 
