@@ -27,6 +27,14 @@ namespace TreeStructures.Linq {
             seeds = seeds.Skip(1);
             return true;
         }
+        internal static IEnumerable<T> TraverseAsHierarchy<T>(this T startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) { 
+            ISet<T> exphistory = new HashSet<T>();//展開した履歴
+            ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
+            IEnumerable<T?> seeds = new T[1] { (T)startNode };
+            while (expand(ref exphistory, out T? cur, ref seeds, getNodes, updatePendingNodes)) {
+                if (cur != null && rtnhistory.Add(cur)) yield return cur;
+            }
+        }
 
         /// <summary>
         /// Expands and enumerates a tree structure starting from the current node, allowing custom logic for adding and updating nodes during the traversal.
@@ -56,12 +64,7 @@ namespace TreeStructures.Linq {
         /// </description></listheader>
         /// </list></param>
         public static IEnumerable<T> Traverse<T>(this ITreeNode<T> startNode, Func<T, IEnumerable<T?>> getNodes, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updatePendingNodes) where T : ITreeNode<T> {
-            ISet<T> exphistory = new HashSet<T>();//展開した履歴
-            ISet<T> rtnhistory = new HashSet<T>();//列挙した履歴
-            IEnumerable<T?> seeds = new T[1] { (T)startNode };
-            while (expand(ref exphistory, out T? cur, ref seeds, getNodes, updatePendingNodes)) {
-                if (cur != null && rtnhistory.Add(cur)) yield return cur;
-            }
+            return TraverseAsHierarchy((T)startNode, getNodes, updatePendingNodes);
         }
 
         /// <summary>Generates a sequence in preorder starting from the current node.</summary>

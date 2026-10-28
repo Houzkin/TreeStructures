@@ -25,6 +25,7 @@ namespace TreeStructures {
         protected TreeNodeBase() { }
 
         /// <summary>Gets or sets the parent node. <inheritdoc/></summary>
+        [XmlIgnore]
         public TNode? Parent { get; private set; }
 
         [NonSerialized]
@@ -92,14 +93,14 @@ namespace TreeStructures {
         /// <code>(collection, index, node) => ((IList&lt;TNode&gt;)collection)[index] = node;</code>
         /// </param>
         /// <exception cref="NotSupportedException"></exception>
-        protected virtual void SetChildProcess(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
+        protected virtual void SetChildCore(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
             if (!CanAddChildNode(child)) return;
             var bfr = this.childCash();
             action ??= (collection, index, node) => ((IList<TNode>)collection)[index] = node;
             try {
                 var p = child?.Parent;
                 child?.SetParent(Self);
-                p?.RemoveChildProcess(child);
+                p?.RemoveChildCore(child);
                 var rmv = ChildNodes.ElementAt(index);
                 if (rmv?.Parent == Self) rmv.SetParent(null);
                 action(ChildNodes, index, child);
@@ -121,7 +122,7 @@ namespace TreeStructures {
         /// <code>(collection, idx, node) => ((IList&lt;TNode&gt;)collection).Insert(idx, node);</code>
         /// </param>
         /// <exception cref="NotSupportedException"></exception>
-        protected virtual void InsertChildProcess(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
+        protected virtual void InsertChildCore(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
             if (!CanAddChildNode(child)) return;
             action ??= (collection, idx, node) => ((IList<TNode>)collection).Insert(idx, node);
             
@@ -129,7 +130,7 @@ namespace TreeStructures {
             try {
                 var p = child?.Parent;
                 child?.SetParent(Self);
-                p?.RemoveChildProcess(child);
+                p?.RemoveChildCore(child);
                 action(ChildNodes,index, child);
             }catch(InvalidCastException ex) {
                 throw new NotSupportedException($"The specified addition operation cannot be performed on {nameof(ChildNodes)}. Please check and ensure the argument {nameof(action)} is correctly specified.", ex);
@@ -148,7 +149,7 @@ namespace TreeStructures {
         /// Specifies the collection operation. Default behavior:
         /// <code>(collection, node) => ((ICollection&lt;TNode&gt;)collection).Remove(node);</code>
         /// </param>
-        protected virtual void RemoveChildProcess(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
+        protected virtual void RemoveChildCore(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
             action ??= (collection, node) => ((ICollection<TNode>)collection).Remove(node);
             var bfr = this.childCash();
             try {
@@ -171,7 +172,7 @@ namespace TreeStructures {
         /// <code>(collection) => ((ICollection&lt;TNode&gt;)collection).Clear();</code>
         /// </param>
         /// <exception cref="NotSupportedException"></exception>
-        protected virtual void ClearChildProcess(Action<IEnumerable<TNode>>? action = null) {
+        protected virtual void ClearChildCore(Action<IEnumerable<TNode>>? action = null) {
             action ??= (collection) => ((ICollection<TNode>)collection).Clear();
             var bfr = this.childCash();
             try {
@@ -201,7 +202,7 @@ namespace TreeStructures {
         /// };</code>
         /// </param>
         /// <exception cref="NotSupportedException"></exception>
-        protected virtual void ShiftChildProcess(int oldIndex,int newIndex,Action<IEnumerable<TNode>,int,int>? action = null) {
+        protected virtual void ShiftChildCore(int oldIndex,int newIndex,Action<IEnumerable<TNode>,int,int>? action = null) {
             action ??= (collection, newidx, oldidx) => {
                 var nodes = (IList<TNode>)collection;
                 var tgt = nodes[oldidx];
@@ -233,7 +234,7 @@ namespace TreeStructures {
                 }
                 foreach (var ads in addchilds) {//追加されたノード
                     if (ads.Parent != null && ads.Parent != Self && ads.Parent.Children.Contains(ads)) {
-                        RemoveChildProcess(ads);
+                        RemoveChildCore(ads);
                     } else {
                         ads.SetParent(Self);
                     }
@@ -241,7 +242,7 @@ namespace TreeStructures {
                 foreach (var ads in immtchilds) {
                     //子ノードの親への参照が変わっていたときの処理
                     if (ads.Parent != null && ads.Parent != Self && ads.Parent.Children.Contains(ads)) {
-                        ads.Parent.RemoveChildProcess(ads);
+                        ads.Parent.RemoveChildCore(ads);
                     } else {
                         ads.SetParent(Self);
                     }
@@ -249,23 +250,57 @@ namespace TreeStructures {
             }catch (Exception ignore) { }
         }
 
-        /// <summary>
-        /// Executes the Dispose process.
-        /// <para>In the base class, <see cref="RemoveChildProcess(TNode, Action{IEnumerable{TNode}, TNode}?)"/> is executed.</para>
-        /// </summary>
-        /// <remarks>
-        /// In the base class, the current node is detached from the parent node, and the Dispose method is called sequentially from the descendants' leaf nodes.
-        /// </remarks>
-        protected virtual void DisposeProcess() {
+        ///// <summary>
+        ///// Executes the Dispose process.
+        ///// <para>In the base class, <see cref="RemoveChildCore(TNode, Action{IEnumerable{TNode}, TNode}?)"/> is executed.</para>
+        ///// </summary>
+        ///// <remarks>
+        ///// In the base class, the current node is detached from the parent node, and the Dispose method is called sequentially from the descendants' leaf nodes.
+        ///// </remarks>
+        //protected virtual void DisposeCore() {
+        //    try {
+        //        this.Parent?.RemoveChildCore(Self);
+        //    } catch { }
+        //    foreach (var cld in this.Traverse(a => a.ChildNodes, (a, b, c) => c.Concat(b).AddHead(a)).Skip(1).Reverse().OfType<IDisposable>()) {
+        //        cld.Dispose();
+        //    }
+        //}
+        [NonSerialized]
+        bool _isDisposed;
+        [NonSerialized]
+        bool _isDisposing;
+		/// <summary>
+		/// Use this method as the base class Dispose implementation when implementing <see cref="IDisposable"/>.<br/>
+		/// Disposes of this node and its descendants, detaching them from their respective parents.<br/>
+		/// Descendant nodes that do not implement <see cref="IDisposable"/> are only detached from their parents.
+		/// </summary>
+        /// <param name="disposing"> 
+        /// <see langword="true"/> to dispose of managed resources as well as unmanaged resources;
+        /// <see langword="false"/> to dispose of unmanaged resources only.
+        /// </param>
+		protected virtual void Dispose(bool disposing) {
+            if (_isDisposed || _isDisposing) return;
             try {
-                this.Parent?.RemoveChildProcess(Self);
-            } catch { }
-            foreach (var cld in this.Traverse(a => a.ChildNodes, (a, b, c) => c.Concat(b).AddHead(a)).Skip(1).Reverse().OfType<IDisposable>()) {
-                cld.Dispose();
+				_isDisposing = true;
+				if (disposing) {
+					var seq = this.Traverse(a => a.ChildNodes, (a, b, c) => c.Concat(b).AddHead(a)).Skip(1).Reverse();
+					foreach (var child in seq) {
+						if (child is IDisposable dsp) {
+							dsp.Dispose();
+						} else {
+							try {
+								child.Parent?.RemoveChildCore(child);
+							} catch { }
+						}
+					}
+					try {
+						this.Parent?.RemoveChildCore(Self);
+					} catch { }
+				}
+            } finally {
+				_isDisposing = false;
             }
-            //foreach (var cld in this.Levelorder().Skip(1).Reverse().OfType<IDisposable>()) {
-            //    cld.Dispose();
-            //}
+			_isDisposed = true;
         }
         #endregion
     }

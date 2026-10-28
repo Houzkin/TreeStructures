@@ -8,15 +8,6 @@ using TreeStructures.Linq;
 
 namespace SampleConsoleApp;
 
-[Serializable]
-public class NamedNode : GeneralTreeNode<NamedNode> {
-    public NamedNode() { }
-    public string Name { get; set; }
-    public override string ToString() {
-        return this.Name;
-    }
-
-}
 public static　partial class UseageSample {
     public static void MethodA() {
         var A = new NamedNode { Name = "A" };

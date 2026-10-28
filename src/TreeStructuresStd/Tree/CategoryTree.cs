@@ -82,7 +82,7 @@ namespace TreeStructures.Tree {
 		public ReactiveCategoryTree(IEnumerable<TItm> items, IEnumerable<Expression<Func<TItm,object>>> properties, IEqualityComparer<TCtg> equality, Func<TItm, TCtg> lv1Category, params Func<TItm, TCtg>[] nestsLvCategories)
 			: base(equality, lv1Category, nestsLvCategories) {
 			_items = new ObservableCollection<TItm>();
-			_trackingCollection = new ReadOnlyObservableTrackingCollection<TItm>(_items);
+			_trackingCollection = new PropertyTrackingCollection<TItm>(_items);
 			//var tlst = _trackingCollection.CreateTrackingList();
 			//tlst.Register(properties);
 			//tlst.AttachHandler(trackingPropertyChanged);
@@ -94,7 +94,7 @@ namespace TreeStructures.Tree {
 			this.Add(items);
 		}
 		ObservableCollection<TItm> _items;
-		ReadOnlyObservableTrackingCollection<TItm> _trackingCollection;
+		PropertyTrackingCollection<TItm> _trackingCollection;
 		private bool disposedValue;
 		void trackingPropertyChanged(TItm sender, ChainedPropertyChangedEventArgs<object> e) {
 			var tgtNodes = Root.LevelOrder()
@@ -296,20 +296,20 @@ namespace TreeStructures.Tree {
 				lst.SortBy(x => x, comparer);
 				return lst;
 			}
-			protected override void InsertChildProcess(int index, Node child, Action<IEnumerable<Node>, int, Node>? action = null) {
+			protected override void InsertChildCore(int index, Node child, Action<IEnumerable<Node>, int, Node>? action = null) {
 				action ??= (list, idx, node) => ((ICollection<Node>)list).Add(node);
-				base.InsertChildProcess(index, child, action);
+				base.InsertChildCore(index, child, action);
 				_childnodes?.Imitate();
 			}
 			internal void Add(Node child) {
-				this.InsertChildProcess(0, child);
+				this.InsertChildCore(0, child);
 			}
-			protected override void RemoveChildProcess(Node child, Action<IEnumerable<Node>, Node>? action = null) {
-				base.RemoveChildProcess(child, action);
+			protected override void RemoveChildCore(Node child, Action<IEnumerable<Node>, Node>? action = null) {
+				base.RemoveChildCore(child, action);
 				_childnodes?.Imitate();
 			}
 			internal void Remove(Node child) {
-				this.RemoveChildProcess(child);
+				this.RemoveChildCore(child);
 			}
 		}
 	}

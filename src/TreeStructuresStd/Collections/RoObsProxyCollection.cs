@@ -38,13 +38,13 @@ namespace TreeStructures.Collections {
 		/// <summary>
 		/// Initializes a new instance.
 		/// </summary>
-		/// <param name="collection">The source collection that implements <see cref="INotifyCollectionChanged"/>.</param>
+		/// <param name="source">The source collection that implements <see cref="INotifyCollectionChanged"/>.</param>
 		/// <param name="convert">A function that converts <typeparamref name="T"/> elements to <typeparamref name="U"/>.</param>
 		/// <param name="equality">A function that determines whether a given <typeparamref name="T"/> element corresponds to a given <typeparamref name="U"/> element.</param>
 		/// <param name="removedHandler">An optional callback invoked when an item is removed.</param>
-		public ReadOnlyObservableProxyCollection(IEnumerable<T> collection, Func<T, U> convert, Func<T, U, bool> equality, Action<U>? removedHandler = null)
+		public ReadOnlyObservableProxyCollection(IEnumerable<T> source, Func<T, U> convert, Func<T, U, bool> equality, Action<U>? removedHandler = null)
 			: base(new ObservableCollection<U>()) {
-			_collection = collection;
+			_collection = source;
 			_converter = convert;
 			_equality = equality;
 			_removedHandler = removedHandler;
@@ -53,7 +53,6 @@ namespace TreeStructures.Collections {
 					h => ncc.CollectionChanged += h,
 					h => ncc.CollectionChanged -= h,
 					(s, e) => ApplyCollectionChange(e));
-				//(s,e)=>_SourceCollectionChanged(s,e));
 			}
 			Items.AlignBy(SourceItems ?? Enumerable.Empty<T>(), _converter, _equality);
 		}
@@ -147,6 +146,16 @@ namespace TreeStructures.Collections {
 
 		}
 
+		/// <inheritdoc/>
+		public new event NotifyCollectionChangedEventHandler? CollectionChanged {
+			add { base.CollectionChanged += value; }
+			remove { base.CollectionChanged -= value; }
+		}
+		/// <inheritdoc/>
+		public new event PropertyChangedEventHandler? PropertyChanged {
+			add { base.PropertyChanged += value; }
+			remove { base.PropertyChanged -= value; }
+		}
 		/// <summary>Prevents operations on an already disposed instance.</summary>
 		/// <exception cref="ObjectDisposedException"></exception>
 		protected void ThrowExceptionIfDisposed() {
@@ -157,23 +166,20 @@ namespace TreeStructures.Collections {
 		protected virtual void Dispose(bool disposing) {
 			if (!isDisposed) {
 				if (disposing) {
-					// TODO: マネージド状態を破棄します (マネージド オブジェクト)
 					_collectionChangedListener?.Dispose();
 				}
-				// TODO: アンマネージド リソース (アンマネージド オブジェクト) を解放し、ファイナライザーをオーバーライドします
-				// TODO: 大きなフィールドを null に設定します
 				isDisposed = true;
 			}
 		}
-		// // TODO: 'Dispose(bool disposing)' にアンマネージド リソースを解放するコードが含まれる場合にのみ、ファイナライザーをオーバーライドします
-		// ~ReadOnlyObservableEnumerable()
-		// {
-		//     // このコードを変更しないでください。クリーンアップ コードを 'Dispose(bool disposing)' メソッドに記述します
-		//     Dispose(disposing: false);
-		// }
-		/// <inheritdoc/>
+		/// <summary>
+		/// Replaces or releases the resources used by the collection, <br/>
+		/// specifically unsubscribing from the source collection's change notifications.<br/>
+		/// <remarks>
+		/// Note: This method does NOT invoke the <see cref="_removedHandler"/> or clear the items in the collection; 
+		/// it only stops monitoring the source collection.
+		/// </remarks>
+		/// </summary>
 		public void Dispose() {
-			// このコードを変更しないでください。クリーンアップ コードを 'Dispose(bool disposing)' メソッドに記述します
 			Dispose(disposing: true);
 			GC.SuppressFinalize(this);
 		}

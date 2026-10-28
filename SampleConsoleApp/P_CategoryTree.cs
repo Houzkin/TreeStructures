@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
@@ -7,10 +8,59 @@ using System.Text;
 using System.Threading.Tasks;
 using TreeStructures;
 using TreeStructures.Collections;
+using TreeStructures.Events;
 using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
+	public class PersonNode : ObservableGeneralTreeNode<PersonNode> {
+		public PersonNode() { }
+		string name = string.Empty;
+		public string Name {
+			get => name;
+			set => SetProperty(ref name, value);
+		}
+		PersonalInfo personalInfo;
+		public PersonalInfo PersonalData {
+			get => personalInfo;
+			set => SetProperty(ref personalInfo, value);
+		}
+		DateTime appo;
+		public DateTime NextAppointment {
+			get => appo; set => SetProperty(ref appo, value);
+		}
+	}
+	public class PersonalInfo : INotifyPropertyChanged{
+		public PersonalInfo() {
+			this.propChangeProxy = new PropertyAccessor(this,()=>PropertyChanged );
+		}
+		PropertyAccessor propChangeProxy { get;}
+		public event PropertyChangedEventHandler? PropertyChanged;
+		int height;
+		/// <summary>(cm)</summary>
+		public int Height {
+			get => height;
+			set { if (propChangeProxy.TrySetField(ref height, value)) propChangeProxy.Notify(nameof(BMI)); }
+		}
+		int weight;
+		/// <summary>(kg)</summary>
+		public int Weight {
+			get => weight;
+			set { if (propChangeProxy.TrySetField(ref weight, value)) propChangeProxy.Notify(nameof(BMI)); }
+		}
+		public double BMI => Weight / Math.Pow(Height * -1.01, 2);
+
+		string state = String.Empty;
+		public string State {
+			get => state; 
+			set => propChangeProxy.TrySetField(ref state, value);
+		}
+		string job = String.Empty;
+		public string Job {
+			get => job; 
+			set => propChangeProxy.TrySetField(ref job, value);
+		}
+	}
 public static partial class UseageSample {
 	public static void MethodP() {
 

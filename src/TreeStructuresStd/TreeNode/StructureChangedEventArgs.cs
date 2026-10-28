@@ -111,7 +111,7 @@ namespace TreeStructures {
         Join,
         /// <summary>Moved within the tree structure spreading from a specific node.</summary>
         Move,
-        /// <summary>Removed from the tree structure spreading from a specific node.</summary>
-        Deviate,
+        /// <summary>Left the tree structure spreading from a specific node.</summary>
+        Leave,
     }
 }

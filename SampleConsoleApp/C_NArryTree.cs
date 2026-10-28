@@ -38,7 +38,7 @@ public static partial class UseageSample {
         Console.WriteLine("\nTransform each node into a different node and assemble them.");
         var convertedRoot = A.Convert(
             x => new NamedBinaryNode() { Name = x.Name.ToLower() },
-            (i, p, c) => p.SetChild(i, c));
+            (p, c, i) => p.SetChild(i, c));
 
         Console.WriteLine(convertedRoot.ToTreeDiagram(x => $"({x.Name})"));
         Console.WriteLine($"Inorder:{string.Join(",", convertedRoot.InOrder().Select(x => x.Name))}");
@@ -49,7 +49,7 @@ public static partial class UseageSample {
 		//Assemble using NodeIndex.
 		var assembledRoot = dic.AssembleTree(
             x => new NamedBinaryNode() { Name = x },
-            (i, p, c) => p.SetChild(i, c));
+            (p, c, i) => p.SetChild(i, c));
 
         Console.WriteLine(assembledRoot.ToTreeDiagram(x => $"[{x.Name}]"));
         Console.WriteLine($"Inorder:{string.Join(",", assembledRoot.InOrder().Select(x => x.Name))}");

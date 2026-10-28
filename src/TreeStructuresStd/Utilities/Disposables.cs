@@ -16,29 +16,44 @@ namespace TreeStructures.Utilities;
 
 public class DisposableObject : IDisposable {
     Action? _disp;
-    public DisposableObject() { }
+	private bool disposedValue;
+
+	public DisposableObject() { }
     public DisposableObject(Action? disp) { _disp = disp; }
-    public void Dispose() { 
-        if( _disp != null) {
-            _disp.Invoke();
-            _disp = null;
-        }
-    }
+
+	protected virtual void Dispose(bool disposing) {
+		if (!disposedValue) {
+			if (disposing) {
+				if (_disp != null) {
+					_disp.Invoke();
+					_disp = null;
+				}
+			}
+			disposedValue = true;
+		}
+	}
+	public void Dispose() {
+		Dispose(disposing: true);
+		GC.SuppressFinalize(this);
+	}
 }
-public class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
+public sealed class ReusableCompositeDisposable : IEnumerable<IDisposable>, IDisposable {
     List<IDisposable> _disposings = new();
-    public LumpedDisopsables(IEnumerable<IDisposable> disposables) {
+    public ReusableCompositeDisposable(IEnumerable<IDisposable> disposables) {
         foreach(var dsp in disposables) this.Add(dsp);
     }
-    public LumpedDisopsables(params IDisposable[] disposables) : this(disposables.AsEnumerable()) { }
-    public LumpedDisopsables() { }
-    public void Dispose() {
+    public ReusableCompositeDisposable(params IDisposable[] disposables) : this(disposables.AsEnumerable()) { }
+    public ReusableCompositeDisposable() { }
+    public void ClearAndDispose() {
         foreach (var disposable in _disposings) { disposable.Dispose(); }
         _disposings.Clear();
     }
+	void IDisposable.Dispose() {
+        this.ClearAndDispose();
+	}
     public void Add(IDisposable disposable) {
-        if(disposable is LumpedDisopsables dispcollection)
-            foreach(var dsp in dispcollection)_disposings.Add(dsp);
+        if (disposable is ReusableCompositeDisposable dispcollection)
+            foreach (var dsp in dispcollection) _disposings.Add(dsp);
         else if (disposable != null)
             _disposings.Add(disposable);
     }
@@ -47,9 +62,6 @@ public class LumpedDisopsables : IEnumerable<IDisposable>, IDisposable {
             _disposings.Remove(dis);
         }
     }
-    //public IEnumerator<IDisposable> GetEnumerator() {
-    //    return _disposings.GetEnumerator();
-    //}
     IEnumerator IEnumerable.GetEnumerator() {
         return _disposings.GetEnumerator();
     }

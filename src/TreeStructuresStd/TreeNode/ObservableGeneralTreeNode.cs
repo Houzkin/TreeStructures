@@ -21,7 +21,7 @@ namespace TreeStructures {
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public ObservableGeneralTreeNode() { this.pcProxy = new PropertyChangeProxy(this, () => this.PropertyChanged); }
+        public ObservableGeneralTreeNode() { this.Properties = new PropertyAccessor(this, () => this.PropertyChanged); }
 
         /// <summary>Initializes a new instance.</summary>
         /// <param name="collection">The collection.</param>
@@ -40,8 +40,8 @@ namespace TreeStructures {
         }
         [NonSerialized]
         readonly string parentchangedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>)+ "." + nameof(Parent);
-        [NonSerialized]
-        readonly string disposedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>) + "." + nameof(Disposed);
+        //[NonSerialized]
+        //readonly string disposedeventkey = "in Library : " + nameof(ObservableGeneralTreeNode<TNode>) + "." + nameof(Disposed);
 
         [NonSerialized]
         StructureChangedEventExecutor<TNode>? _uniqueExcutor;
@@ -49,22 +49,24 @@ namespace TreeStructures {
             get {
                 if(_uniqueExcutor == null) {
                     _uniqueExcutor = new StructureChangedEventExecutor<TNode>(Self);
-                    _uniqueExcutor.Register(disposedeventkey, () => Disposed?.Invoke(Self,EventArgs.Empty));
-                    _uniqueExcutor.Register(parentchangedeventkey, () => OnPropertyChanged(nameof(Parent)));
+                    //_uniqueExcutor.Register(disposedeventkey, () => Disposed?.Invoke(Self,EventArgs.Empty));
+                    _uniqueExcutor.Register(parentchangedeventkey, () => Properties.Notify(nameof(Parent)));
                 }
                 return _uniqueExcutor;
             }
         }
-        [NonSerialized]
-        PropertyChangeProxy pcProxy;
+		/// <summary> Gets the <see cref="PropertyAccessor"/> used to manage property values and raise property change notifications. </summary>
+		protected PropertyAccessor Properties { get; }
         /// <summary>Raises the property changed notification.</summary>
         /// <param name="propName">The property name.</param>
-        protected PropertyChangeProxy OnPropertyChanged([CallerMemberName] string? propName = null)
-            => pcProxy.Notify(propName);
+        [Obsolete]
+        protected PropertyAccessor OnPropertyChanged([CallerMemberName] string? propName = null)
+            => Properties.Notify(propName);
 
         /// <summary>Performs value change and raises the change notification.</summary>
-        protected ResultWithValue<PropertyChangeProxy> SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) 
-            => pcProxy.TrySetAndNotify(ref strage, value, propertyName);
+        [Obsolete]
+        protected ResultWithValue<PropertyAccessor> SetProperty<T>(ref T strage, T value, [CallerMemberName] string? propertyName = null) 
+            => Properties.TrySetField(ref strage, value, propertyName);
         
         /// <inheritdoc/>
         [field: NonSerialized]
@@ -81,56 +83,56 @@ namespace TreeStructures {
             StructureChanged?.Invoke(this, e);
         }
 
-        /// <summary>Occurs when the instance is disposed.</summary>
-        [field: NonSerialized]
-        public event EventHandler? Disposed;
+        ///// <summary>Occurs when the instance is disposed.</summary>
+        //[field: NonSerialized]
+        //public event EventHandler? Disposed;
+        ///// <inheritdoc/>
+        //protected override void Dispose(bool disposing) {
+        //    IDisposable? dsp = null;
+        //    if (disposing){
+        //        if(Disposed != null) {
+        //            dsp = UniqueExcutor.ExecuteUnique(disposedeventkey);
+        //        }
+        //    }
+        //    base.Dispose(disposing);
+        //    dsp?.Dispose();
+        //    Disposed = null;
+        //}
         /// <inheritdoc/>
-        protected override void Dispose(bool disposing) {
-            IDisposable? dsp = null;
-            if (disposing){
-                if(Disposed != null) {
-                    dsp = UniqueExcutor.ExecuteUnique(disposedeventkey);
-                }
-            }
-            base.Dispose(disposing);
-            dsp?.Dispose();
-            Disposed = null;
-        }
-        /// <inheritdoc/>
-        protected override void AddChildProcess(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
+        protected override void AddChildCore(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
             using (child.UniqueExcutor.LateEvaluateTree())
             using (child.DeferParentChangedNotification()) {
-                base.AddChildProcess(child,action);
+                base.AddChildCore(child,action);
             }
         }
         /// <inheritdoc/>
-        protected override void InsertChildProcess(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
+        protected override void InsertChildCore(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
             using (child.UniqueExcutor.LateEvaluateTree())
             using (child.DeferParentChangedNotification()) {
-                base.InsertChildProcess(index, child,action);
+                base.InsertChildCore(index, child,action);
             }
         }
         /// <inheritdoc/>
-        protected override void SetChildProcess(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
+        protected override void SetChildCore(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
             var rmv = ChildNodes.ElementAt(index);
             using (child.UniqueExcutor.LateEvaluateTree())
             using(child.DeferParentChangedNotification())
             using(rmv?.UniqueExcutor.LateEvaluateTree())
             using (rmv?.DeferParentChangedNotification())
-                base.SetChildProcess(index, child,action);
+                base.SetChildCore(index, child,action);
         }
         /// <inheritdoc/>
-        protected override void RemoveChildProcess(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
+        protected override void RemoveChildCore(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
             using (child?.UniqueExcutor.LateEvaluateTree()) 
             using (child?.DeferParentChangedNotification()) {
-                base.RemoveChildProcess(child,action);
+                base.RemoveChildCore(child,action);
             }
         }
         /// <inheritdoc/>
-        protected override void ClearChildProcess(Action<IEnumerable<TNode>>? action = null) {
+        protected override void ClearChildCore(Action<IEnumerable<TNode>>? action = null) {
             using (ChildNodes.Select(a => a?.UniqueExcutor.LateEvaluateTree()).OfType<IDisposable>().CombineDisposables()) 
             using (ChildNodes.Select(a => a?.DeferParentChangedNotification()).OfType<IDisposable>().CombineDisposables()) {
-                base.ClearChildProcess(action);
+                base.ClearChildCore(action);
             }
         }
         /// <summary>Executes the process of moving a child node within the collection.</summary>
@@ -141,12 +143,12 @@ namespace TreeStructures {
         ///     ((ObservableCollection&lt;<typeparamref name="TNode"/>&gt;)collection).Move(idx1, idx2);
         /// </code>
         /// </param>
-        protected override void ShiftChildProcess(int oldIndex, int newIndex,Action<IEnumerable<TNode>,int,int>? action = null) {
+        protected override void ShiftChildCore(int oldIndex, int newIndex,Action<IEnumerable<TNode>,int,int>? action = null) {
             action ??= (collection, idx1, idx2) =>
                 ((ObservableCollection<TNode>)collection).Move(idx1, idx2);
             
             using (ChildNodes.ElementAt(oldIndex)?.UniqueExcutor.LateEvaluateTree()){
-                base.ShiftChildProcess(oldIndex, newIndex,action);
+                base.ShiftChildCore(oldIndex, newIndex,action);
             }
         }
 

@@ -17,9 +17,9 @@ using System.Reactive.Disposables;
 namespace SampleConsoleApp;
 
 public class AdditionalObj : INotifyPropertyChanged {
-	PropertyChangeProxy proxy;
+	PropertyAccessor proxy;
 	public AdditionalObj() {
-		proxy = new PropertyChangeProxy(this, () => PropertyChanged);
+		proxy = new PropertyAccessor(this, () => PropertyChanged);
 	}
 	string title = string.Empty;
 	int number = 0;
@@ -27,11 +27,11 @@ public class AdditionalObj : INotifyPropertyChanged {
 	public event PropertyChangedEventHandler? PropertyChanged;
 	public string Title {
 		get { return title; }
-		set { proxy.TrySetAndNotify(ref title, value); }
+		set { proxy.TrySetField(ref title, value); }
 	}
 	public int Number {
 		get { return number; } 
-		set { proxy.TrySetAndNotify(ref number, value); }
+		set { proxy.TrySetField(ref number, value); }
 	}
 	public override string ToString() {
 		return "Title:" + title + ", Number:" + number.ToString();

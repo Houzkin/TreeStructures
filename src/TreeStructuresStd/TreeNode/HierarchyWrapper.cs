@@ -40,19 +40,17 @@ namespace TreeStructures {
         /// <summary><inheritdoc/></summary>
         public TWrpr? Parent { 
             get { return _parent; }
-            //private protected set {
-            //    //SetProperty(ref _parent, value);
-            //    if (_parent == value) return;
-            //    _parent = value;
-            //}
         }
         private protected virtual bool SetParent(TWrpr? parent){
             if (object.ReferenceEquals(_parent,parent)) return false;
             _parent = parent;
             return true;
         }
-        /// <summary>Specifies a reference to the source's child node collection. Implementing <see cref="INotifyCollectionChanged"/> is not required if synchronization is not intended.</summary>
-        protected abstract IEnumerable<TSrc>? SourceChildren { get; }
+		/// <summary>
+        /// Specifies a reference to the source's child node collection.<br/>
+        /// Use <see cref="HierarchyWrapper{TSrc, TWrpr}.Source"/> to access the current source object.
+        /// </summary>
+		protected abstract IEnumerable<TSrc>? SourceChildren { get; }
         private protected virtual IEnumerable<TSrc>? getSourceChildren {
             get {
                 var src = SourceChildren;
@@ -89,7 +87,6 @@ namespace TreeStructures {
             get {
                 _children ??= SetupPublicChildCollection(InnerChildNodes);
 				if (this.IsImitating && !InnerChildNodes.SourceChildrenIsObservable) {
-					//InnerChildNodes.Pause();
 					InnerChildNodes.Imitate();
 				}
                 return _children;
@@ -99,11 +96,6 @@ namespace TreeStructures {
         /// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
         protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)
             => children;
-        //=> children.AsReadOnlyObservableCollection();
-        //private protected virtual IEnumerable<TWrpr> getSetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children) {
-        //    var spcc = SetupPublicChildCollection(children);
-        //    return (spcc is INotifyCollectionChanged) ? spcc.AsReadOnly() : spcc;
-        //}
 
         /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
         /// <param name="sourceChildNode">Child node to be wrapped</param>
@@ -170,8 +162,10 @@ namespace TreeStructures {
             internal void Pause() {  _childNodes.Pause(); }
             /// <inheritdoc/>
 			protected override void Dispose(bool disposing) {
+                if (disposing) {
+                    _childNodes.Dispose();
+                }
 				base.Dispose(disposing);
-                _childNodes.Dispose();
 			}
 		}
     }

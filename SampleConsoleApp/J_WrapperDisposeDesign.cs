@@ -93,9 +93,9 @@ public static partial class UseageSample{
         foreach (var node in new ObservableNamedNode[]{nodesDic["A"],nodesDic["B"],nodesDic["D"],nodesDic["H"],nodesDic["I"],nodesDic["E"] }){
             node.StructureChanged += structreChangedHdlr;
             node.PropertyChanged += propertyChangedHdlr;
-            node.Disposed += disposedHdlr;
+            //node.Disposed += disposedHdlr;
         }
-        nodesDic["B"].Dispose();
+        //nodesDic["B"].Dispose();
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
 	}

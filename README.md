@@ -29,11 +29,11 @@ Editing: `TryAddChild`, `Try○○Child`, `Disassemble`, `RemoveAllDescendant`, 
 Retrieving parameters: `GetNodeIndex`, `GetNodePath`, `Height`, `Depth`, etc.  
 Validation methods: `IsDescendantOf`, `IsAncestorOf`, `IsRoot`, etc.  
 Conversion: `ToNodeMap`, `ToSerializableNodeMap`, `ToTreeDiagram`, `Convert`, `AsValuedTreeNode`   
-Tree construction: `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`
+Tree construction: `AssembleTree`, `AssembleAsNAryTree`, `AssembleForestByPath`, `AssembleForestById`
 
 ## Mutual References Between Parent and Child Nodes
 Mutual references between parent and child nodes are handled in the base classes (`TreeNodeBase` or `HierarchyWrapper`).  
-In `TreeNodeBase` derivatives, behavior can be customized by overriding `protected virtual` methods such as `RemoveChildProcess` and `InsertChildProcess`.
+In `TreeNodeBase` derivatives, behavior can be customized by overriding `protected virtual` methods such as `RemoveChildCore` and `InsertChildCore`.
 
 ## A Set of Tree Structure Classes and Their Versatility
 Depending on the use case, the following classes can be inherited and used:

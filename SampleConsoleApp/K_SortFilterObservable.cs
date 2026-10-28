@@ -14,9 +14,9 @@ using TreeStructures.Results;
 
 namespace SampleConsoleApp;
 public class ObjA : INotifyPropertyChanged {
-	protected readonly PropertyChangeProxy NotifyProxy;
+	protected readonly PropertyAccessor NotifyProxy;
 	public ObjA() {
-		NotifyProxy = new PropertyChangeProxy(this, () => PropertyChanged);
+		NotifyProxy = new PropertyAccessor(this, () => PropertyChanged);
 	}
 	public event PropertyChangedEventHandler? PropertyChanged;
 }
@@ -25,25 +25,25 @@ public class ObjAA : ObjA {
 	string _lastName = "";
 	public string FistName {
 		get => _fistName;
-		set => NotifyProxy.TrySetAndNotify(ref _fistName, value).When(o => o.Notify(nameof(FullName)));
+		set => NotifyProxy.TrySetField(ref _fistName, value).When(o => o.Notify(nameof(FullName)));
 	}
 	public string LastName {
 		get => _lastName;
-		set => NotifyProxy.TrySetAndNotify(ref _lastName, value).When(o => o.Notify(nameof(FullName)));
+		set => NotifyProxy.TrySetField(ref _lastName, value).When(o => o.Notify(nameof(FullName)));
 	}
 	public string FullName => FistName + " " + LastName;
 }
 public class ObjB : INotifyPropertyChanged {
-	private readonly PropertyChangeProxy notifyProxy;
+	private readonly PropertyAccessor notifyProxy;
 	public ObjB() {
-		notifyProxy = new PropertyChangeProxy(RaisePropertyChangedEvent);
+		notifyProxy = new PropertyAccessor(this,RaisePropertyChangedEvent);
 	}
 	protected virtual void RaisePropertyChangedEvent(PropertyChangedEventArgs e) {
 		PropertyChanged?.Invoke(this, e);
 	}
-	protected ResultWithValue<PropertyChangeProxy> SetProperty<T>(ref T storage, T value, [CallerMemberName]string? propName = null) 
-		=> notifyProxy.TrySetAndNotify(ref storage, value, propName);
-	protected PropertyChangeProxy OnPropertyChanged([CallerMemberName]string? propName = null)
+	protected ResultWithValue<PropertyAccessor> SetProperty<T>(ref T storage, T value, [CallerMemberName]string? propName = null) 
+		=> notifyProxy.TrySetField(ref storage, value, propName);
+	protected PropertyAccessor OnPropertyChanged([CallerMemberName]string? propName = null)
 		=> notifyProxy.Notify(propName);
 	public virtual event PropertyChangedEventHandler? PropertyChanged;
 }
@@ -78,13 +78,13 @@ public class ObjBB : ObjB {
 
 public abstract class NotificationObject : INotifyPropertyChanged {
 	protected NotificationObject() {
-		PropChangeProxy = new PropertyChangeProxy(this, () => PropertyChanged);
+		PropChangeProxy = new PropertyAccessor(this, () => PropertyChanged);
 	}
-	readonly PropertyChangeProxy PropChangeProxy;
+	readonly PropertyAccessor PropChangeProxy;
 
 	public event PropertyChangedEventHandler? PropertyChanged;
 	protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
-		=> PropChangeProxy.TrySetAndNotify(ref storage, value, propertyName);
+		=> PropChangeProxy.TrySetField(ref storage, value, propertyName);
 
 	protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
 		=> PropChangeProxy.Notify(propertyName);

@@ -48,21 +48,21 @@ namespace TreeStructures {
 		private protected override IEnumerable<TSrc>? getSourceChildren => this.SourceChildren;
 
 		#region NotifyPropertyChanged
-		PropertyChangeProxy? _pcProxy;
-		PropertyChangeProxy pcProxy => _pcProxy ??= new PropertyChangeProxy(this, () => PropertyChanged);
+		PropertyAccessor? _pcProxy;
+		PropertyAccessor pcProxy => _pcProxy ??= new PropertyAccessor(this, () => PropertyChanged);
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
 		/// <summary>
 		/// Performs the change of value and issues a change notification.
 		/// </summary>
-		protected ResultWithValue<PropertyChangeProxy> SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
-            pcProxy.TrySetAndNotify(ref storage, value, propertyName);
+		protected ResultWithValue<PropertyAccessor> SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
+            pcProxy.TrySetField(ref storage, value, propertyName);
         /// <summary>
         ///  Issues a property change notification.
         /// </summary>
         /// <param name="propertyName"></param>
-        protected PropertyChangeProxy OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+        protected PropertyAccessor OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
             pcProxy.Notify(propertyName);
         #endregion
 
@@ -124,7 +124,7 @@ namespace TreeStructures {
 					}, (a, b, c) => c.AddHead(a).Concat(b))// b.AddHead(a).Concat(c))
                     .Skip(1).Reverse().OfType<IDisposable>();
                 foreach (var n in nd) n.Dispose();
-				foreach(var n in InnerChildNodes.OfType<IDisposable>()) n.Dispose();
+				//foreach(var n in InnerChildNodes.OfType<IDisposable>()) n.Dispose();
 				InnerChildNodes.Dispose();
             }
             isDisposed = true;

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace TreeStructures.Events {
     /// <summary>An event listener that enables unsubscribing in the Dispose method.</summary>
     /// <typeparam name="THandler">The type of the event handler.</typeparam>
-    public class EventListener<THandler> : IDisposable where THandler : class {
+    public class EventListener<THandler> : IDisposable where THandler : Delegate {
         bool _disposed;
         THandler? _handler;
         Action<THandler>? _remove;
@@ -46,7 +46,7 @@ namespace TreeStructures.Events {
     /// </summary>
     /// <typeparam name="THandler">The type of the event handler.</typeparam>
     /// <typeparam name="TArgs">The type of the event arguments for the subscribed event.</typeparam>
-    public class EventListener<THandler,TArgs> : EventListener<THandler> where THandler:class {
+    public class EventListener<THandler,TArgs> : EventListener<THandler> where THandler: Delegate{
         /// <summary>Initializes the listener.</summary>
         /// <param name="add">Registers the <see cref="EventHandler{TArgs}"/>. Example: <code>h => obj.Event += h</code></param>
         /// <param name="remove">Unsubscribes from the <see cref="EventHandler{TArgs}"/>. Example: <code>h => obj.Event -= h</code></param>

@@ -7,6 +7,7 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using TreeStructures.Collections;
 using TreeStructures.Events;
 using TreeStructures.Internals;
@@ -21,8 +22,19 @@ namespace TreeStructures.Linq {
         }
         /// <summary>Combines disposable collections.</summary>
         public static IDisposable CombineDisposables<T>(this IEnumerable<T> enumerable) where T:IDisposable {
-            return new LumpedDisopsables(enumerable.OfType<IDisposable>());
-        }
+            return new ReusableCompositeDisposable(enumerable.OfType<IDisposable>());
+		}
+		/// <summary>
+		/// Combines the disposable elements and the enumerable itself into a single <see cref="IDisposable"/>.
+		/// </summary>
+		/// <typeparam name="T">The type of the enumerable, which implements both <see cref="IEnumerable{IDisposable}"/> and <see cref="IDisposable"/>.</typeparam>
+		/// <param name="disposable">The enumerable whose elements and itself are to be combined.</param>
+		/// <returns>A disposable object that disposes the elements and the enumerable itself.</returns>
+		public static IDisposable CombineDisposablesAndSelf<T>(this T disposable) where T : IEnumerable<IDisposable>, IDisposable {
+			var rcd = new ReusableCompositeDisposable(disposable.OfType<IDisposable>());
+			if(disposable is not ReusableCompositeDisposable) rcd.Add(disposable);
+			return rcd;
+		}
         /// <summary>Generates an instance for traversing the sequence.</summary>
 		public static ListScroller<T> ToListScroller<T>(this IEnumerable<T> list) {
 			return new ListScroller<T>(list);
@@ -50,11 +62,23 @@ namespace TreeStructures.Linq {
 			var editer = new ListAligner<T, ObservableCollection<T>>(self, move: (list, ord, to) => { list.Move(ord, to); }, comparer: equality);
 			editer.AlignBy(sequence);
 		}
+		public static void AlignBy<S,T>(this IList<T> self, IEnumerable<S> sequence,Func<S,T> convert, Func<S,T,bool> equality) {
+			var editer = new ListAligner<S, T, IList<T>>(self, convert, equality);
+			editer.AlignBy(sequence);
+		}
 		public static void AlignBy<S,T>(this ObservableCollection<T> self, IEnumerable<S> sequence,Func<S,T> convert,Func<S,T,bool> equality) {
 			var editer = new ListAligner<S, T, ObservableCollection<T>>(self, convert, equality, move: (list, ord, to) => list.Move(ord, to));
 			editer.AlignBy(sequence);
 		}
-		public static ImitableCollection<U> ToImitable<T, U>(this IEnumerable<T> self, Func<T, U> convert, Action<U>? removedAction = null, bool isImitate = true) {
+		/// <summary>Assists in initializing an instance.</summary>
+		/// <typeparam name="TSrc">The type of elements in the source collection for synchronization.</typeparam>
+		/// <typeparam name="TDst">The type of elements in the target imitable collection.</typeparam>
+		/// <param name="self">The source collection for synchronization.</param>
+		/// <param name="convert">A function to convert elements from <typeparamref name="TSrc"/> to corresponding <typeparamref name="TDst"/>.</param>
+        /// <param name = "removedAction" > Action to be performed when an element is removed from the collection or this instance disposed.</param>
+		/// <param name="isImitate">Specifies whether to initialize in a synchronized state.</param>
+		/// <returns></returns>
+		public static ImitableCollection<TDst> ToImitable<TSrc, TDst>(this IEnumerable<TSrc> self, Func<TSrc, TDst> convert, Action<TDst>? removedAction = null, bool isImitate = true) {
 			return ImitableCollection.CreateFrom(self, convert, removedAction, isImitate);
 		}
 
@@ -82,7 +106,7 @@ namespace TreeStructures.Linq {
 		/// <param name="equality"></param>
 		/// <param name="removedHandler"></param>
 		/// <returns></returns>
-		public static IReadOnlyObservableProxyCollection<U> ToReadOnlyObservable<T,U>(this IEnumerable<T> self, Func<T,U> convert, Func<T,U,bool> equality, Action<U>? removedHandler = null) {
+		public static ReadOnlyObservableProxyCollection<T, U> ToReadOnlyObservable<T,U>(this IEnumerable<T> self, Func<T,U> convert, Func<T,U,bool> equality, Action<U>? removedHandler = null) {
 			return new ReadOnlyObservableProxyCollection<T, U>(self, convert, equality, removedHandler);
 		}
 		/// <summary>
@@ -92,12 +116,10 @@ namespace TreeStructures.Linq {
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="self"></param>
-		/// <param name="adding"></param>
-		/// <param name="removed"></param>
-		/// <param name="equality"></param>
 		/// <returns></returns>
-		public static IReadOnlyObservableProxyCollection<T> ToReadOnlyObservable<T>(this IEnumerable<T> self,Action<T>? adding = null, Action<T>? removed = null, IEqualityComparer<T>? equality = null) {
-			return new ReadOnlyObservableProxyCollection<T>(self, adding, removed, equality);
+		public static ReadOnlyObservableProxyCollection<T> ToReadOnlyObservable<T>(this IEnumerable<T> self/*,Action<T>? adding = null, Action<T>? removed = null, IEqualityComparer<T>? equality = null*/) {
+			//return new ReadOnlyObservableProxyCollection<T>(self, adding, removed, equality);
+			return new ReadOnlyObservableProxyCollection<T>(self);
 		}
 
 		/// <summary>

@@ -17,7 +17,7 @@ public static partial class UseageSample {
 
 		var obsList = new ObservableCollection<ObservableItemNode>("ABCD".Select(x => new ObservableItemNode() { Name = x.ToString() }));
 
-		var observer = new ReadOnlyObservableTrackingCollection<ObservableItemNode>(obsList);
+		var observer = new PropertyTrackingCollection<ObservableItemNode>(obsList);
 
 		
 		var listener0 = new EventListener<Action<ObservableItemNode, ChainedPropertyChangedEventArgs<object>>>(

@@ -19,10 +19,10 @@ public static partial class  UseageSample {
 
 		var obj = new ObservableNamedNode();
 
-		var listener1 = new EventListener<EventHandler>(
-			h => obj.Disposed += h,
-			h => obj.Disposed -= h,
-			(s, e) => { });
+		//var listener1 = new EventListener<EventHandler>(
+		//	h => obj.Disposed += h,
+		//	h => obj.Disposed -= h,
+		//	(s, e) => { });
 
 		var listener2 = new EventListener<PropertyChangedEventHandler>(
 			h => obj.PropertyChanged += h,
@@ -40,11 +40,11 @@ public static partial class  UseageSample {
 			h => (s, e) => h(s, new PropertyChangedEventArgs(e.Target.Name)),
 			propchanged);
 
-		var listeners = new LumpedDisopsables(listener1, listener2, listener3, listener4);
+		var listeners = new ReusableCompositeDisposable(/*listener1, */listener2, listener3, listener4);
 		//var listeners = new IDisposable[] { listener1, listener2, listener3, listener4 }.CombineDisposables();
 
 		// Unsbscribe
-		listeners.Dispose();
+		listeners.ClearAndDispose();
 		
 	}
 	static void propchanged(object? s, PropertyChangedEventArgs e) { }

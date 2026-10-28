@@ -19,12 +19,12 @@ namespace TreeStructures.Collections {
 		public ReadOnlyObservableFilterSortCollection(IEnumerable<T> source,IEqualityComparer<T>? equality = null) 
 			: base(source,null,null,equality) {
 			_equality = equality ?? Equality<T>.ValueOrReference;
-			_observer = new ReadOnlyObservableTrackingCollection<T>(source);
+			_observer = new PropertyTrackingCollection<T>(source);
 			_observer.TrackingPropertyChanged += (s, e) => Align();
 			_filterExps = _observer.CreateTrackingList();
 			_comparExps = _observer.CreateTrackingList();
 		}
-		ReadOnlyObservableTrackingCollection<T> _observer;
+		PropertyTrackingCollection<T> _observer;
 
 		IEqualityComparer<T> _equality;
 
@@ -67,6 +67,14 @@ namespace TreeStructures.Collections {
 			_filter = filterFunc;
 			var props = triggerProperties.AddHead(triggerProperty);
 			_filterExps.Register(props);
+			Align();
+		}
+		/// <summary>
+		/// Filters the collection by the specified function.
+		/// </summary>
+		public void FilterBy(Func<T,bool> filterFunc) {
+			_filterExps.Clear();
+			_filter = filterFunc;
 			Align();
 		}
 		/// <summary>Clear filter.</summary>

@@ -16,13 +16,13 @@ namespace TreeStructures {
         [XmlIgnore]
         public TNode? Left {
             get { return ChildNodes.ElementAt(0); }
-            set { if (base.CanAddChildNode(value)) SetChildProcess(0, value); }
+            set { if (base.CanAddChildNode(value)) SetChildCore(0, value); }
         }
         /// <summary>The node indicated by index 1.</summary>
         [XmlIgnore]
         public TNode? Right {
             get { return ChildNodes.ElementAt(1); }
-            set { if (base.CanAddChildNode(value)) SetChildProcess(1, value); }
+            set { if (base.CanAddChildNode(value)) SetChildCore(1, value); }
         }
     }
 }

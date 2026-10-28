@@ -137,12 +137,12 @@ namespace TreeStructures.Collections {
 			Action _alignItems;
 			Action _clearItems;
 			bool _isImitating = false;
-			LumpedDisopsables _disposables = new LumpedDisopsables();
+			ReusableCompositeDisposable _disposables = new();
 			protected override IEnumerable<TSrc> SourceItems => _src;
 			bool switchConnection(bool imitate) {
 				if (_isImitating == imitate) return false;//既に指定した状態だった場合false
 				_isImitating = imitate;
-				this.OnPropertyChanged(PropertyChangeProxy.GetOrAddCachedEventArgs(nameof(IsImitating)));
+				this.OnPropertyChanged(PropertyAccessor.GetOrAddCachedEventArgs(nameof(IsImitating)));
 				return true;//指定した状態に変更した場合true
 			}
 			public bool IsImitating => _isImitating;
@@ -162,11 +162,11 @@ namespace TreeStructures.Collections {
 			public void ClearAndStop() {
 				_clearItems?.Invoke();
 				switchConnection(false);
-				_disposables.Dispose();
+				_disposables.ClearAndDispose();
 			}
 			public void Stop() {
 				switchConnection(false);
-				_disposables.Dispose();
+				_disposables.ClearAndDispose();
 			}
 		}
 	}

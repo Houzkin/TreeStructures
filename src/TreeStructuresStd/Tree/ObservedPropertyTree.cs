@@ -130,12 +130,12 @@ namespace TreeStructures.Tree {
 
             /// <summary>Add child node.</summary>
             protected void AddChildProcess(PropertyChainNode child) {
-                if (this.CanAddChildNode(child)) base.InsertChildProcess(0, child, (c, i, n) => ((ICollection<PropertyChainNode>)c).Add(n));
+                if (this.CanAddChildNode(child)) base.InsertChildCore(0, child, (c, i, n) => ((ICollection<PropertyChainNode>)c).Add(n));
             }
             /// <summary><inheritdoc/></summary>
-            protected override void RemoveChildProcess(PropertyChainNode child,Action<IEnumerable<PropertyChainNode>,PropertyChainNode>? action = null) {
+            protected override void RemoveChildCore(PropertyChainNode child,Action<IEnumerable<PropertyChainNode>,PropertyChainNode>? action = null) {
                 if (!ChildNodes.Contains(child)) return;
-                base.RemoveChildProcess(child);
+                base.RemoveChildCore(child);
                 foreach (var item in ChainToLeafs.Where(x => x.First() == child.NamedProperty).ToArray()){
                     var lst = new Stack<string>(item.Reverse());
                     foreach(var upstm in this.Upstream()) {
@@ -212,7 +212,7 @@ namespace TreeStructures.Tree {
             
             internal void Dispose() {
                 targetListener?.Dispose();
-                this.Parent?.RemoveChildProcess(Self);
+                this.Parent?.RemoveChildCore(Self);
             }
         }
         private class PropertyChainRoot : PropertyChainNode {

@@ -64,13 +64,8 @@ namespace SampleConsoleApp {
 			foreach( var x in testseq)Console.WriteLine($"{x.Name}, {x.GetNodeIndex()}");
 
 		}
-		public class CategoryRow {
-			public int Id { get; set; }
-			public int? ParentId { get; set; }
-			public string Name { get; set; }
-		}
 		public static void MethodAAAA() {
-			var SolarSystem = new List<CategoryRow>() {
+			var SolarSystem = new List<NamedRow>() {
 				new() { Id = 0, ParentId = null, Name = "Sun" },
 				new() { Id = 1, ParentId = 0, Name = "Mercury" },
 				new() { Id = 2, ParentId = 0, Name = "Venus" },
@@ -91,6 +86,25 @@ namespace SampleConsoleApp {
 			};
 			var SolarSystemTrees = SolarSystem.AssembleForestById(x => x.Id, x => x.ParentId, x => new NamedNode() { Name = x.Name });
 			Console.WriteLine(SolarSystemTrees.First().ToTreeDiagram(x => x.Name));
+			/*
+			Sun
+			├ Mercury
+			├ Venus
+			├ Earth
+			│ └ Moon
+			├ Mars
+			│ ├ Phobos
+			│ └ Deimos
+			├ Jupiter
+			│ ├ Io
+			│ ├ Europa
+			│ ├ Ganymede
+			│ ├ Callisto
+			│ └ Amalthea
+			├ Saturn
+			├ Uranus
+			└ Neptune
+			 */
 
 		}
 	}

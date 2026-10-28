@@ -16,7 +16,7 @@ using TreeStructures.Results;
 using TreeStructures.Tree;
 using TreeStructures.Utilities;
 
-namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
+namespace TreeStructures.Collections {
 
 	/// <summary>
 	/// Provides a collection that allows subscribing to property change notifications for each element in bulk.  
@@ -25,20 +25,20 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 	/// After use, call <see cref="Dispose()"/> to unsubscribe from the collection and property change notifications.
 	/// </summary>
 	/// <typeparam name="T">The type of the elements in the collection. To receive property change notifications, the elements must implement <see cref="INotifyPropertyChanged"/>.</typeparam>
-	public class ReadOnlyObservableTrackingCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
+	public class PropertyTrackingCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
 
 		ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>> _trees;
 		List<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _trackingDics = new();
 		IDisposable? _listener;
 
 		/// <summary>
-		/// Gets the <see cref="IEnumerable{T}"/>that the <see cref="ReadOnlyObservableTrackingCollection{T}"/> wraps.
+		/// Gets the <see cref="IEnumerable{T}"/>that the <see cref="PropertyTrackingCollection{T}"/> wraps.
 		/// </summary>
 		protected IEnumerable<T> Items { get; }
 
 		/// <summary>Initializes a new instance.</summary>
 		/// <param name="items">The source collection to be referenced. To enable synchronization, the collection must implement <see cref="INotifyCollectionChanged"/>.</param>
-		public ReadOnlyObservableTrackingCollection(IEnumerable<T> items) {
+		public PropertyTrackingCollection(IEnumerable<T> items) {
 
 			Items = items;
 			_trees = new ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>>(
@@ -113,9 +113,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// If duplicates are allowed, a new collection should be acquired.
 		/// </summary>
 		/// <returns>A collection for adding and removing properties to subscribe to.</returns>
-		public TrackingPropertyList<T> CreateTrackingList() { //} => new ExpressionSubscriptionList(addExpressions, removeExpressions, clearExpressions, dispExpressions);
-															  //var dic = new Dictionary<Expression<Func<T, object>>, Dictionary<ObservedPropertyTree<T>, IDisposable>>(
-															  //	Equality<Expression<Func<T, object>>>.ComparerBySequence(x => PropertyUtils.GetPropertyPath(x)));
+		public TrackingPropertyList<T> CreateTrackingList() { 
 			var dic = new Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>();
 			_trackingDics.Add(dic);
 			return new TrackingPropertyList<T>(this, dic, addExpressions, removeExpressions, clearExpressions, dispExpressions);
@@ -174,7 +172,12 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <summary>
 		/// CollectionChanged event (per <see cref="INotifyCollectionChanged" />).
 		/// </summary>
-		public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
+		event NotifyCollectionChangedEventHandler? INotifyCollectionChanged.CollectionChanged {
+			add { this.CollectionChanged += value; }
+			remove { this.CollectionChanged -= value; }
+		}
+
+		private event NotifyCollectionChangedEventHandler? CollectionChanged;
 
 		bool isDisposed = false;
 		///<inheritdoc/>
@@ -238,7 +241,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 	/// Duplicate properties are excluded from the collection.
 	/// </summary>
 	public class TrackingPropertyList<T> : IEnumerable<string>, IDisposable {
-		ReadOnlyObservableTrackingCollection<T> _self;
+		PropertyTrackingCollection<T> _self;
 		Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> _area;
 		Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _addAction;
 		Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> _removeAction;
@@ -247,7 +250,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		bool isDisposed = false;
 
 		internal TrackingPropertyList(
-			ReadOnlyObservableTrackingCollection<T> self,
+			PropertyTrackingCollection<T> self,
 			Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>> area,
 			Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> addAction,
 			Action<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>, IEnumerable<Expression<Func<T, object>>>> removeAction,
@@ -268,7 +271,7 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 		/// <returns>A disposable object used to unsubscribe from the notification.</returns>
 		public IDisposable AttachHandler(Action<T, ChainedPropertyChangedEventArgs<object>> handle) {
 			Action<T, ChainedPropertyChangedEventArgs<object>> action = (s, e) => {
-				if (_area.Keys.Select(x=>x.Split('.')).Any(y=>y.SequenceEqual(e.ChainedProperties)))//(this.Select(x => PropertyUtils.GetPropertyPath(x)).Any(y => y.SequenceEqual(e.ChainedProperties))) 
+				if (_area.Keys.Select(x=>x.Split('.')).Any(y=>y.SequenceEqual(e.ChainedProperties)))
 					handle(s, e);
 			};
 			_self.TrackingPropertyChanged += action;
@@ -339,10 +342,6 @@ namespace TreeStructures.Collections {//ReadOnlyItemTrackingCollection
 			if (isDisposed)
 				throw new ObjectDisposedException(GetType().FullName, "The instance has already been disposed and cannot be operated on.");
 		}
-
-		///// <inheritdoc/>
-		//public override IEnumerator<Expression<Func<T, object>>> GetEnumerator()
-		//	=> _area.Keys.Select(x => PropertyUtils.CreatePropertyExpression<T>(x)).GetEnumerator();
 
 		/// <inheritdoc/>
 		public IEnumerator<string> GetEnumerator() {

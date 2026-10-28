@@ -56,9 +56,9 @@ namespace TreeStructures.Collections {
         /// <param name="sequence"></param>
         /// <param name="comparer"></param>
         /// <returns></returns>
-        public static EqualityComparer<T> ComparerBySequence<U>(Func<T,IEnumerable<U>> sequence, IEqualityComparer<U>? comparer = null)  {
-            return new AnonymousEqualityComparer<T, IEnumerable<U>>(sequence, new SequenceEqualityComparer<IEnumerable<U>,U>(comparer));
-        }
+        //public static EqualityComparer<T> ComparerBySequence<U>(Func<T,IEnumerable<U>> sequence, IEqualityComparer<U>? comparer = null)  {
+        //    return new AnonymousEqualityComparer<T, IEnumerable<U>>(sequence, new SequenceEqualityComparer<IEnumerable<U>,U>(comparer));
+        //}
         /// <summary>
         /// Returns a reference equality comparer for the type specified by generic argument.
         /// </summary>
@@ -70,27 +70,26 @@ namespace TreeStructures.Collections {
 		public static EqualityComparer<T> ValueOrReference { get; } = new AnonymousEqualityComparer<T>(
             (a, b) => typeof(T).IsValueType ? EqualityComparer<T>.Default.Equals(a, b) : ReferenceEquals(a, b));
 
-        //public static EqualityComparer<T> Sequence
     }
-    public class SequenceEqualityComparer<TSeq,TItm> :EqualityComparer<TSeq> where TSeq : IEnumerable<TItm> {
-        readonly IEqualityComparer<TItm> comparer;
-        public SequenceEqualityComparer(IEqualityComparer<TItm>? itemEquality = null) {
-            comparer = itemEquality ?? EqualityComparer<TItm>.Default;
-        }
-		///<inheritdoc/> 
-		public override bool Equals(TSeq? x, TSeq? y) {
-			if (x == null && y == null) { return true; }
-			if (x == null || y == null) { return false; }
-            return x.SequenceEqual(y, comparer);
-		}
-		///<inheritdoc/> 
-		public override int GetHashCode(TSeq obj) {
-			if (obj == null) return 0;
-            var hash = new HashCode();
-            foreach (var itm in obj) hash.Add(itm);
-            return hash.ToHashCode();
-		}
-	}
+ //   public class SequenceEqualityComparer<TSeq,TItm> :EqualityComparer<TSeq> where TSeq : IEnumerable<TItm> {
+ //       readonly IEqualityComparer<TItm> comparer;
+ //       public SequenceEqualityComparer(IEqualityComparer<TItm>? itemEquality = null) {
+ //           comparer = itemEquality ?? EqualityComparer<TItm>.Default;
+ //       }
+	//	///<inheritdoc/> 
+	//	public override bool Equals(TSeq? x, TSeq? y) {
+	//		if (x == null && y == null) { return true; }
+	//		if (x == null || y == null) { return false; }
+ //           return x.SequenceEqual(y, comparer);
+	//	}
+	//	///<inheritdoc/> 
+	//	public override int GetHashCode(TSeq obj) {
+	//		if (obj == null) return 0;
+ //           var hash = new HashCode();
+ //           foreach (var itm in obj) hash.Add(itm);
+ //           return hash.ToHashCode();
+	//	}
+	//}
     /// <summary>An object that supports equality comparison.</summary>
     public class AnonymousEqualityComparer<T> : EqualityComparer<T> {
         Func<T, T, bool> _equality;

@@ -54,7 +54,7 @@ namespace TreeStructures.Events {
             //祖先宛の子孫変更通知
             //同一ツリー内での移動
             var dic = new Dictionary<ChangedDescendantInfo<TNode>, IEnumerable<TNode>>();
-            var dArg = new ChangedDescendantInfo<TNode>(TreeNodeChangedAction.Deviate, Self, OldParent, oldIndex);
+            var dArg = new ChangedDescendantInfo<TNode>(TreeNodeChangedAction.Leave, Self, OldParent, oldIndex);
             var jArg = new ChangedDescendantInfo<TNode>(TreeNodeChangedAction.Join, Self, OldParent, oldIndex);
             if (object.ReferenceEquals(PreOldRoot, Self.Upstream().Last())) {
                 var mArg = new ChangedDescendantInfo<TNode>(TreeNodeChangedAction.Move, Self, OldParent, oldIndex);
@@ -85,7 +85,7 @@ namespace TreeStructures.Events {
         IDictionary<StructureChangedEventArgs<TNode>, IEnumerable<TNode>> strChangeRange() {
             var nr = Self.Upstream().Last();
             Dictionary<StructureChangedEventArgs<TNode>, IEnumerable<TNode>> dic = new Dictionary<StructureChangedEventArgs<TNode>, IEnumerable<TNode>>();
-            var dArg = new StructureChangedEventArgs<TNode>(TreeNodeChangedAction.Deviate, Self, OldParent, oldIndex);
+            var dArg = new StructureChangedEventArgs<TNode>(TreeNodeChangedAction.Leave, Self, OldParent, oldIndex);
             var jArg = new StructureChangedEventArgs<TNode>(TreeNodeChangedAction.Join, Self, OldParent, oldIndex);
             if (object.ReferenceEquals(PreOldRoot, nr)) {
                 var mArg = new StructureChangedEventArgs<TNode>(TreeNodeChangedAction.Move, Self, OldParent, oldIndex);

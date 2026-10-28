@@ -11,12 +11,7 @@ using TreeStructures.Linq;
 using TreeStructures.Tree;
 
 namespace SampleConsoleApp;
-public class ObservableNamedNode: ObservableGeneralTreeNode<ObservableNamedNode> {
-    public string Name { get; set; }
-    public override string ToString() {
-        return this.Name;
-    }
-}
+
 
 public static partial class UseageSample {
     public static void MethodB() {
@@ -46,7 +41,7 @@ public static partial class UseageSample {
         foreach (var node in root.PreOrder()) {
             node.StructureChanged += structreChangedHdlr;
             node.PropertyChanged += propertyChangedHdlr;
-            node.Disposed += disposedHdlr;
+            //node.Disposed += disposedHdlr;
         }
         Console.WriteLine("Remove node D\n");
         nodesDic["B"].RemoveChild(nodesDic["D"]);
@@ -61,7 +56,7 @@ public static partial class UseageSample {
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
         Console.WriteLine("Dispose node E \n");
-        nodesDic["E"].Dispose();
+        //nodesDic["E"].Dispose();
         Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
 

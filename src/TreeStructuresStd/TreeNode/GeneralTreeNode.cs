@@ -11,7 +11,7 @@ namespace TreeStructures {
     /// <summary>Represents a mutable node forming a general tree structure.</summary>
     /// <typeparam name="TNode">The common base type for each node.</typeparam>
     [Serializable]
-    public abstract class GeneralTreeNode<TNode> : TreeNodeBase<TNode>, IMutableTreeNode<TNode>, IDisposable where TNode : GeneralTreeNode<TNode> {
+    public abstract class GeneralTreeNode<TNode> : TreeNodeBase<TNode>, IMutableTreeNode<TNode>/*, IDisposable*/ where TNode : GeneralTreeNode<TNode> {
         /// <summary>Initializes a new instance.</summary>
         protected GeneralTreeNode() {
             //Children = new ReadOnlyCollection<TNode>(ChildNodes);
@@ -41,13 +41,13 @@ namespace TreeStructures {
         /// <summary>Adds the node as a child node.</summary>
         /// <returns>The current node.</returns>
         public TNode AddChild(TNode child) {
-            AddChildProcess(child);
+            AddChildCore(child);
             return Self;
         }
         /// <summary>Inserts the node as a child node at the specified index.</summary>
         /// <returns>The current node.</returns>
         public TNode InsertChild(int index, TNode child) {
-            InsertChildProcess(index, child);
+            InsertChildCore(index, child);
             return Self;
         }
 
@@ -55,7 +55,7 @@ namespace TreeStructures {
         /// <returns>The removed child node.</returns>
         public TNode RemoveChild(TNode child) {
             if (ChildNodes.Contains(child))
-                RemoveChildProcess(child);
+                RemoveChildCore(child);
             return child;
         }
 
@@ -63,7 +63,7 @@ namespace TreeStructures {
         /// <returns>The removed child nodes.</returns>
         public IReadOnlyList<TNode> ClearChildren() {
             var removedChildren = this.ChildNodes.OfType<TNode>().ToArray();
-            ClearChildProcess();
+            ClearChildCore();
             return removedChildren.Except(this.ChildNodes.OfType<TNode>()).ToArray();
         }
 
@@ -72,7 +72,7 @@ namespace TreeStructures {
         /// <param name="newIndex">The new index.</param>
         /// <returns>The current node.</returns>
         public TNode MoveChild(int oldIndex, int newIndex) {
-            ShiftChildProcess(oldIndex, newIndex);
+            ShiftChildCore(oldIndex, newIndex);
             return Self;
         }
 
@@ -80,7 +80,7 @@ namespace TreeStructures {
         /// <returns>The removed child node.</returns>
         public TNode SetChild(int index, TNode child) {
             var removedChild = ChildNodes.ElementAt(index);
-            SetChildProcess(index, child);
+            SetChildCore(index, child);
             return removedChild;
         }
 
@@ -90,86 +90,123 @@ namespace TreeStructures {
         /// <param name="child">The child node to add.</param>
         /// <param name="action">Specifies the collection operation. Default behavior:
         /// <code>(collection, node) => ((ICollection&lt;<typeparamref name="TNode"/>&gt;)collection).Add(node);</code></param>
-        protected virtual void AddChildProcess(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
-            this.ThrowExceptionIfDisposed();
-            //base.AddChildProcess(child);
+        protected virtual void AddChildCore(TNode child,Action<IEnumerable<TNode>,TNode>? action = null) {
+            //this.ThrowExceptionIfDisposed();
             action ??= (collection, node) => ((ICollection<TNode>)collection).Add(node);
-            base.InsertChildProcess(0, child, (collection, idx, node) => action(collection,node));
+            base.InsertChildCore(0, child, (collection, idx, node) => action(collection,node));
         }
         /// <inheritdoc/>
-        protected override void InsertChildProcess(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
-            this.ThrowExceptionIfDisposed();
-            base.InsertChildProcess(index, child,action);
+        protected override void InsertChildCore(int index, TNode child,Action<IEnumerable<TNode>,int,TNode>? action = null) {
+            //this.ThrowExceptionIfDisposed();
+            base.InsertChildCore(index, child,action);
         }
         /// <inheritdoc/>
-        protected override void SetChildProcess(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
-            this.ThrowExceptionIfDisposed();
-            base.SetChildProcess(index, child,action);
+        protected override void SetChildCore(int index, TNode child, Action<IEnumerable<TNode>, int, TNode>? action = null) {
+            //this.ThrowExceptionIfDisposed();
+            base.SetChildCore(index, child,action);
         }
         /// <inheritdoc/>
-        protected override void ShiftChildProcess(int oldIndex, int newIndex, Action<IEnumerable<TNode>, int, int>? action = null) {
-            this.ThrowExceptionIfDisposed();
-            base.ShiftChildProcess(oldIndex, newIndex, action);
+        protected override void ShiftChildCore(int oldIndex, int newIndex, Action<IEnumerable<TNode>, int, int>? action = null) {
+            //this.ThrowExceptionIfDisposed();
+            base.ShiftChildCore(oldIndex, newIndex, action);
         }
         /// <inheritdoc/>
-        protected override void RemoveChildProcess(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
-            this.ThrowExceptionIfDisposed();
-            base.RemoveChildProcess(child, action);
+        protected override void RemoveChildCore(TNode child, Action<IEnumerable<TNode>, TNode>? action = null) {
+            //this.ThrowExceptionIfDisposed();
+            base.RemoveChildCore(child, action);
         }
         /// <inheritdoc/>
-        protected override void ClearChildProcess(Action<IEnumerable<TNode>>? action = null) {
-            this.ThrowExceptionIfDisposed();
-            base.ClearChildProcess(action);
+        protected override void ClearChildCore(Action<IEnumerable<TNode>>? action = null) {
+            //this.ThrowExceptionIfDisposed();
+            base.ClearChildCore(action);
         }
 
         #endregion process
 
         #region Dispose
-        [NonSerialized]
-        bool _isDisposed;
-        [NonSerialized]
-        bool _isDisposing;
-        /// <summary>Gets a value indicating whether the current instance has already been disposed.</summary>
-        protected bool IsDisposed {
-            get { return _isDisposed; }
-            private set { _isDisposed = value; }
-        }
-        /// <summary>Disposes the instance. Along with the target node, descendant nodes are also disposed.</summary>
-        public void Dispose() {
-            if (IsDisposed || _isDisposing) return;
-            _isDisposing = true;
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-            _isDisposing = false;
-            return;
-        }
-        /// <summary>Disposes of resources.</summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
-            if (disposing) {
-                this.DisposeProcess();
-            }
-            IsDisposed = true;
-        }
-        void IDisposable.Dispose() {
-            this.Dispose();
-        }
-        /// <summary>Prevents operations on an instance that has already been disposed.</summary>
-        protected void ThrowExceptionIfDisposed() {
-            if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
-        }
-        /// <summary>Disposes of all descendant nodes.</summary>
-        /// <returns>The current node.</returns>
-        public TNode DisposeDescendants() {
-            foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
-                cld.Dispose();
-            return Self;
-        }
-        ///// <summary>ファイナライズ</summary>
-        //~TreeNodeCollection() {
-        //    this.Dispose(false);
+        //[NonSerialized]
+        //bool _isDisposed;
+        //[NonSerialized]
+        //bool _isDisposing;
+        ///// <summary>Gets a value indicating whether the current instance has already been disposed.</summary>
+        //protected bool IsDisposed {
+        //    get { return _isDisposed; }
+        //    private set { _isDisposed = value; }
+        //}
+        ///// <summary>Disposes the instance. Along with the target node, descendant nodes are also disposed.</summary>
+        //public void Dispose() {
+        //    if (IsDisposed || _isDisposing) return;
+        //    _isDisposing = true;
+        //    this.Dispose(true);
+        //    GC.SuppressFinalize(this);
+        //    _isDisposing = false;
+        //    return;
+        //}
+        ///// <summary>Disposes of resources.</summary>
+        ///// <param name="disposing"></param>
+        //protected virtual void Dispose(bool disposing) {
+        //    if (disposing) {
+        //        this.DisposeCore();
+        //    }
+        //    IsDisposed = true;
+        //}
+        //void IDisposable.Dispose() {
+        //    this.Dispose();
+        //}
+        ///// <summary>Prevents operations on an instance that has already been disposed.</summary>
+        //protected void ThrowExceptionIfDisposed() {
+        //    if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
+        //}
+        ///// <summary>Disposes of all descendant nodes.</summary>
+        ///// <returns>The current node.</returns>
+        //public TNode DisposeDescendants() {
+        //    foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
+        //        cld.Dispose();
+        //    return Self;
         //}
         #endregion
-        
+        //[NonSerialized]
+        //bool _isDisposed;
+        //[NonSerialized]
+        //bool _isDisposing;
+        ///// <summary>Gets a value indicating whether the current instance has already been disposed.</summary>
+        //protected bool IsDisposed {
+        //    get { return _isDisposed; }
+        //    private set { _isDisposed = value; }
+        //}
+        ///// <summary>Disposes the instance. Along with the target node, descendant nodes are also disposed.</summary>
+        //public void Dispose() {
+        //    //if (IsDisposed || _isDisposing) return;
+        //    //_isDisposing = true;
+        //    //this.Dispose(true);
+        //    //GC.SuppressFinalize(this);
+        //    //_isDisposing = false;
+        //    //return;
+        //    Dispose(true);
+        //}
+        ///// <summary>Disposes of resources.</summary>
+        ///// <param name="disposing"></param>
+        //protected override void Dispose(bool disposing) {
+        //    base.Dispose(disposing);
+        //    //if (disposing) {
+        //    //    this.DisposeCore();
+        //    //}
+        //    //IsDisposed = true;
+        //}
+        //void IDisposable.Dispose() {
+        //    this.Dispose();
+        //}
+        ///// <summary>Prevents operations on an instance that has already been disposed.</summary>
+        //protected void ThrowExceptionIfDisposed() {
+        //    if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
+        //}
+        ///// <summary>Disposes of all descendant nodes.</summary>
+        ///// <returns>The current node.</returns>
+        //public TNode DisposeDescendants() {
+        //    foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
+        //        cld.Dispose();
+        //    return Self;
+        //}
+
     }
 }

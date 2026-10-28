@@ -2,8 +2,6 @@
 // See https://aka.ms/new-console-template for more information
 using SampleConsoleApp;
 using static SampleConsoleApp.UseageSample;
-
-
 //Console.WriteLine("Hello, World!\n\n");
 
 //MethodP();
@@ -32,11 +30,31 @@ using static SampleConsoleApp.UseageSample;
 //MethodF();
 //MethodA();
 //MethodB();
-MethodAAAA();
-MethodC();
-MethodDDD();
-MethodD();
-MethodDD();
-MethodE();
-
-var cpr = EqualityComparer<string>.Default;
+//MethodAAAA();
+//MethodC();
+//MethodDDD();
+//MethodD();
+//MethodDD();
+//MethodE();
+using static SampleConsoleApp.Demo;
+//Assemble_7();
+//Transform_1();
+//Serialize_3();
+//Traverse_2();
+//Search_1();
+//Edit_3();
+//Notification_1();
+//Disp_2();
+//NAry_1();
+//Wrap_4();
+//Unique_1();
+//Listener_1();
+//Notifier_1();
+//Proxy_2();
+//SortFilter_2();
+//Combine_1();
+//Tracking_3();
+//Imitate_4();
+//Aligner_1();
+//Comparer_1();
+CmbDisp_1();

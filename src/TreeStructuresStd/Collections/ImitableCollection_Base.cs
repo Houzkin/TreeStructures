@@ -77,7 +77,7 @@ namespace TreeStructures.Collections {
         /// <exception cref="ObjectDisposedException"></exception>
         protected void ThrowExceptionIfDisposed() {
             if(disposedValue) throw new ObjectDisposedException(GetType().FullName,"The instance has already been disposed and cannot be operated on.");
-        }
+		}
 		#endregion
 
 		#region static methods
@@ -86,7 +86,7 @@ namespace TreeStructures.Collections {
 		/// <typeparam name="TDst">The type of elements in the target imitable collection.</typeparam>
 		/// <param name="source">The source collection for synchronization.</param>
 		/// <param name="convert">A function to convert elements from <typeparamref name="TSrc"/> to corresponding <typeparamref name="TDst"/>.</param>
-		/// <param name="removedAction">Action to be performed when an element is removed from the collection.</param>
+        /// <param name = "removedAction" > Action to be performed when an element is removed from the collection or this instance disposed.</param>
 		/// <param name="isImitate">>Specifies whether to initialize in a synchronized state.</param>
 		/// <returns></returns>
 		public static ImitableCollection<TDst> CreateFrom<TSrc,TDst>(IEnumerable<TSrc> source, Func<TSrc,TDst> convert,Action<TDst>? removedAction = null,bool isImitate = true) {
@@ -98,7 +98,7 @@ namespace TreeStructures.Collections {
 	}
     /// <summary><inheritdoc/></summary>
     /// <typeparam name="TDst">The type of elements in the imitable collection for synchronization.</typeparam>
-    public abstract class ImitableCollection<TDst> : ImitableCollection,IReadOnlyObservableProxyCollection<TDst> /*,IReadOnlyList<TDst>*/ {
+    public abstract class ImitableCollection<TDst> : ImitableCollection,IReadOnlyObservableProxyCollection<TDst> {
         internal ImitableCollection() : base() { }
 
         #region IReadOnlyList Members
