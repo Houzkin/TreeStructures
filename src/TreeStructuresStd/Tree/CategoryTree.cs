@@ -112,11 +112,11 @@ namespace TreeStructures.Tree {
 				}
 			}
 		}
-		protected override void AddItem(TItm item, Func<TItm, TCtg, Node>? create = null) {
+		private protected override void AddItem(TItm item, Func<TItm, TCtg, Node>? create = null) {
 			_items.Add(item);
 			base.AddItem(item, create);
 		}
-		protected override void RemoveItem(TItm item) {
+		private protected override void RemoveItem(TItm item) {
 			_items.Remove(item);
 			base.RemoveItem(item);
 		}
@@ -182,7 +182,7 @@ namespace TreeStructures.Tree {
 		protected virtual Node CreateLeaf(TItm item, TCtg ctg) => new Node(item, ctg);
 		/// <summary>Represents the root node of the category tree.</summary>
 		public Node Root => _root ??= CreateRoot();
-		protected virtual void AddItem(TItm item,Func<TItm,TCtg,Node>? create = null) {
+		private protected virtual void AddItem(TItm item,Func<TItm,TCtg,Node>? create = null) {
 			create ??= new Func<TItm, TCtg, Node>((itm, ctg) => CreateLeaf(itm, ctg));
 			var nd = this.Root;
 			CategorySelectors.First().DoWhile(x => x.TryNext(), scroller => {
@@ -196,7 +196,7 @@ namespace TreeStructures.Tree {
 				nd = n;
 			});
 		}
-		protected virtual void RemoveItem(TItm item) {
+		private protected virtual void RemoveItem(TItm item) {
 			var tgt = this.Root.LevelOrder()
 				.SkipWhile(x => x.Depth() <= CategorySelectors.Items.Count)
 				.Where(x => x.HasItem)
@@ -273,7 +273,8 @@ namespace TreeStructures.Tree {
 			/// </summary>
 			public TItm Item { get; }
 
-			ImitableCollection<Node>? _childnodes;
+			//ImitableCollection<Node>? _childnodes;
+			ReadOnlyObservableCollection<Node> _childnodes;
 			IComparer<Node> comparer = Comparer<Node>.Create((a, b) => {
 				if (a.HasItem && b.HasItem) {
 					if (a.Item is IComparable<TItm> cmpVal) return cmpVal.CompareTo(b.Item);
@@ -286,27 +287,30 @@ namespace TreeStructures.Tree {
 			});
 			/// <inheritdoc/>
 			protected override IEnumerable<Node> SetupInnerChildCollection() {
-				return new HashSet<Node>();
+				//return new HashSet<Node>();
+				return new ObservableCollection<Node>();
 			}
 			/// <inheritdoc/>
 			protected override IEnumerable<Node> SetupPublicChildCollection(IEnumerable<Node> innerCollection) {
-				//return innerCollection;
-				_childnodes = innerCollection.ToImitable(a => a, null, true);
-				var lst = _childnodes.ToReadOnlyObservableFilterSort();
-				lst.SortBy(x => x, comparer);
-				return lst;
+				_childnodes = new ReadOnlyObservableCollection<Node>((ObservableCollection<Node>)innerCollection);
+				return _childnodes;
+				//_childnodes = innerCollection.ToImitable(a => a, null, true);
+				//return _childnodes;
+				//var lst = _childnodes.ToReadOnlyObservableFilterSort();
+				//lst.SortBy(x => x, comparer);
+				//return lst;
 			}
 			protected override void InsertChildCore(int index, Node child, Action<IEnumerable<Node>, int, Node>? action = null) {
 				action ??= (list, idx, node) => ((ICollection<Node>)list).Add(node);
 				base.InsertChildCore(index, child, action);
-				_childnodes?.Imitate();
+				//_childnodes?.Imitate();
 			}
 			internal void Add(Node child) {
-				this.InsertChildCore(0, child);
+				this.InsertChildCore(_childnodes?.Count ?? 0, child);
 			}
 			protected override void RemoveChildCore(Node child, Action<IEnumerable<Node>, Node>? action = null) {
 				base.RemoveChildCore(child, action);
-				_childnodes?.Imitate();
+				//_childnodes?.Imitate();
 			}
 			internal void Remove(Node child) {
 				this.RemoveChildCore(child);

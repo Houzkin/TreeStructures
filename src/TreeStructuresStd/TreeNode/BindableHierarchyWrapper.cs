@@ -40,7 +40,8 @@ namespace TreeStructures {
 		}
 		private protected override bool SetParent(TWrpr? parent) {
 			if(base.SetParent(parent)){
-				this.OnPropertyChanged(nameof(Parent));
+				this.Properties.Notify(nameof(Parent));
+				//this.OnPropertyChanged(nameof(Parent));
 				return true;
 			}
 			return false;
@@ -53,17 +54,20 @@ namespace TreeStructures {
         /// <summary><inheritdoc/></summary>
         public event PropertyChangedEventHandler? PropertyChanged;
 
-		/// <summary>
-		/// Performs the change of value and issues a change notification.
-		/// </summary>
-		protected ResultWithValue<PropertyAccessor> SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
-            pcProxy.TrySetField(ref storage, value, propertyName);
-        /// <summary>
-        ///  Issues a property change notification.
-        /// </summary>
-        /// <param name="propertyName"></param>
-        protected PropertyAccessor OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
-            pcProxy.Notify(propertyName);
+		/// <summary> Gets the <see cref="PropertyAccessor"/> used to manage property values and raise property change notifications. </summary>
+		protected PropertyAccessor Properties { get => pcProxy; }
+
+		///// <summary>
+		///// Performs the change of value and issues a change notification.
+		///// </summary>
+		//protected ResultWithValue<PropertyAccessor> SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null) =>
+  //          pcProxy.TrySetField(ref storage, value, propertyName);
+  //      /// <summary>
+  //      ///  Issues a property change notification.
+  //      /// </summary>
+  //      /// <param name="propertyName"></param>
+  //      protected PropertyAccessor OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+  //          pcProxy.Notify(propertyName);
         #endregion
 
 		//private IReadOnlyList<TImtr> StopImitateProcess() {

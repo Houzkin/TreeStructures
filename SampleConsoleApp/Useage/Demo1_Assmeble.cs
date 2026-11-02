@@ -36,7 +36,7 @@ public static partial class Demo {
 		Console.ReadKey();
 	}
 	public static void Assemble_2() {
-		var nodes = "ABCDEFGH".ToCharArray().AssembleAsNAryTree(3, x => new NamedNode() { Name = x.ToString() });
+		var nodes = "ABCDEFGH".Select(x => x.ToString()).AssembleAsNAryTree(3, x => new NamedNode() { Name = x });
 		Console.WriteLine(nodes.ToTreeDiagram(x => x.Name));
 		/*
 		A

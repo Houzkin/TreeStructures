@@ -133,6 +133,12 @@ public static partial class Demo {
 		Console.WriteLine("--- Print wrapper. ---");
 		Console.WriteLine(wRoot.ToTreeDiagram(x => x.Name));
 
+		Console.WriteLine("--- Move node E ---");
+		nodes["A"].MoveChild(0, 1);
+
+		Console.WriteLine("--- Print wrapper. ---");
+		Console.WriteLine(wRoot.ToTreeDiagram(x => x.Name));
+
 
 		Console.ReadKey();
 	}

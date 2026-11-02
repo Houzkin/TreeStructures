@@ -57,6 +57,8 @@ public static partial class Demo {
 		//nodesDic["E"].Dispose();
 		//Console.WriteLine(root.ToTreeDiagram(x => x.Name));
 
+		Console.ReadKey();
+
 	}
 	public static void Disp_2() {
 		var dic = new List<ObservableNamedNode>() {
