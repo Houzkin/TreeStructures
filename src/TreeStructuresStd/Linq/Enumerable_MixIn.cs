@@ -106,52 +106,52 @@ namespace TreeStructures.Linq {
 		/// <param name="equality"></param>
 		/// <param name="removedHandler"></param>
 		/// <returns></returns>
-		public static ReadOnlyObservableProxyCollection<T, U> ToReadOnlyObservable<T,U>(this IEnumerable<T> self, Func<T,U> convert, Func<T,U,bool> equality, Action<U>? removedHandler = null) {
-			return new ReadOnlyObservableProxyCollection<T, U>(self, convert, equality, removedHandler);
+		public static ObservableMirrorCollection<T, U> ToObservableMirror<T,U>(this IEnumerable<T> self, Func<T,U> convert, Func<T,U,bool> equality, Action<U>? removedHandler = null) {
+			return new ObservableMirrorCollection<T, U>(self, convert, equality, removedHandler);
 		}
 		/// <summary>
-		/// Generates a new instance of <see cref="IReadOnlyObservableProxyCollection{T}"/> that moitors changes in the current collection.
+		/// Generates a new instance of <see cref="IObservableMirrorCollection{T}"/> that moitors changes in the current collection.
 		/// To reflect changes in the collection, the target collection must implement <see cref="INotifyCollectionChanged"/>.
 		/// After use, call <see cref="IDisposable.Dispose()"/> to unsbscribe from the collection change notifications.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="self"></param>
 		/// <returns></returns>
-		public static ReadOnlyObservableProxyCollection<T> ToReadOnlyObservable<T>(this IEnumerable<T> self/*,Action<T>? adding = null, Action<T>? removed = null, IEqualityComparer<T>? equality = null*/) {
+		public static ObservableMirrorCollection<T> ToObservableMirror<T>(this IEnumerable<T> self/*,Action<T>? adding = null, Action<T>? removed = null, IEqualityComparer<T>? equality = null*/) {
 			//return new ReadOnlyObservableProxyCollection<T>(self, adding, removed, equality);
-			return new ReadOnlyObservableProxyCollection<T>(self);
+			return new ObservableMirrorCollection<T>(self);
 		}
 
 		/// <summary>
-		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// Generates a new instance of <see cref="ObservableFilterSortMirrorCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// To reflect changes in the collections, the target collections must implement <see cref="INotifyCollectionChanged"/>.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
-		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this IEnumerable<T> self, IEqualityComparer<T>? equality=null) { 
-			return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
+		/// <returns>A new instance of <see cref="ObservableFilterSortMirrorCollection{T}"/> with the specified options.</returns>
+		public static ObservableFilterSortMirrorCollection<T> ToObservableFilterSortMirror<T>(this IEnumerable<T> self, IEqualityComparer<T>? equality=null) { 
+			return new ObservableFilterSortMirrorCollection<T>(self, equality);
 		}
 		/// <summary>
-		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// Generates a new instance of <see cref="ObservableFilterSortMirrorCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
-		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null){
-			return new ReadOnlyObservableFilterSortCollection<T>(self, equality);
+		/// <returns>A new instance of <see cref="ObservableFilterSortMirrorCollection{T}"/> with the specified options.</returns>
+		public static ObservableFilterSortMirrorCollection<T> ToObservableFilterSortMirror<T>(this ReadOnlyObservableCollection<T> self,IEqualityComparer<T>? equality = null){
+			return new ObservableFilterSortMirrorCollection<T>(self, equality);
 		}
 		/// <summary>
-		/// Generates a new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with specified sorting and filtering options from the current observable collection.
+		/// Generates a new instance of <see cref="ObservableFilterSortMirrorCollection{T}"/> with specified sorting and filtering options from the current observable collection.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The current observable collection.</param>
 		/// <param name="equality">The equality comparer to use for comparing elements, or null to use the default comparer.</param>
-		/// <returns>A new instance of <see cref="ReadOnlyObservableFilterSortCollection{T}"/> with the specified options.</returns>
-		public static ReadOnlyObservableFilterSortCollection<T> ToReadOnlyObservableFilterSort<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
-			return new ReadOnlyObservableFilterSortCollection<T>(self,equality);
+		/// <returns>A new instance of <see cref="ObservableFilterSortMirrorCollection{T}"/> with the specified options.</returns>
+		public static ObservableFilterSortMirrorCollection<T> ToObservableFilterSortMirror<T>(this ObservableCollection<T> self,IEqualityComparer<T>? equality=null){
+			return new ObservableFilterSortMirrorCollection<T>(self,equality);
 		}
 		/// <summary>
 		/// Observes additions and removals in the specified collection that implements <see cref="ObservableCollection{T}"/>.
@@ -171,12 +171,12 @@ namespace TreeStructures.Linq {
 		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this ReadOnlyObservableCollection<T> self) => new CollectionObserver<T>(self);
 
 		/// <summary>
-		/// Observes additions and removals in the specified collection that implements <see cref="IReadOnlyObservableProxyCollection{T}"/>.
+		/// Observes additions and removals in the specified collection that implements <see cref="IObservableMirrorCollection{T}"/>.
 		/// </summary>
 		/// <typeparam name="T">The type of elements in the collection.</typeparam>
 		/// <param name="self">The collection to observe.</param>
 		/// <returns>An instance of <see cref="ICollectionAddRemoveObserver{T}"/> to monitor changes.</returns>
-		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IReadOnlyObservableProxyCollection<T> self) => new CollectionObserver<T>(self);
+		public static ICollectionAddRemoveObserver<T> AddRemoveObserver<T>(this IObservableMirrorCollection<T> self) => new CollectionObserver<T>(self);
 
 
 	}

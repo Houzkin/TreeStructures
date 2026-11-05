@@ -95,6 +95,33 @@ public static partial class Demo {
 		  └ J, Depth:2, Height:0, Width:3, BranchIndex:0
 		 */
 
+		Console.WriteLine(tree.ToTreeDiagram(x =>$"{x.Name},NodeIndex:{x.GetNodeIndex().ToString()}"));
+		/*
+		A,NodeIndex:[]
+		├ B,NodeIndex:[0]
+		├ C,NodeIndex:[1]
+		│ ├ D,NodeIndex:[1,0]
+		│ │ ├ E,NodeIndex:[1,0,0]
+		│ │ └ F,NodeIndex:[1,0,1]
+		│ │   └ G,NodeIndex:[1,0,1,0]
+		│ └ I,NodeIndex:[1,1]
+		└ H,NodeIndex:[2]
+		  └ J,NodeIndex:[2,0]
+		*/
+
+		Console.WriteLine(tree.ToTreeDiagram(x =>$"{x.Name},NodePath:{x.GetNodePath(n=>n.Name)}"));
+		/*
+		A,NodePath:A
+		├ B,NodePath:A/B
+		├ C,NodePath:A/C
+		│ ├ D,NodePath:A/C/D
+		│ │ ├ E,NodePath:A/C/D/E
+		│ │ └ F,NodePath:A/C/D/F
+		│ │   └ G,NodePath:A/C/D/F/G
+		│ └ I,NodePath:A/C/I
+		└ H,NodePath:A/H
+		  └ J,NodePath:A/H/J
+		*/
 
 		Console.WriteLine($"Root:{nodeD.Root()}");
 		//Root:A

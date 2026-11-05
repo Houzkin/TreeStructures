@@ -113,11 +113,11 @@ namespace TreeStructures.Tree {
 
             #region Constructor
             internal PropertyChainNode(object? target) {
-                this.NamedProperty = string.Empty;
+                this.PropertyName = string.Empty;
                 SubscribePropertyValue(target);
             }
             private PropertyChainNode(object? target,string named,IEnumerable<string> propNames) {
-                NamedProperty = named;
+                PropertyName = named;
                 if(propNames.Any())
                     ChainToLeafs.Add(propNames);
                 SubscribePropertyValue(target);
@@ -136,18 +136,18 @@ namespace TreeStructures.Tree {
             protected override void RemoveChildCore(PropertyChainNode child,Action<IEnumerable<PropertyChainNode>,PropertyChainNode>? action = null) {
                 if (!ChildNodes.Contains(child)) return;
                 base.RemoveChildCore(child);
-                foreach (var item in ChainToLeafs.Where(x => x.First() == child.NamedProperty).ToArray()){
+                foreach (var item in ChainToLeafs.Where(x => x.First() == child.PropertyName).ToArray()){
                     var lst = new Stack<string>(item.Reverse());
                     foreach(var upstm in this.Upstream()) {
                         upstm.ChainToLeafs.Remove(lst);
-                        lst.Push(upstm.NamedProperty);
+                        lst.Push(upstm.PropertyName);
                     }
                 }
             }
             /// <summary>Monitored target or property value.</summary>
             public object Source { get; private set; }
             /// <summary>Name of the property indicating the target of observation.</summary>
-            public string NamedProperty { get; private set; }
+            public string PropertyName { get; private set; }
             bool TrySetTarget(object? src) {
                 if (ReferenceEquals(src,Source)) return false;
                 Source = src;
@@ -159,7 +159,7 @@ namespace TreeStructures.Tree {
                 if (!propNames.Any()) return;
                 if (!ChainToLeafs.Add(propNames)) return;
                 var obsname = propNames.First();
-                var cld = ChildNodes.FirstOrDefault(a => a.NamedProperty == obsname);
+                var cld = ChildNodes.FirstOrDefault(a => a.PropertyName == obsname);
                 if(cld != null) {
                     cld.AddSubscribeProperty(propNames.Skip(1));
                 } else {
@@ -187,7 +187,7 @@ namespace TreeStructures.Tree {
                     if (!chain.Any()) return;
                     var obsname = chain.First();
                     var propValue = PropertyUtils.GetValueFromPropertyName(Source, obsname);
-                    var cld = ChildNodes.FirstOrDefault(a => a.NamedProperty == obsname);
+                    var cld = ChildNodes.FirstOrDefault(a => a.PropertyName == obsname);
                     if (cld != null) {
                         cld.SubscribePropertyValue(propValue);
                     } else {
@@ -198,7 +198,7 @@ namespace TreeStructures.Tree {
             void onPropChanged(object? sender, PropertyChangedEventArgs e) {
                 if (string.IsNullOrEmpty(e.PropertyName)) return;
                 //観測プロパティの変更だった場合、該当する子ノードの値を再設定
-                var chgcld = this.ChildNodes.FirstOrDefault(a => a.NamedProperty == e.PropertyName);
+                var chgcld = this.ChildNodes.FirstOrDefault(a => a.PropertyName == e.PropertyName);
                 if (chgcld == null) return;
                 chgcld.SubscribePropertyValue(PropertyUtils.GetValueFromPropertyName(Source, e.PropertyName));
                 RaisePropertyChanged( e, chgcld.Leafs());
@@ -266,7 +266,7 @@ namespace TreeStructures.Tree {
                 Func<TValue> getvalue = () => {
                     try {
                         if (this.Source != null) {
-                            var val = this.DescendArrivals(a => a.NamedProperty, propChain).Single().Source;
+                            var val = this.DescendArrivals(a => a.PropertyName, propChain).Single().Source;
                             if (val is TValue va) return va;
                         }
                         return default;
@@ -303,7 +303,7 @@ namespace TreeStructures.Tree {
             protected override void RaisePropertyChanged(PropertyChangedEventArgs e, IEnumerable<PropertyChainNode> leafs) {
                 HashSet<ChainStatus> args = new();
                 foreach (var leaf in leafs) {
-                    var lfchain = leaf.Upstream().Reverse()/*.Skip(1)*/.Select(a => a.NamedProperty).ToArray();
+                    var lfchain = leaf.Upstream().Reverse()/*.Skip(1)*/.Select(a => a.PropertyName).ToArray();
                     lfchain = lfchain.Any() ? lfchain : new string[] { string.Empty };
                     foreach (var sts in chainStatuses) {
                         if (args.Contains(sts)) continue;
@@ -323,11 +323,11 @@ namespace TreeStructures.Tree {
                 var lst = seq.ToList();
                 if(lst.Any()) lst.RemoveAt(lst.Count-1);
 
-                var des = this.DescendTraces(a => a.NamedProperty, lst).FirstOrDefault()?.Skip(1)
+                var des = this.DescendTraces(a => a.PropertyName, lst).FirstOrDefault()?.Skip(1)
                     ?? Enumerable.Empty<PropertyChainNode>();
                 foreach (var sts in chainStatuses) {
                     var llst = sts.Key.ToList();
-                    var ext = this.DescendTraces(a => a.NamedProperty, sts.Key).FirstOrDefault()?.Skip(1)
+                    var ext = this.DescendTraces(a => a.PropertyName, sts.Key).FirstOrDefault()?.Skip(1)
                         ?? Enumerable.Empty<PropertyChainNode>();
                     des = des.Except(ext);
                 }

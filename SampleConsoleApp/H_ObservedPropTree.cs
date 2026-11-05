@@ -64,7 +64,7 @@ public static partial class UseageSample{
 			x => x.Parent.Parent.AdditionalInfo.Title,
 			ttl => Console.WriteLine($"Parent.Parent.AdditionalInfo.Title:{ttl}"));
 		Console.WriteLine(tree.ToTreeDiagram(x => x.Name));
-		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
+		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.PropertyName));
 
 		Console.WriteLine("Set info");
 		nodeList.Values.ForEach(x => x.AdditionalInfo = new AdditionalObj() { Title = x.Name.ToLower() });
@@ -99,7 +99,7 @@ public static partial class UseageSample{
 		Console.WriteLine("sample tree");
 		Console.WriteLine(tree.ToTreeDiagram(x => x.Name));
 		Console.WriteLine("nodeH observed property tree");
-		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.NamedProperty));
+		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.PropertyName));
 	}
 
 }

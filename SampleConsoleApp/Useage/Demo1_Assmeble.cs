@@ -542,5 +542,12 @@ public static partial class Demo {
 			PrintHierarchy(child, indent+" 　");
 		}
 	}
+	static void PrintHierarchy<T>(T obj,Func<T,IEnumerable<T>> toChildren, Func<T,string> toString,string indent = "") {
+		if (obj == null) return;
+		Console.WriteLine($"{indent}└ {toString(obj)}");
+		foreach (var child in toChildren(obj)) {
+			PrintHierarchy(child, toChildren,toString, indent+" 　");
+		}
+	}
 
 }

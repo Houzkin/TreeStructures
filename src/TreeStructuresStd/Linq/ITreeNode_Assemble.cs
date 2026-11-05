@@ -209,16 +209,6 @@ namespace TreeStructures.Linq {
 		#endregion
 
 		#region NodeIndexから組み立て
-        //private static U _assemble<U,TKey, T>(IDictionary<TKey, T> dictionary, Func<T, U> conv, Action<int, U, U> addAction) where TKey: IEnumerable<int> {
-        //    var scroller = dictionary.Select(x => (new NodeIndex(x.Key),conv(x.Value)))
-        //        .OrderBy(x => x.Item1, NodeIndex.GetPostOrderComparer())
-        //        .ToListScroller();
-        //    scroller.MoveForEach(ele => {
-        //        scroller.TryNext(x => ele.Item1.Depth > x.Item1.Depth)
-        //            .When(r => addAction(ele.Item1.LastOrDefault(), r.Current.Item2, ele.Item2));
-        //    });
-        //    return scroller.Current.Item2;
-        //}
         private static U assemble<U,TKey, T>(IDictionary<TKey, T> dictionary, Func<T, U> conv, Action<U, U, int> addAction) where TKey: IEnumerable<int> {
             var order = dictionary.Select(x => (Key: new NodeIndex(x.Key), Node: conv(x.Value)))
                 .OrderBy(x => x.Key, NodeIndex.GetLevelOrderComparer());
@@ -226,13 +216,8 @@ namespace TreeStructures.Linq {
             var root = queue.Dequeue();
             var dummy = root.TraverseAsHierarchy(current => {
                 var list = new List<(NodeIndex, U)>();
-                //if (current.Item1.Depth == 0) {//初回
-                //    while (queue.Count > 0 && queue.Peek().Item1.Depth == 1)
-                //        list.Add(queue.Dequeue());
-                //} else {
                 while (queue.Count > 0 && current.Item1.SequenceEqual(queue.Peek().Item1.SkipLast(1)))
                     list.Add(queue.Dequeue());
-                //}
                 return list;
             }, (x, y, z) => {
                 foreach (var itm in y) {
@@ -242,9 +227,7 @@ namespace TreeStructures.Linq {
             }).LastOrDefault();
             return root.Item2;
         }
-		/// <summary>
-		/// Assembles each node based on the index indicated by the key.
-        /// /// </summary>
+		/// <summary>Assembles each node based on the index indicated by the key.</summary>
 		/// <typeparam name="T">Type of the node.</typeparam>
 		/// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
 		/// <param name="self">Dictionary where keys indicate node indices.</param>
@@ -252,9 +235,7 @@ namespace TreeStructures.Linq {
 		public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self) where T : IMutableTreeNode<T> where TKey: IEnumerable<int> {
             return assemble(self, x => x, (p, c, i) => p.AddChild(c));
         }
-        /// <summary>
-        /// Assembles each data based on the index indicated by the key.
-        /// </summary>
+        /// <summary>Assembles each data based on the index indicated by the key.</summary>
         /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
         /// <typeparam name="T">Type of the data.</typeparam>
         /// <param name="self">Current object.</param>
@@ -263,9 +244,7 @@ namespace TreeStructures.Linq {
         public static T AssembleTree<TKey,T>(this IDictionary<TKey, T> self, Action<T, T, int> addAction)where TKey : IEnumerable<int> {
             return assemble(self, x => x, addAction);
         }
-        /// <summary>
-        /// Assembles each data based on the index indicated by the key.
-        /// </summary>
+        /// <summary>Assembles each data based on the index indicated by the key.</summary>
         /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
         /// <typeparam name="T">Type of the data.</typeparam>
         /// <param name="self">Current object.</param>
@@ -274,9 +253,7 @@ namespace TreeStructures.Linq {
         public static T AssembleTree<TKey, T>(this IDictionary<TKey, T> self, Action<T, T> addAction) where TKey : IEnumerable<int> {
             return assemble(self, x => x, (p, c, i) => addAction(p, c));
         }
-        /// <summary>
-        /// Generates and assembles nodes from data based on indices indicating the hierarchy.
-        /// </summary>
+        /// <summary>Generates and assembles nodes from data based on indices indicating the hierarchy.</summary>
         /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
         /// <typeparam name="T">Type of the data.</typeparam>
         /// <typeparam name="U">Type of the node.</typeparam>
@@ -288,9 +265,7 @@ namespace TreeStructures.Linq {
         where U : IMutableTreeNode<U> {
             return assemble(self, conv, (p, c, i) => p.AddChild(c));
         }
-        /// <summary>
-        /// Generates and assembles nodes from data based on indices indicating the hierarchy, performing conversion and assembly for each data.
-        /// </summary>
+        /// <summary>Generates and assembles nodes from data based on indices indicating the hierarchy, performing conversion and assembly for each data.</summary>
         /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
         /// <typeparam name="T">Type of the data.</typeparam>
         /// <typeparam name="U">Type to convert to.</typeparam>
@@ -301,9 +276,7 @@ namespace TreeStructures.Linq {
         public static U AssembleTree<TKey,T, U>(this IDictionary<TKey, T> self, Func<T, U> conv, Action<U, U, int> addAction) where TKey:IEnumerable<int> {
             return assemble(self, conv, addAction);
         }
-        /// <summary>
-        /// Generates and assembles nodes from data based on indices indicating the hierarchy, performing conversion and assembly for each data.
-        /// </summary>
+        /// <summary>Generates and assembles nodes from data based on indices indicating the hierarchy, performing conversion and assembly for each data.</summary>
         /// <typeparam name="TKey">Type of IEnumerable with elements of type int representing node indices.</typeparam>
         /// <typeparam name="T">Type of the data.</typeparam>
         /// <typeparam name="U">Type to convert to.</typeparam>
@@ -317,10 +290,7 @@ namespace TreeStructures.Linq {
 		#endregion
 
 		#region Id,ParentIdから生成
-		/// <summary>
-		/// Assembles a tree structure (forest) by resolving parent-child relationships 
-		/// from a flat collection based on the adjacency list model (Id and ParentId).
-		/// </summary>
+		/// <summary>Assembles a tree structure (forest) by resolving parent-child relationships from a flat collection based on the adjacency list model (Id and ParentId). </summary>
 		/// <typeparam name="T">The type of the source flat data entity.</typeparam>
 		/// <typeparam name="TIdx">The type of the unique identifier (ID) used to recognize nodes (e.g., <see cref="int"/> or <see cref="string"/>).</typeparam>
 		/// <typeparam name="U">The type of the hierarchical object.</typeparam>
@@ -450,25 +420,6 @@ namespace TreeStructures.Linq {
         public static U AssembleAsNAryTree<T, U>(this IEnumerable<T> self, int nary, Func<T, U> conv, Func<U,IEnumerable<U>> nests, Action<U, U> addAction) /*where U : ITreeNode<U> */{
             if (self == null) throw new ArgumentNullException(nameof(self));
             if (!self.Any()) throw new InvalidOperationException(nameof(self));
-            //var nds = self.Select(a => conv(a)).SkipWhile(a=>a==null);
-            //U? root = nds.FirstOrDefault();
-            //if (root == null) throw new InvalidOperationException(nameof(conv));
-            //Queue<U> items = new Queue<U>(nds.Skip(1));//ルート以外のノードを格納
-            //Queue<U> queue = new Queue<U>();//追加待ちのノード
-            //queue.Enqueue(root);
-            //while (items.Any() && queue.Any()) {
-            //    int cnt = 0;
-            //    var tgt = queue.Dequeue();
-            //    while (tgt != null && cnt < nary && items.Any()) {
-            //        var item = items.Dequeue();
-            //        addAction(tgt, item);
-            //        if (item != null && (nests(tgt) ?? Enumerable.Empty<U>()).Contains(item)) { 
-            //            queue.Enqueue(item);
-            //            cnt++;
-            //        }
-            //    }
-            //}
-            //return root;
             var nodes = self.Select(a => conv(a)).SkipWhile(a => a == null);
             U? root = nodes.FirstOrDefault() ?? throw new InvalidOperationException(nameof(conv));
             Stack<U> clds = new (nodes.Skip(1).Reverse());//追加されるノード

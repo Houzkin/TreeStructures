@@ -24,7 +24,7 @@ public class BinaryWrpr : TreeNodeWrapper<NamedBinaryNode, BinaryWrpr> {
 }
 public class InfiniteLoopEmptyBinaryWrpr : BinaryWrpr{
 	public InfiniteLoopEmptyBinaryWrpr() { }
-	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<BinaryWrpr> children) {
+	protected override IEnumerable<BinaryWrpr> SetupPublicChildCollection(CombinableMirroredChildrenCollection<BinaryWrpr> children) {
 		var appendlist = new ObservableCollection<BinaryWrpr>();
 		appendlist.Add(new InfiniteLoopEmptyBinaryWrpr());
 		children.AppendCollection(appendlist);

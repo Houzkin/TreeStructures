@@ -12,7 +12,7 @@ namespace SampleConsoleApp;
 public static partial class Demo {
 	public static void Proxy_1() {
 		var srcList = new ObservableCollection<char>("ABCDEFG".ToCharArray());
-		var pxyList = new ReadOnlyObservableProxyCollection<char, string>(
+		var pxyList = new ObservableMirrorCollection<char, string>(
 			srcList,
 			x => x.ToString().ToLower(),
 			(chr, str) => chr.ToString().ToLower() == str);
@@ -31,7 +31,7 @@ public static partial class Demo {
 	}
 	public static void Proxy_2() {
 		var srcList = new ObservableCollection<char>("ABCDE".ToCharArray());
-		var proxy1 = srcList.ToReadOnlyObservable(
+		var proxy1 = srcList.ToObservableMirror(
 			chr => chr.ToString(),
 			(chr, str) => chr.ToString() == str,
 			str => Console.WriteLine($"{str} removed."));
@@ -41,7 +41,7 @@ public static partial class Demo {
 
 		proxy1.Dispose();
 
-		var proxy2 = srcList.ToReadOnlyObservable(
+		var proxy2 = srcList.ToObservableMirror(
 			chr => new DisposableNamedObj() { Name = chr.ToString() },
 			(chr, obj) => chr.ToString() == obj.Name,
 			obj => obj.Dispose());
@@ -58,7 +58,7 @@ public static partial class Demo {
 
 		var rdm = new Random();
 		var srcList = new ObservableCollection<int>(Enumerable.Range(0, 5).Select(x => rdm.Next(100)));
-		var pxyList = srcList.ToReadOnlyObservableFilterSort();
+		var pxyList = srcList.ToObservableFilterSortMirror();
 
 		Console.WriteLine($"source:{string.Join(",", srcList)}");
 		Console.WriteLine($"proxy :{string.Join(",", pxyList)}");
@@ -99,7 +99,7 @@ public static partial class Demo {
 			new ItemData(){Name = "Ivy", Number = 33, IsActive = false}
 		};
 
-		var pxyList = srcList.ToReadOnlyObservableFilterSort();
+		var pxyList = srcList.ToObservableFilterSortMirror();
 		pxyList.FilterBy(x => x.IsActive && 30 < x.Number, x => x.IsActive, x => x.Number);
 		foreach (var p in pxyList) {
 			Console.WriteLine(p);

@@ -59,12 +59,12 @@ namespace TreeStructures {
             }
         }
 
-        private CombinableChildrenProxyCollection<TWrpr>? _wrappers;
-        private protected CombinableChildrenProxyCollection<TWrpr> InnerChildNodes {
+        private CombinableMirroredChildrenCollection<TWrpr>? _wrappers;
+        private protected CombinableMirroredChildrenCollection<TWrpr> InnerChildNodes {
             get {
                 if(_wrappers is null) {
                     var srccn = getSourceChildren;
-                    _wrappers = new CombinableChildrenProxyCollection<TWrpr>(
+                    _wrappers = new CombinableMirroredChildrenCollection<TWrpr>(
                         (srccn ?? new ObservableCollection<TSrc>()).ToImitable(GenerateChild, null, IsImitating),
                         srccn is INotifyCollectionChanged,
                         SetupChildNode,
@@ -94,7 +94,7 @@ namespace TreeStructures {
         }
         /// <summary>Sets the collection to be exposed externally.</summary>
         /// <param name="children">A combinable collection wrapping each node of <see cref="SourceChildren"/>.</param>
-        protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableChildrenProxyCollection<TWrpr> children)
+        protected virtual IEnumerable<TWrpr> SetupPublicChildCollection(CombinableMirroredChildrenCollection<TWrpr> children)
             => children;
 
         /// <summary>Conversion function applied to child nodes, converting from <typeparamref name="TSrc"/> to <typeparamref name="TWrpr"/>.</summary>
@@ -149,10 +149,10 @@ namespace TreeStructures {
 		/// Provides a collection of wrappers for each child node in a state combinable with other collections.
 		/// </summary>
         /// <typeparam name="Twrpr">Type of the wrapper node</typeparam>
-        public sealed class CombinableChildrenProxyCollection<Twrpr> : ObservableCombinableCollection<Twrpr> where Twrpr : class {
+        public sealed class CombinableMirroredChildrenCollection<Twrpr> : ObservableCombinableCollection<Twrpr> where Twrpr : class {
             ImitableCollection<Twrpr> _childNodes;
             bool _isObserving;
-            internal CombinableChildrenProxyCollection(ImitableCollection<Twrpr> childNodes,bool isObservable ,Action<Twrpr> addOption,Action<Twrpr> removedOption):base(addOption,removedOption) {
+            internal CombinableMirroredChildrenCollection(ImitableCollection<Twrpr> childNodes,bool isObservable ,Action<Twrpr> addOption,Action<Twrpr> removedOption):base(addOption,removedOption) {
                 _childNodes = childNodes;
                 _isObserving = isObservable;
                 this.AppendCollection(childNodes);

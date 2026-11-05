@@ -27,7 +27,7 @@ namespace TreeStructures.Collections {
 	/// <typeparam name="T">The type of the elements in the collection. To receive property change notifications, the elements must implement <see cref="INotifyPropertyChanged"/>.</typeparam>
 	public class PropertyTrackingCollection<T> : IReadOnlyList<T>, IDisposable, INotifyCollectionChanged {
 
-		ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>> _trees;
+		ObservableMirrorCollection<T, ObservedPropertyTree<T>> _trees;
 		List<Dictionary<string, Dictionary<ObservedPropertyTree<T>, IDisposable>>> _trackingDics = new();
 		IDisposable? _listener;
 
@@ -41,7 +41,7 @@ namespace TreeStructures.Collections {
 		public PropertyTrackingCollection(IEnumerable<T> items) {
 
 			Items = items;
-			_trees = new ReadOnlyObservableProxyCollection<T, ObservedPropertyTree<T>>(
+			_trees = new ObservableMirrorCollection<T, ObservedPropertyTree<T>>(
 				items,
 				addedItem => {
 					var opt = new ObservedPropertyTree<T>(addedItem);

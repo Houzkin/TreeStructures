@@ -14,10 +14,10 @@ namespace TreeStructures.Collections {
 	/// <summary>
 	/// Provides an observable and combinable collection.  
 	/// To reflect changes in the combined collections, the target collections must implement <see cref="INotifyCollectionChanged"/>.
-	/// After use, call <see cref="ReadOnlyObservableProxyCollection{T,U}.Dispose()"/> to unsubscribe from the collection change notifications.
+	/// After use, call <see cref="ObservableMirrorCollection{T,U}.Dispose()"/> to unsubscribe from the collection change notifications.
 	/// </summary>
 	/// <typeparam name="T">The type of elements in the collection.</typeparam>
-	public class ObservableCombinableCollection<T> : ReadOnlyObservableProxyCollection<T> {
+	public class ObservableCombinableCollection<T> : ObservableMirrorCollection<T> {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ObservableCombinableCollection{T}"/> class.
 		/// </summary>

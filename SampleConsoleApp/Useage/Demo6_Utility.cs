@@ -220,7 +220,7 @@ public static partial class Demo {
 		var lst = new List<string> { "Alvin", "Ben", "Carl", "Daniel", };
 		var cmpr = Comparer<string>.Create((x, y) => x.Length - y.Length);
 
-		var pxyLst = lst.ToReadOnlyObservableFilterSort();
+		var pxyLst = lst.ToObservableFilterSortMirror();
 
 		pxyLst.SortBy(x => x, cmpr);
 		Console.WriteLine(string.Join (", ", pxyLst));
@@ -233,7 +233,7 @@ public static partial class Demo {
 	public static void CmbDisp_1() {
 		var srcList = new ObservableCollection<char>("ABC".ToCharArray());
 
-		var proxy3 = srcList.ToReadOnlyObservable(
+		var proxy3 = srcList.ToObservableMirror(
 			chr => new DisposableNamedObj() { Name = chr.ToString() },
 			(chr, obj) => chr.ToString() == obj.Name,
 			obj => obj.Dispose());

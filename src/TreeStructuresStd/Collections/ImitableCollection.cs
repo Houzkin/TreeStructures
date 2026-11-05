@@ -121,7 +121,7 @@ namespace TreeStructures.Collections {
 			public TSrc Src { get; private set; }
 			public TDst Dst { get; private set; }
 		}
-		private class SDPairCollection: ReadOnlyObservableProxyCollection<TSrc, SDPair> {
+		private class SDPairCollection: ObservableMirrorCollection<TSrc, SDPair> {
 			public SDPairCollection(IEnumerable<TSrc> source, Func<TSrc, SDPair> convert, Func<TSrc, SDPair, bool> equality, Action<SDPair>? removedAction = null, bool isImitating = true)
 				: base(source, convert, equality, removedAction) {
 				_src = source;

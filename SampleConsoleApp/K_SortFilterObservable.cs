@@ -128,7 +128,7 @@ public static partial class UseageSample{
 
 
 
-		var sfo = dtlist.ToReadOnlyObservableFilterSort();
+		var sfo = dtlist.ToObservableFilterSortMirror();
 		//var sfo = new RooObsFilterSortCollection<DateTime>(dtlist);
 
 		Console.WriteLine("initial state");
@@ -160,7 +160,7 @@ public static partial class UseageSample{
 		};
 
 		Console.WriteLine("\ninitial state");
-		var sfoheads = heads.ToReadOnlyObservableFilterSort();
+		var sfoheads = heads.ToObservableFilterSortMirror();
 		Console.WriteLine(string.Join("\n", sfoheads.Select(x => $"State:{x.State}, Name:{x.Name}, Birthday:{x.Birthday.ToString("yyyy/MM/dd")}, IsRepublic:{x.IsRepublic}, IsEmpress:{x.IsEmpress}")));
 
 		Console.WriteLine("\nonly republic");

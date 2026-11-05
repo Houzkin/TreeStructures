@@ -51,7 +51,7 @@ public static partial class  UseageSample {
 
 	public static void MethodLL() {
 		var srcList = new ObservableCollection<char>("ABCDEFG".ToCharArray());
-		var obsPxy = new ReadOnlyObservableProxyCollection<char, string>(
+		var obsPxy = new ObservableMirrorCollection<char, string>(
 			srcList,
 			x =>x.ToString().ToUpper(),
 			(chr, str) => chr.ToString().ToUpper() == str);

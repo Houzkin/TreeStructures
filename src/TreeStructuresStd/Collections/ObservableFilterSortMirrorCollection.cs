@@ -9,14 +9,14 @@ using System.Text;
 namespace TreeStructures.Collections {
 	/// <summary>
 	/// Provides a collection that can be sorted and filtered, synchronized with the specified collection.<br/>
-	/// After use, call <see cref="ReadOnlyObservableProxyCollection{T,U}.Dispose()"/> to unsubscribe from the collection change notifications.
+	/// After use, call <see cref="ObservableMirrorCollection{T,U}.Dispose()"/> to unsubscribe from the collection change notifications.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public class ReadOnlyObservableFilterSortCollection<T> : ReadOnlyObservableProxyCollection<T> {
+	public class ObservableFilterSortMirrorCollection<T> : ObservableMirrorCollection<T> {
 		/// <summary>Initializes a new instance.</summary>
 		/// <param name="source">The collection to synchronize with.</param>
 		/// <param name="equality"></param>
-		public ReadOnlyObservableFilterSortCollection(IEnumerable<T> source,IEqualityComparer<T>? equality = null) 
+		public ObservableFilterSortMirrorCollection(IEnumerable<T> source,IEqualityComparer<T>? equality = null) 
 			: base(source,null,null,equality) {
 			_equality = equality ?? Equality<T>.ValueOrReference;
 			_observer = new PropertyTrackingCollection<T>(source);

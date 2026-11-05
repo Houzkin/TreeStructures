@@ -98,7 +98,7 @@ namespace TreeStructures.Collections {
 	}
     /// <summary><inheritdoc/></summary>
     /// <typeparam name="TDst">The type of elements in the imitable collection for synchronization.</typeparam>
-    public abstract class ImitableCollection<TDst> : ImitableCollection,IReadOnlyObservableProxyCollection<TDst> {
+    public abstract class ImitableCollection<TDst> : ImitableCollection,IObservableMirrorCollection<TDst> {
         internal ImitableCollection() : base() { }
 
         #region IReadOnlyList Members

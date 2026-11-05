@@ -41,16 +41,16 @@ public static partial class TreeNodeExtenstions {
         if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
         return new ResultWithValue<T>(false, (T)self);
     }
-    /// <summary>Removes a child node.</summary>
-    /// <param name="child">The child node to remove.</param>
-    /// <param name="removeAction">A function that takes the parent node as the first parameter and the child node as the second parameter, dissolving their relationship.</param>
-    /// <returns>If the removal is successful, returns <paramref name="child"/>; if the removal is unsuccessful or the specified child node does not exist, returns the current node.</returns>
-    public static ResultWithValue<T> TryRemoveChild<T>(this ITreeNode<T> self,T child, Action<T,T> removeAction)where T : ITreeNode<T> {
-        if (!self.Children.Contains(child)) return new ResultWithValue<T>(false, (T)self);
-        removeAction((T)self, child);
-        if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
-        return new ResultWithValue<T>(false, (T)self);
-    }
+    ///// <summary>Removes a child node.</summary>
+    ///// <param name="child">The child node to remove.</param>
+    ///// <param name="removeAction">A function that takes the parent node as the first parameter and the child node as the second parameter, dissolving their relationship.</param>
+    ///// <returns>If the removal is successful, returns <paramref name="child"/>; if the removal is unsuccessful or the specified child node does not exist, returns the current node.</returns>
+    //public static ResultWithValue<T> TryRemoveChild<T>(this ITreeNode<T> self,T child, Action<T,T> removeAction)where T : ITreeNode<T> {
+    //    if (!self.Children.Contains(child)) return new ResultWithValue<T>(false, (T)self);
+    //    removeAction((T)self, child);
+    //    if (!self.Children.Contains(child)) return new ResultWithValue<T>(child);
+    //    return new ResultWithValue<T>(false, (T)self);
+    //}
     /// <summary>Removes the current node.</summary>
     /// <returns>If the removal is successful, returns true; if the removal is unsuccessful or the current node is the root, returns false. In either case, the current node is retained.</returns>
     public static ResultWithValue<T> TryRemoveOwn<T>(this IMutableTreeNode<T> self) where T : IMutableTreeNode<T> {
@@ -89,50 +89,66 @@ public static partial class TreeNodeExtenstions {
     /// <param name="predicate">Condition for removal (true if it should be removed).</param>
     /// <returns>The removed sub trees.</returns>
     public static IReadOnlyList<T> RemoveAllChild<T>(this IMutableTreeNode<T> self, Predicate<T> predicate) where T : IMutableTreeNode<T> {
-        return TreeNodeExtenstions.RemoveAllChild(self, predicate,(p,c)=>p.RemoveChild(c));
-    }
-    /// <summary>Removes all child nodes that match the specified condition.</summary>
-    /// <typeparam name="T">Type of the nodes.</typeparam>
-    /// <param name="self">Current node.</param>
-    /// <param name="predicate">Condition for removal (true if it should be removed).</param>
-    /// <param name="removeAction">Function to break the relationship between the parent and the child. Takes the parent node as the first argument and the child node as the second argument.</param>
-    /// <returns>The removed sub trees.</returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    public static IReadOnlyList<T> RemoveAllChild<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction) where T : ITreeNode<T> {
+        //return TreeNodeExtenstions.RemoveAllChild(self, predicate,(p,c)=>p.RemoveChild(c));
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
         var lst = new List<T>();
         foreach (var cld in self.Children.OfType<T>().Reverse()) {
             if (predicate(cld)) {
-                self.TryRemoveChild(cld,removeAction).When(o => lst.Add(cld));
+                self.TryRemoveChild(cld).When(o => lst.Add(cld));
             }
         }
         return lst;
     }
+    ///// <summary>Removes all child nodes that match the specified condition.</summary>
+    ///// <typeparam name="T">Type of the nodes.</typeparam>
+    ///// <param name="self">Current node.</param>
+    ///// <param name="predicate">Condition for removal (true if it should be removed).</param>
+    ///// <param name="removeAction">Function to break the relationship between the parent and the child. Takes the parent node as the first argument and the child node as the second argument.</param>
+    ///// <returns>The removed sub trees.</returns>
+    ///// <exception cref="ArgumentNullException"></exception>
+    //public static IReadOnlyList<T> RemoveAllChild<T>(this ITreeNode<T> self, Predicate<T> predicate, Action<T, T> removeAction) where T : ITreeNode<T> {
+    //    if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+    //    var lst = new List<T>();
+    //    foreach (var cld in self.Children.OfType<T>().Reverse()) {
+    //        if (predicate(cld)) {
+    //            self.TryRemoveChild(cld, removeAction).When(o => lst.Add(cld));
+    //        }
+    //    }
+    //    return lst;
+    //}
     /// <summary>Removes all nodes that match the condition in level order from the current node.</summary>
     /// <typeparam name="T">Type of the node</typeparam>
     /// <param name="self">Current node</param>
     /// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
     /// <returns>The removed sub trees</returns>
     public static IReadOnlyList<T> RemoveAllDescendant<T>(this IMutableTreeNode<T> self, Predicate<T> predicate) where T : IMutableTreeNode<T> {
-        return TreeNodeExtenstions.RemoveAllDescendant<T>(self, predicate, (p, c) => p.RemoveChild(c));
-    }
-    /// <summary>Removes all nodes that match the condition in level order from the current node.</summary>
-    /// <typeparam name="T">Type of the node</typeparam>
-    /// <param name="self">Current node</param>
-    /// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
-    /// <param name="removeAction">Function to dissolve the relationship, taking the parent node as the first argument and the child node as the second.</param>
-    /// <returns>The removed sub trees</returns>
-    public static IReadOnlyList<T> RemoveAllDescendant<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction)where T : ITreeNode<T> {
+        //return TreeNodeExtenstions.RemoveAllDescendant<T>(self, predicate, (p, c) => p.RemoveChild(c));
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-        if(removeAction==null) throw new ArgumentNullException(nameof(removeAction));
         var lst = new List<T>();
         var dm = self.Traverse(a => {
-            lst.AddRange(a.RemoveAllChild(predicate, removeAction).OfType<T>());
+            lst.AddRange(a.RemoveAllChild(predicate).OfType<T>());
             return a.Children;
         }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b))
             .LastOrDefault();
         return lst;
     }
+    ///// <summary>Removes all nodes that match the condition in level order from the current node.</summary>
+    ///// <typeparam name="T">Type of the node</typeparam>
+    ///// <param name="self">Current node</param>
+    ///// <param name="predicate">Condition for removal, returns true for nodes to be deleted</param>
+    ///// <param name="removeAction">Function to dissolve the relationship, taking the parent node as the first argument and the child node as the second.</param>
+    ///// <returns>The removed sub trees</returns>
+    //public static IReadOnlyList<T> RemoveAllDescendant<T>(this ITreeNode<T> self,Predicate<T> predicate,Action<T,T> removeAction)where T : ITreeNode<T> {
+    //    if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+    //    if(removeAction==null) throw new ArgumentNullException(nameof(removeAction));
+    //    var lst = new List<T>();
+    //    var dm = self.Traverse(a => {
+    //        lst.AddRange(a.RemoveAllChild(predicate, removeAction).OfType<T>());
+    //        return a.Children;
+    //    }, (a, b, c) => new T?[1] { a }.Concat(c).Concat(b))
+    //        .LastOrDefault();
+    //    return lst;
+    //}
     #endregion
 }
 

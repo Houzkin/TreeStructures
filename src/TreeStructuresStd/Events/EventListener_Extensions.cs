@@ -38,10 +38,10 @@ namespace TreeStructures.Events {
 	//public static class EventListenerExtensions {
 	internal class CollectionObserver<T> : ICollectionAddRemoveObserver<T> {
 		internal CollectionObserver(IEnumerable<T> list) {
-			_collection = new ReadOnlyObservableProxyCollection<T>(list, null, OnRemoved);
+			_collection = new ObservableMirrorCollection<T>(list, null, OnRemoved);
 			_collection.CollectionChanged += Pxy_CollectionChanged;
 		}
-		private IReadOnlyObservableProxyCollection<T> _collection;
+		private IObservableMirrorCollection<T> _collection;
 
 		private void Pxy_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
 			switch (e.Action) {

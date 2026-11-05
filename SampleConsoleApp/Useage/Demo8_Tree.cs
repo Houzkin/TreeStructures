@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,8 +19,8 @@ public class CategoryView : BindableTreeNodeWrapper<CategoryTree<DateTime, int>.
 	protected override CategoryView GenerateChild(CategoryTree<DateTime, int>.Node sourceChildNode) {
 		return new CategoryView(sourceChildNode);
 	}
-	protected override IEnumerable<CategoryView> SetupPublicChildCollection(CombinableChildrenProxyCollection<CategoryView> children) {
-		var lst = children.ToReadOnlyObservableFilterSort();
+	protected override IEnumerable<CategoryView> SetupPublicChildCollection(CombinableMirroredChildrenCollection<CategoryView> children) {
+		var lst = children.ToObservableFilterSortMirror();
 		lst.SortBy(x => x);
 		return lst;
 	}
@@ -71,8 +72,8 @@ public class PlayerView : BindableTreeNodeWrapper<CategoryTree<Player, int>.Node
 	protected override PlayerView GenerateChild(CategoryTree<Player, int>.Node sourceChildNode) {
 		return new PlayerView(sourceChildNode);
 	}
-	protected override IEnumerable<PlayerView> SetupPublicChildCollection(CombinableChildrenProxyCollection<PlayerView> children) {
-		var lst = children.ToReadOnlyObservableFilterSort();
+	protected override IEnumerable<PlayerView> SetupPublicChildCollection(CombinableMirroredChildrenCollection<PlayerView> children) {
+		var lst = children.ToObservableFilterSortMirror();
 		if (this.Source.Depth() == 0) {
 			lst.SortBy(x => x, comparer.Invert());
 		} else {
@@ -108,6 +109,16 @@ public class PlayerView : BindableTreeNodeWrapper<CategoryTree<Player, int>.Node
 	public Player Item => Source.Item;
 }
 
+public class Onion : NotifyObjA {
+	public Onion Inside {
+		get => Properties.GetValue<Onion>();
+		set => Properties.TrySetValue(value);
+	}
+	public KnownColor SurfaceColor {
+		get => Properties.GetValue(KnownColor.White);
+		set => Properties.TrySetValue(value);
+	}
+}
 public static partial class Demo {
 	public static void Category_1() {
 
@@ -175,5 +186,56 @@ public static partial class Demo {
 		Console.WriteLine(ctgTreeView.ToTreeDiagram(x => x.ToString()));
 
 
+	}
+	public static void ObsPropTree_1() {
+
+		var colors = new KnownColor[] { KnownColor.Black, KnownColor.Brown, KnownColor.DarkKhaki, KnownColor.White };
+
+		var root = colors.AssembleAsNAryTree(1,
+			clr => new Onion() { SurfaceColor = clr },
+			onion => onion.Inside is null ? Array.Empty<Onion>() : new Onion[] { onion.Inside },
+			(p, c) => { p.Inside = c; });
+
+		PrintHierarchy(root, x => new Onion[] { x.Inside }, x => x.SurfaceColor.ToString());
+
+		var observingTree = new ObservedPropertyTree<Onion>(root);
+
+		var listner1 = observingTree.Subscribe(x => x.Inside.Inside.SurfaceColor, clr => Console.WriteLine($"3rd layer color changed: {clr}"));
+
+		root.Inside.Inside.SurfaceColor = KnownColor.Magenta;
+		PrintHierarchy(root, x => new Onion[] { x.Inside }, x => x.SurfaceColor.ToString());
+
+
+		root.Inside = null;
+
+		var redOnion = new KnownColor[] { KnownColor.Red, KnownColor.Green, KnownColor.LightPink }
+			.AssembleAsNAryTree(1,
+			clr => new Onion() { SurfaceColor = clr },
+			onion => onion.Inside is null ? Array.Empty<Onion>() : new Onion[] { onion.Inside },
+			(p, c) => { p.Inside = c; });
+
+		root.Inside = redOnion;
+
+		PrintHierarchy(root, x => new Onion[] { x.Inside }, x => x.SurfaceColor.ToString());
+
+		var blueOnion = new KnownColor[] { KnownColor.Blue, KnownColor.Green, KnownColor.Gray }
+			.AssembleAsNAryTree(1,
+			clr => new Onion() { SurfaceColor = clr },
+			onion => onion.Inside is null ? Array.Empty<Onion>() : new Onion[] { onion.Inside },
+			(p, c) => { p.Inside = c; });
+
+		root.Inside = blueOnion;
+
+		PrintHierarchy(root, x => new Onion[] { x.Inside }, x => x.SurfaceColor.ToString());
+
+		root.Inside.Inside = redOnion;
+		PrintHierarchy(root, x => new Onion[] { x.Inside }, x => x.SurfaceColor.ToString());
+
+
+		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.PropertyName));
+
+		observingTree.Dispose();
+
+		//root.Inside.Inside.SurfaceColor = KnownColor.Magenta;
 	}
 }

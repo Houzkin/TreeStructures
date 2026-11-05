@@ -13,9 +13,7 @@ namespace TreeStructures {
     [Serializable]
     public abstract class GeneralTreeNode<TNode> : TreeNodeBase<TNode>, IMutableTreeNode<TNode>/*, IDisposable*/ where TNode : GeneralTreeNode<TNode> {
         /// <summary>Initializes a new instance.</summary>
-        protected GeneralTreeNode() {
-            //Children = new ReadOnlyCollection<TNode>(ChildNodes);
-        }
+        protected GeneralTreeNode() { }
         /// <summary>Initializes a new instance.</summary>
         /// <param name="nodes"></param>
         protected GeneralTreeNode(IEnumerable<TNode> nodes) : this() {
@@ -122,91 +120,6 @@ namespace TreeStructures {
         }
 
         #endregion process
-
-        #region Dispose
-        //[NonSerialized]
-        //bool _isDisposed;
-        //[NonSerialized]
-        //bool _isDisposing;
-        ///// <summary>Gets a value indicating whether the current instance has already been disposed.</summary>
-        //protected bool IsDisposed {
-        //    get { return _isDisposed; }
-        //    private set { _isDisposed = value; }
-        //}
-        ///// <summary>Disposes the instance. Along with the target node, descendant nodes are also disposed.</summary>
-        //public void Dispose() {
-        //    if (IsDisposed || _isDisposing) return;
-        //    _isDisposing = true;
-        //    this.Dispose(true);
-        //    GC.SuppressFinalize(this);
-        //    _isDisposing = false;
-        //    return;
-        //}
-        ///// <summary>Disposes of resources.</summary>
-        ///// <param name="disposing"></param>
-        //protected virtual void Dispose(bool disposing) {
-        //    if (disposing) {
-        //        this.DisposeCore();
-        //    }
-        //    IsDisposed = true;
-        //}
-        //void IDisposable.Dispose() {
-        //    this.Dispose();
-        //}
-        ///// <summary>Prevents operations on an instance that has already been disposed.</summary>
-        //protected void ThrowExceptionIfDisposed() {
-        //    if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
-        //}
-        ///// <summary>Disposes of all descendant nodes.</summary>
-        ///// <returns>The current node.</returns>
-        //public TNode DisposeDescendants() {
-        //    foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
-        //        cld.Dispose();
-        //    return Self;
-        //}
-        #endregion
-        //[NonSerialized]
-        //bool _isDisposed;
-        //[NonSerialized]
-        //bool _isDisposing;
-        ///// <summary>Gets a value indicating whether the current instance has already been disposed.</summary>
-        //protected bool IsDisposed {
-        //    get { return _isDisposed; }
-        //    private set { _isDisposed = value; }
-        //}
-        ///// <summary>Disposes the instance. Along with the target node, descendant nodes are also disposed.</summary>
-        //public void Dispose() {
-        //    //if (IsDisposed || _isDisposing) return;
-        //    //_isDisposing = true;
-        //    //this.Dispose(true);
-        //    //GC.SuppressFinalize(this);
-        //    //_isDisposing = false;
-        //    //return;
-        //    Dispose(true);
-        //}
-        ///// <summary>Disposes of resources.</summary>
-        ///// <param name="disposing"></param>
-        //protected override void Dispose(bool disposing) {
-        //    base.Dispose(disposing);
-        //    //if (disposing) {
-        //    //    this.DisposeCore();
-        //    //}
-        //    //IsDisposed = true;
-        //}
-        //void IDisposable.Dispose() {
-        //    this.Dispose();
-        //}
-        ///// <summary>Prevents operations on an instance that has already been disposed.</summary>
-        //protected void ThrowExceptionIfDisposed() {
-        //    if (IsDisposed) throw new ObjectDisposedException(this.ToString(), "The instance has already been disposed and cannot be operated on.");
-        //}
-        ///// <summary>Disposes of all descendant nodes.</summary>
-        ///// <returns>The current node.</returns>
-        //public TNode DisposeDescendants() {
-        //    foreach (var cld in this.ChildNodes.OfType<IDisposable>().Reverse())
-        //        cld.Dispose();
-        //    return Self;
-        //}
 
     }
 }

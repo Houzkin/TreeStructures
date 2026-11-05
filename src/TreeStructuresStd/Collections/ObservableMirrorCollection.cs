@@ -17,7 +17,7 @@ namespace TreeStructures.Collections {
 	/// After use, call <see cref="IDisposable.Dispose()"/> method.
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface IReadOnlyObservableProxyCollection<T> : IReadOnlyList<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable {
+	public interface IObservableMirrorCollection<T> : IReadOnlyList<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable {
 
 	}
 	/// <summary>
@@ -27,7 +27,7 @@ namespace TreeStructures.Collections {
 	/// </summary>
 	/// <typeparam name="T">The type of the elements in the source collection.</typeparam>
 	/// <typeparam name="U">The type of the elements in the wrapped collection that are linked to <typeparamref name="T"/>.</typeparam>
-	public class ReadOnlyObservableProxyCollection<T, U> : ReadOnlyObservableCollection<U>, IReadOnlyObservableProxyCollection<U> {
+	public class ObservableMirrorCollection<T, U> : ReadOnlyObservableCollection<U>, IObservableMirrorCollection<U> {
 		private bool isDisposed;
 		private IEnumerable<T> _collection;
 		IDisposable? _collectionChangedListener;
@@ -42,7 +42,7 @@ namespace TreeStructures.Collections {
 		/// <param name="convert">A function that converts <typeparamref name="T"/> elements to <typeparamref name="U"/>.</param>
 		/// <param name="equality">A function that determines whether a given <typeparamref name="T"/> element corresponds to a given <typeparamref name="U"/> element.</param>
 		/// <param name="removedHandler">An optional callback invoked when an item is removed.</param>
-		public ReadOnlyObservableProxyCollection(IEnumerable<T> source, Func<T, U> convert, Func<T, U, bool> equality, Action<U>? removedHandler = null)
+		public ObservableMirrorCollection(IEnumerable<T> source, Func<T, U> convert, Func<T, U, bool> equality, Action<U>? removedHandler = null)
 			: base(new ObservableCollection<U>()) {
 			_collection = source;
 			_converter = convert;
@@ -187,18 +187,18 @@ namespace TreeStructures.Collections {
 	/// <summary>
 	/// A read-only, observable collection that follows changes in a specified source collection.<br/>
 	/// To reflect changes, the source collection must implement <see cref="INotifyCollectionChanged"/>.<br/>
-	/// After use, call <see cref="ReadOnlyObservableProxyCollection{T, U}.Dispose()"/> to unsubscribe from change notifications.
+	/// After use, call <see cref="ObservableMirrorCollection{T, U}.Dispose()"/> to unsubscribe from change notifications.
 	/// </summary>
 	/// <typeparam name="T">The type of elements in the collection.</typeparam>
-	public class ReadOnlyObservableProxyCollection<T> : ReadOnlyObservableProxyCollection<T, T> {
+	public class ObservableMirrorCollection<T> : ObservableMirrorCollection<T, T> {
 		/// <summary>
-		/// Initializes a new instance of the <see cref="ReadOnlyObservableProxyCollection{T}"/> class.
+		/// Initializes a new instance of the <see cref="ObservableMirrorCollection{T}"/> class.
 		/// </summary>
 		/// <param name="source">The source collection to wrap.</param>
 		/// <param name="addingAction">An optional callback invoked just prior to adding an item to the collection.</param>
 		/// <param name="removedAction">An optional callback invoked when an item is removed.</param>
 		/// <param name="equality">An optional equality comparer used to determine element equivalence. If null, <see cref="Equality{T}.ValueOrReference"/> is used.</param>
-		public ReadOnlyObservableProxyCollection(IEnumerable<T> source, Action<T>? addingAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null)
+		public ObservableMirrorCollection(IEnumerable<T> source, Action<T>? addingAction = null, Action<T>? removedAction = null, IEqualityComparer<T>? equality = null)
 			: base(source,
 				  addingAction is null ? (x => x) : (x => { addingAction.Invoke(x); return x; }),
 				  (x, y) => equality?.Equals(x, y) ?? Equality<T>.ValueOrReference.Equals(x, y),
