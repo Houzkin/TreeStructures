@@ -175,4 +175,57 @@ public static partial class Demo {
 		In-Order:H,C,A
 		 */
 	}
+	public static void NAry_2() {
+		var root = new Dictionary<NodeIndex, CustomNaryTreeNode>() {
+			[new NodeIndex()] = new CustomNaryTreeNode(3) { Name = "A" },
+			[new NodeIndex(0)] = new CustomNaryTreeNode(2) { Name = "B" },
+			[new NodeIndex(1)] = new CustomNaryTreeNode(2) { Name = "C" },
+			[new NodeIndex(0, 1)] = new CustomNaryTreeNode(0) { Name = "D" },
+			[new NodeIndex(1, 1)] = new CustomNaryTreeNode(2) { Name = "E" },
+		}.AssembleTree((p, c, i) => p.SetChild(i, c));
+
+		Console.WriteLine(root.ToTreeDiagram(x => $"{x.Name} branchIndex:{x.BranchIndex()}"));
+		/*
+		A branchIndex:-1
+		├ B branchIndex:0
+		│ └ D branchIndex:1
+		└ C branchIndex:1
+		  └ E branchIndex:1
+		*/
+		Console.WriteLine(root.ToTreeDiagram(x => x.Name, "empty"));
+		/*
+		A
+		├ B
+		│ ├ empty
+		│ └ D
+		├ C
+		│ ├ empty
+		│ └ E
+		│   ├ empty
+		│   └ empty
+		└ empty
+		*/
+
+		Console.WriteLine(root.AsValuedTreeNode(x => x).ToTreeDiagram(x => x.Value?.Name ?? "null"));
+		/*
+		A
+		├ B
+		│ ├ null
+		│ └ D
+		├ C
+		│ ├ null
+		│ └ E
+		│   ├ null
+		│   └ null
+		└ null
+		*/
+		Console.WriteLine($"InOrder(do not ignore null): {string.Join(',', root.AsValuedTreeNode(x => x).InOrder().Select(x => x.Value?.Name ?? "null"))}");
+		Console.WriteLine($"InOrder(ignore null)       : {string.Join(',', root.InOrder().Select(x => x.Name))}");
+		/*
+		InOrder(do not ignore null): null,B,D,A,null,C,null,E,null,null
+		InOrder(ignore null)       : B,D,A,C,E
+		*/
+		Console.ReadKey();
+	}
+
 }

@@ -233,6 +233,10 @@ namespace TreeStructures.Tree {
 		public void Remove(IEnumerable<TItm> items) { 
 			foreach (var item in items) this.RemoveItem(item);
 		}
+		/// <summary>Removes all items from the category tree.</summary>
+		public void Clear() {
+			foreach (var cld in this.Root.PreOrder().Reverse()) cld.Clear();
+		}
 
 		/// <summary>Represents a node in the category tree, which can either be a category or an item.</summary>
 		/// <remarks>
@@ -287,19 +291,17 @@ namespace TreeStructures.Tree {
 			});
 			/// <inheritdoc/>
 			protected override IEnumerable<Node> SetupInnerChildCollection() {
-				//return new HashSet<Node>();
 				return new ObservableCollection<Node>();
 			}
 			/// <inheritdoc/>
 			protected override IEnumerable<Node> SetupPublicChildCollection(IEnumerable<Node> innerCollection) {
 				_childnodes = new ReadOnlyObservableCollection<Node>((ObservableCollection<Node>)innerCollection);
 				return _childnodes;
-				//_childnodes = innerCollection.ToImitable(a => a, null, true);
-				//return _childnodes;
-				//var lst = _childnodes.ToReadOnlyObservableFilterSort();
-				//lst.SortBy(x => x, comparer);
-				//return lst;
 			}
+			/// <summary> Get the read-only observable collection of child nodes.</summary>
+			public new ReadOnlyObservableCollection<Node> Children
+				=> (base.Children as ReadOnlyObservableCollection<Node>)!;
+
 			protected override void InsertChildCore(int index, Node child, Action<IEnumerable<Node>, int, Node>? action = null) {
 				action ??= (list, idx, node) => ((ICollection<Node>)list).Add(node);
 				base.InsertChildCore(index, child, action);
@@ -314,6 +316,9 @@ namespace TreeStructures.Tree {
 			}
 			internal void Remove(Node child) {
 				this.RemoveChildCore(child);
+			}
+			internal void Clear() {
+				if(!HasItem) this.ClearChildCore();
 			}
 		}
 	}

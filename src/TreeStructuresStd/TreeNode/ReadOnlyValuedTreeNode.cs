@@ -25,8 +25,9 @@ namespace TreeStructures {
         }
         /// <inheritdoc/>
         protected override ReadOnlyValuedTreeNode<TSrc, TVal> GenerateChild(TSrc sourceChildNode) {
-            if (sourceChildNode is null) return null;
-            return new ReadOnlyValuedTreeNode<TSrc, TVal>(sourceChildNode, _toChildren, _toValue);
+            return new ReadOnlyValuedTreeNode<TSrc, TVal>(sourceChildNode, sourceChildNode is null ? x => Array.Empty<TSrc>() : _toChildren, _toValue);
+            //if (sourceChildNode is null) return new ReadOnlyValuedTreeNode<TSrc, TVal>(sourceChildNode,x=> Array.Empty<TSrc>(),_toValue);
+            //return new ReadOnlyValuedTreeNode<TSrc, TVal>(sourceChildNode, _toChildren, _toValue);
         }
         /// <inheritdoc/>
         protected override IEnumerable<TSrc>? SourceChildren => _toChildren(this.Source);//?.AsReadOnly();

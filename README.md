@@ -76,17 +76,17 @@ Some classes used for internal implementation are also exposed.
   Reorders a specified list through manipulation.  
 - `ImitableCollection<TSrc,TDst>`  
   A collection synchronized with a specified collection.  
-- `ReadOnlyObservableTrackingCollection<T>`  
+- `PropertyTrackingCollection<T>`  
   An observable collection that links with a specified collection and enables batch property observation of each element.  
 - `ObservableCombinableCollection<T>`  
   A collection that merges multiple observable collections.
-- `ReadOnlyObservableFilterSortCollection<T>`  
+- `ObservableFilterSortMirrorCollection<T>`  
   An observable collection that links with a specified collection and adds sorting and filtering functionality.
 - `ListScroller<T>`  
   Provides navigation functionality within a collection.
 - `UniqueOperationExecutor`  
   Controls operation uniqueness (prevents duplicate execution).
-- `PropertyChangeProxy`  
+- `PropertyAccessor`  
   Assists in implementing `INotifyPropertyChanged`.
 - `ResultWithValue<TValue>`, `ResultWith<TValue>`  
   Manages the result of Try methods.

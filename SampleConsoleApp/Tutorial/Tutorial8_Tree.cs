@@ -118,6 +118,9 @@ public class Onion : NotifyObjA {
 		get => Properties.GetValue(KnownColor.White);
 		set => Properties.TrySetValue(value);
 	}
+	public override string ToString() {
+		return $"ColorOnion-{SurfaceColor.ToString()}";
+	}
 }
 public static partial class Demo {
 	public static void Category_1() {
@@ -231,8 +234,16 @@ public static partial class Demo {
 		root.Inside.Inside = redOnion;
 		PrintHierarchy(root, x => new Onion[] { x.Inside }, x => x.SurfaceColor.ToString());
 
+		var orangeOnion = new KnownColor[] { KnownColor.Orange, KnownColor.OrangeRed, KnownColor.DarkOrange }
+			.AssembleAsNAryTree(1,
+			clr => new Onion() { SurfaceColor = clr },
+			onion => onion.Inside is null ? Array.Empty<Onion>() : new Onion[] { onion.Inside },
+			(p, c) => { p.Inside = c; });
 
-		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => x.PropertyName));
+
+		observingTree.ChangeSource(orangeOnion);
+
+		Console.WriteLine(observingTree.Root.ToTreeDiagram(x => $"name:{x.PropertyName}, value:{x.Source.ToString()}"));
 
 		observingTree.Dispose();
 

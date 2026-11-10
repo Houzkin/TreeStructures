@@ -140,19 +140,26 @@ public static partial class Demo {
 		var cmbList = new ObservableCombinableCollection<string>();
 		cmbList.CollectionChanged += (s, e) => {
 			Console.Write($"action:{e.Action}, ");
-			Console.Write($"NewIndex:{e.NewStartingIndex}, ");
-			Console.Write($"NewItems:{string.Join(" ", e.NewItems?.OfType<string>() ?? Array.Empty<string>())}, ");
 			Console.Write($"OldIndex:{e.OldStartingIndex}, ");
-			Console.Write($"OldItems:{string.Join(" ", e.OldItems?.OfType<string>() ?? Array.Empty<string>())} \n");
+			Console.Write($"OldItems:{string.Join(" ", e.OldItems?.OfType<string>() ?? Array.Empty<string>())}, ");
+			Console.Write($"NewIndex:{e.NewStartingIndex}, ");
+			Console.Write($"NewItems:{string.Join(" ", e.NewItems?.OfType<string>() ?? Array.Empty<string>())} \n");
 		};
 		cmbList.AppendCollection(obs1List);
+		Console.WriteLine(string.Join(",", cmbList));
+
 		cmbList.AppendCollection(obs2List);
+		Console.WriteLine(string.Join(",", cmbList));
 
 		obs1List.Remove("C");
+		Console.WriteLine(string.Join(",", cmbList));
 		obs1List[1] = "D";
+		Console.WriteLine(string.Join(",", cmbList));
 		obs2List.Move(0, 1);
+		Console.WriteLine(string.Join(",", cmbList));
 
 		obs2List.Clear();
+		Console.WriteLine(string.Join(",", cmbList));
 	}
 	public static void Tracking_1() {
 
@@ -273,20 +280,17 @@ public static partial class Demo {
 		trackings.TrackHandler(x => x.Number, (s, e) => { });
 		var trcList = trackings.CreateTrackingList();
 		trcList.Register(x => x.IsActive);
+		trcList.Register(x => x.Number);
 
 		data[0].Number = 30;
 		//Handle all, Property:Number Name:Alice, Number:30, IsActive:True
+		//Handle all, Property:Number Name:Alice, Number:30, IsActive:True
+
 		data[1].IsActive = false;
 		//Handle all, Property:IsActive Name:Bob, Number:30, IsActive:False
 
 
 
-		//var listener1 = new EventListener<Action<SymbolNode, ChainedPropertyChangedEventArgs<object>>>(
-		//	h => trackings.TrackingPropertyChanged += h,
-		//	h => trackings.TrackingPropertyChanged -= h,
-		//	(s, e) => {
-		//		Console.WriteLine($"Handle All, Symbol{s.Symbol}, Property:{e.ChainedName}, Value:{e.PropertyValue}");
-		//	});
 	}
 	public static void Imitate_1() {
 		var rdm = new Random();

@@ -48,27 +48,54 @@ namespace TreeStructures.Linq {
         where T : ITreeNode<T> {
             return self.ToSerializableNodeMap(x => x);
         }
-        /// <summary>Generates a tree diagram as a string.</summary>
-        /// <typeparam name="T">Type of the node</typeparam>
-        /// <param name="self">Current node</param>
-        /// <param name="tostring">Function to convert a node to its string representation</param>
-        /// <returns>Tree diagram</returns>
-        public static string ToTreeDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
+		/// <summary>Generates a tree diagram as a string.</summary>
+		/// <typeparam name="T">Type of the node</typeparam>
+		/// <param name="self">Current node</param>
+		/// <param name="toString">Function to convert a node to its string representation</param>
+		/// <param name="nullText">The string to display for null nodes. If null, null nodes are ignored.</param>
+		/// <returns>Tree diagram</returns>
+		//public static string ToTreeDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
+		//    string branch = "├ ";
+		//    string lastBranch = "└ ";
+		//    string through = "│ ";
+		//    string indent = "  ";
+
+		//    string createLine(IEnumerable<T> nodes, NodeIndex idx) {
+		//        //var line = string.Concat(nodes.Zip(idx).Select(pair => pair.First.IsRoot() ? "" : pair.First.HasNextSibling() ? through : blank));
+		//        var line = string.Concat(nodes.Zip(idx, (fst, sec) => new { First = fst, Second = sec }).Select(pair => pair.First.IsRoot() ? "" : pair.First.HasNextSibling() ? through : indent));
+		//        return line;
+		//    }
+		//    var strlit = new List<string>();
+		//    foreach (var n in self.PreOrder()) {
+		//        var line = createLine(n.Upstream().Reverse(), n.GetNodeIndex());
+		//        var head = n.IsRoot() ? "" : n.HasNextSibling() ? branch : lastBranch;
+		//        line = line + head + tostring(n) + Environment.NewLine;
+		//        strlit.Add(line);
+		//    }
+		//    return string.Concat(strlit);
+		//}
+		public static string ToTreeDiagram<T>(this ITreeNode<T> self, Func<T, string> toString, string? nullText = null) where T : class, ITreeNode<T>{
             string branch = "├ ";
             string lastBranch = "└ ";
             string through = "│ ";
-            string blank = "  ";
+            string indent = "  ";
 
-            string createLine(IEnumerable<T> nodes, NodeIndex idx) {
-                //var line = string.Concat(nodes.Zip(idx).Select(pair => pair.First.IsRoot() ? "" : pair.First.HasNextSibling() ? through : blank));
-                var line = string.Concat(nodes.Zip(idx, (fst, sec) => new { First = fst, Second = sec }).Select(pair => pair.First.IsRoot() ? "" : pair.First.HasNextSibling() ? through : blank));
-                return line;
-            }
             var strlit = new List<string>();
-            foreach (var n in self.PreOrder()) {
-                var line = createLine(n.Upstream().Reverse(), n.GetNodeIndex());
-                var head = n.IsRoot() ? "" : n.HasNextSibling() ? branch : lastBranch;
-                line = line + head + tostring(n) + Environment.NewLine;
+            var wp = ((T)self).AsValuedTreeNode(x => x.Children, x => x);
+            var wprst = nullText is null ? wp.PreOrder().Where(x => x.Value != null) : wp.PreOrder();
+            bool hasNextSibling(ReadOnlyValuedTreeNode<T,T> node) {
+                if(nullText is null) {
+                    return node.HasNextSibling(x => x.Value != null);
+                } else {
+                    return node.HasNextSibling();
+                }
+            }
+
+            foreach (var n in wprst) {
+                var line = string.Concat(n.Ancestors().Reverse().Select(nd => nd.IsRoot() ? "" : hasNextSibling(nd) /*nd.HasNextSibling()*/ ? through : indent));
+                var head = n.IsRoot() ? "" : hasNextSibling(n) /*n.HasNextSibling()*/ ? branch : lastBranch;
+                var ndstring = n.Value is null ? nullText : toString(n.Value);
+                line = line + head + ndstring + Environment.NewLine;
                 strlit.Add(line);
             }
             return string.Concat(strlit);

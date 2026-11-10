@@ -126,6 +126,8 @@ namespace TreeStructures {
             if (other is null) return false;
             if (other.Source is null && this.Source is null) return object.ReferenceEquals(this, other);
             //if (other is null || other.Source is null) return false;
+            if(IsOrInheritsWrapper(other.GetType()))
+                return EqualityComparer<TSrc>.Default.Equals(this.Source, other.Source);
             return object.ReferenceEquals(this.Source, other.Source);
 		}
 		/// <inheritdoc/>
@@ -143,6 +145,18 @@ namespace TreeStructures {
         }
 		public static bool operator !=(HierarchyWrapper<TSrc, TWrpr> obj1, HierarchyWrapper<TSrc, TWrpr> obj2) {
             return !(obj1 == obj2);
+        }
+        private static bool IsOrInheritsWrapper(Type type) {
+            Type wrprType = typeof(HierarchyWrapper<,>);
+            if(type.IsGenericType && type.GetGenericTypeDefinition() == wrprType)
+                return true;
+            var baseType = type.BaseType;
+            while(baseType != null && baseType != typeof(object)) {
+                var current = baseType.IsGenericType ? baseType.GetGenericTypeDefinition() : baseType;
+                if(current == wrprType) return true;
+                baseType = baseType.BaseType;
+            }
+            return false;
         }
 
 		/// <summary>
