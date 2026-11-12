@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-//using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -15,7 +14,7 @@ namespace TreeStructures.Linq {
     // IReadOnlyTreeNodeに対する拡張メソッドを定義する。
     public static partial class TreeNodeExtenstions {
 
-        #region 列挙
+        #region Traversing 
         private static bool expand<T>(ref ISet<T> history, out T? cur, ref IEnumerable<T?> seeds, Func<T, IEnumerable<T?>> getnewseeds, Func<T, IEnumerable<T?>, IEnumerable<T?>, IEnumerable<T?>> updateseeds){
             if (!seeds.Any()) { cur = default; return false; }
             cur = seeds.First();
@@ -132,10 +131,9 @@ namespace TreeStructures.Linq {
         static IEnumerable<T> nextSiblings<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
             return self.Siblings().SkipWhile(x => !object.ReferenceEquals(x, self)).Skip(1);
         }
-
         #endregion
 
-        #region 移動メソッド
+        #region Retrieving
         /// <summary>Gets the root node of the tree to which the target node belongs.</summary>
         /// <typeparam name="T">Type of the node.</typeparam>
         /// <param name="self">Target node.</param>
@@ -272,10 +270,9 @@ namespace TreeStructures.Linq {
             //action?.Invoke();
             return (T)self;
         }
-
 		#endregion
 
-		#region 探索メソッド
+		#region Searching
 		/// <summary>
 		/// Searches from the current node towards descendants and returns the terminal node that continues to meet the condition.
 		/// </summary>

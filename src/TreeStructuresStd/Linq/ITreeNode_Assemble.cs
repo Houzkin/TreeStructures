@@ -16,61 +16,8 @@ namespace TreeStructures.Linq {
     // ツリー構造の組み立てを行うメソッドを提供する。
     public static partial class TreeNodeExtenstions {
 
-        #region ツリーから別ツリーへ変換
-        private static U convert<T, U>(ITreeNode<T> self, Func<T, U> generator, Action<U, U, int> addAction)
-        where T : ITreeNode<T> {
-            if (generator == null) throw new ArgumentNullException(nameof(generator));
-            if (addAction == null) throw new ArgumentNullException(nameof(addAction));
 
-            var scroller = self.LevelOrder().Select(x => Tuple.Create(x, generator(x))).ToListScroller();
-            scroller.MoveForEach(ele => {
-                scroller
-                    .TryPrevious(x => x.Item1.Children.Contains(ele.Item1))
-                    .When(r => addAction(r.Current.Item2, ele.Item2,ele.Item1.BranchIndex()));
-            });
-            return scroller.First().Current.Item2;
-        }
-        /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
-        /// <typeparam name="T">Type before conversion.</typeparam>
-        /// <typeparam name="U">Type after conversion.</typeparam>
-        /// <param name="self">Current node.</param>
-        /// <param name="generator">Node transformation function applied to each node.</param>
-        /// <returns>The reconstructed structure with the converted node types.</returns>
-        public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator)
-            where T : ITreeNode<T>
-            where U : IMutableTreeNode<U> {
-            return Convert(self, generator, (p, c, i) => p.AddChild(c));
-        }
-
-        /// <summary>Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.</summary>
-        /// <typeparam name="T">Type before conversion.</typeparam>
-        /// <typeparam name="U">Type after conversion.</typeparam>
-        /// <param name="self">Current node.</param>
-        /// <param name="generator">Node transformation function applied to each node.</param>
-        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object, the second parameter being the child object, and the third parameter being the BranchIndex.</param>
-        /// <returns>The reconstructed structure with the converted node types.</returns>
-        public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator, Action<U, U, int> addAction)
-            where T : ITreeNode<T> {
-            return convert(self, generator, addAction);
-        }
-
-        /// <summary>
-        /// Reassembles a structure with the same hierarchy as the tree starting from the current node, converting the type of each node.
-        /// </summary>
-        /// <typeparam name="T">Type before conversion.</typeparam>
-        /// <typeparam name="U">Type after conversion.</typeparam>
-        /// <param name="self">Current node.</param>
-        /// <param name="generator">Node transformation function applied to each node.</param>
-        /// <param name="addAction">Function that establishes the parent-child relationship with the first parameter being the parent object and the second parameter being the child object.</param>
-        /// <returns>The reconstructed structure with the converted node types.</returns>
-        public static U Convert<T, U>(this ITreeNode<T> self, Func<T, U> generator, Action<U, U> addAction)
-            where T : ITreeNode<T> {
-            return convert(self, generator, (p, c, i) => addAction(p, c));
-        }
-
-		#endregion
-
-		#region NodePathから組立
+		#region Assmeble by NodePath
 		/// <summary>
 		/// Assembles a tree structure (forest) with multiple roots from a dictionary where paths are used as keys.
 		/// Nodes corresponding to paths that do not connect to a root and cannot trace parent-child relationships up to the root will be omitted as isolated nodes.
@@ -208,7 +155,7 @@ namespace TreeStructures.Linq {
         }
 		#endregion
 
-		#region NodeIndexから組み立て
+		#region Assmeble by NodeIndex
         private static U assemble<U,TKey, T>(IDictionary<TKey, T> dictionary, Func<T, U> conv, Action<U, U, int> addAction) where TKey: IEnumerable<int> {
             var order = dictionary.Select(x => (Key: new NodeIndex(x.Key), Node: conv(x.Value)))
                 .OrderBy(x => x.Key, NodeIndex.GetLevelOrderComparer());
@@ -289,7 +236,7 @@ namespace TreeStructures.Linq {
         }
 		#endregion
 
-		#region Id,ParentIdから生成
+		#region Assemble by Id-ParentId
 		/// <summary>Assembles a tree structure (forest) by resolving parent-child relationships from a flat collection based on the adjacency list model (Id and ParentId). </summary>
 		/// <typeparam name="T">The type of the source flat data entity.</typeparam>
 		/// <typeparam name="TIdx">The type of the unique identifier (ID) used to recognize nodes (e.g., <see cref="int"/> or <see cref="string"/>).</typeparam>
@@ -406,7 +353,7 @@ namespace TreeStructures.Linq {
         }
         #endregion
 
-        #region IEnumerableからN分木を生成
+        #region Assemble NAry tree from IEnumerable
         /// <summary>Creates an N-ary tree starting from the first element.</summary>
         /// <remarks>Each node is added in level order.</remarks>
         /// <typeparam name="T">Type of the elements.</typeparam>

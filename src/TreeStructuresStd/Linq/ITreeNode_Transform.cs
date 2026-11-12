@@ -11,14 +11,14 @@ using System.ComponentModel;
 namespace TreeStructures.Linq {
     public static partial class TreeNodeExtenstions {
 
-        #region 変換(TreeNode to other)
-        /// <summary>Gets a collection of pairs consisting of data generated from each node and its index.</summary>
-        /// <typeparam name="U">Type of the data to generate</typeparam>
-        /// <typeparam name="T">Type of each node</typeparam>
-        /// <param name="self">Starting node</param>
-        /// <param name="conv">Conversion function</param>
-        /// <returns>A dictionary containing pairs of node index and the generated data</returns>
-        public static Dictionary<NodeIndex, U> ToNodeMap<T, U>(this ITreeNode<T> self, Func<T, U> conv)
+		#region Representing(TreeNode to other)
+		/// <summary>Gets a collection of pairs consisting of data generated from each node and its index.</summary>
+		/// <typeparam name="U">Type of the data to generate</typeparam>
+		/// <typeparam name="T">Type of each node</typeparam>
+		/// <param name="self">Starting node</param>
+		/// <param name="conv">Conversion function</param>
+		/// <returns>A dictionary containing pairs of node index and the generated data</returns>
+		public static Dictionary<NodeIndex, U> ToNodeMap<T, U>(this ITreeNode<T> self, Func<T, U> conv)
         where T : ITreeNode<T> {
             return self.LevelOrder().ToDictionary(x => x.GetNodeIndex(), x => conv(x));
         }
@@ -112,35 +112,6 @@ namespace TreeStructures.Linq {
             int len(string comment) => Encoding.GetEncoding("Shift_JIS").GetByteCount(comment);
 
             throw new NotImplementedException();
-        }
-        #endregion
-        #region 変換(other as read-only valued TreeNode)
-
-        /// <summary>Wraps the specified object as a read-only valued tree node.</summary>
-        /// <typeparam name="TSrc">The type forming the compoiste pattern object to be wrapped.</typeparam>
-        /// <typeparam name="TVal">Type of the value associated with each tree node.</typeparam>
-        /// <param name="self">The object to be wrapped as the root node of the tree</param>
-        /// <param name="toChildren">Function to retrieve objects to be wrapped as child nodes. Requires implementing <see cref="INotifyCollectionChanged"/> for child nodes to be synchronized.</param>
-        /// <param name="toValue">Function to convert source to value.</param>
-        /// <returns>The root of wrapping tree</returns>
-        public static ReadOnlyValuedTreeNode<TSrc, TVal> AsValuedTreeNode<TSrc, TVal>(this TSrc self, Func<TSrc, IEnumerable<TSrc>> toChildren, Func<TSrc, TVal> toValue)
-            where TSrc : class {
-            if (self == null) throw new ArgumentNullException(nameof(self));
-            if (toChildren == null) throw new ArgumentNullException(nameof(toChildren));
-            if (toValue == null) throw new ArgumentNullException(nameof(toValue));
-            return new ReadOnlyValuedTreeNode<TSrc, TVal>(self, toChildren, toValue);
-        }
-        /// <summary>
-        /// Wraps an existing tree node and its descendants into a read-only valued tree node.
-        /// </summary>
-        /// <remarks>For proper synchronization of descendant nodes, the child node collection must implement <see cref="INotifyCollectionChanged"/>.</remarks>
-        /// <typeparam name="TNode">Type of the original tree node.</typeparam>
-        /// <typeparam name="TVal">Type of the value associated with each tree node.</typeparam>
-        /// <param name="self">The original tree node to convert.</param>
-        /// <param name="toValue">Function to retrieve the value associated with each tree node.</param>
-        /// <returns>A read-only valued tree node representing the original tree and its hierarchy.</returns>
-        public static ReadOnlyValuedTreeNode<TNode, TVal> AsValuedTreeNode<TNode, TVal>(this ITreeNode<TNode> self, Func<TNode, TVal> toValue) where TNode : class, ITreeNode<TNode> {
-            return ReadOnlyValuedTreeNode<TNode, TVal>.Create((self as TNode)!, toValue);
         }
         #endregion
     }

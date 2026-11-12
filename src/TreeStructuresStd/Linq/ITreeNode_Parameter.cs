@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TreeStructures.Linq {
     public static partial class TreeNodeExtenstions {
 
-        #region パラメータの取得
+        #region Parameters
         /// <summary>Gets the path code indicating the position of the current node.</summary>
         public static NodeIndex GetNodeIndex<T>(this ITreeNode<T> self) where T : ITreeNode<T> {
             var z = self
@@ -59,7 +59,7 @@ namespace TreeStructures.Linq {
         #endregion
 
 
-        #region 判定メソッド
+        #region Determine
         /// <summary>Gets a value indicating whether the current node is a descendant node of the specified node.</summary>
         /// <param name="self">The current node.</param>
         /// <param name="node">The specified node.</param>
