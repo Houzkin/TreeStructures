@@ -100,16 +100,31 @@ namespace TreeStructures.Linq {
             }
             return string.Concat(strlit);
         }
-        internal static string ToPhylogeneticDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
+        public static string ToPhylogeneticDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
             string firstnode = "┬";
             string singlenode = "─";
             string lastBranch = "└";
             string innernode = "├";
-            string through = "─";
+            string through = "│";
+            string indent = "  ";
             string blank = "  ";
             string leafInnerBr = "┼";
 
-            int len(string comment) => Encoding.GetEncoding("Shift_JIS").GetByteCount(comment);
+            var strlst = new List<string>();
+
+            var order = self.PostOrder();
+            foreach(var nd in order) {
+                //var line = string.Concat(nd.Ancestors().Reverse().Select(x=>x.IsFirstSibling() && !x.HasNextSibling() ? singlenode :))
+                string line = "";
+                foreach(var n in nd.Upstream().Reverse()) {
+                    if (n.IsRoot()) {
+
+                    }else if (!n.Children.Any()) {
+
+                    }
+                }
+                strlst.Add(line);
+            }
 
             throw new NotImplementedException();
         }

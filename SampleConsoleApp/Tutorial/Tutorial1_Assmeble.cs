@@ -550,4 +550,14 @@ public static partial class Demo {
 		}
 	}
 
+	public static void ToDiagram_1() {
+		var tree = new List<NodePath<string>>() {
+			new NodePath<string>("A","B"),
+			new NodePath<string>("A","C","D"),
+		}.AssembleTreeByPath(x => new NamedNode() { Name = x.Last() });
+		Console.WriteLine(tree.ToTreeDiagram(x => x.Name));
+
+
+		Console.ReadKey();
+	}
 }
