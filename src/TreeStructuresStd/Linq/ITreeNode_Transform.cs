@@ -92,15 +92,15 @@ namespace TreeStructures.Linq {
             }
 
             foreach (var n in wprst) {
-                var line = string.Concat(n.Ancestors().Reverse().Select(nd => nd.IsRoot() ? "" : hasNextSibling(nd) /*nd.HasNextSibling()*/ ? through : indent));
-                var head = n.IsRoot() ? "" : hasNextSibling(n) /*n.HasNextSibling()*/ ? branch : lastBranch;
+                var line = string.Concat(n.Ancestors().Reverse().Select(nd => nd.IsRoot() ? "" : hasNextSibling(nd) ? through : indent));
+                var head = n.IsRoot() ? "" : hasNextSibling(n) ? branch : lastBranch;
                 var ndstring = n.Value is null ? nullText : toString(n.Value);
                 line = line + head + ndstring + Environment.NewLine;
                 strlit.Add(line);
             }
             return string.Concat(strlit);
         }
-        public static string ToPhylogeneticDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
+        internal static string ToPhylogeneticDiagram<T>(this ITreeNode<T> self, Func<T, string> tostring) where T : ITreeNode<T> {
             string firstnode = "┬";
             string singlenode = "─";
             string lastBranch = "└";
